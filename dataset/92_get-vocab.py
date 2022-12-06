@@ -16,9 +16,9 @@
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
 
-import mxnet as mx
-import gluonnlp as nlp
 import re
+
+import gluonnlp as nlp
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
 

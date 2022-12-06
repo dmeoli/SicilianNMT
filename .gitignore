@@ -1,0 +1,11 @@
+# PyCharm
+.idea
+
+__pycache__
+.pytest_cache
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Arba Sicula issues
+extract-text/links

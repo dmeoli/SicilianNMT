@@ -22,9 +22,11 @@ use strict;
 use warnings;
 no warnings "uninitialized";
 
-my @infiles = ("as31_en.txt","as31_sc.txt", "as30_en.txt","as30_sc.txt",
-	       "as29_en.txt","as29_sc.txt", "as28_en.txt","as28_sc.txt",
-	       "as27_en.txt","as27_sc.txt");
+my @infiles = ("as31_en.txt", "as31_sc.txt",
+               "as30_en.txt", "as30_sc.txt",
+	           "as29_en.txt", "as29_sc.txt",
+	           "as28_en.txt", "as28_sc.txt",
+	           "as27_en.txt", "as27_sc.txt");
 
 ##  clean and wrap the raw text of each file
 foreach my $infile (@infiles) {
