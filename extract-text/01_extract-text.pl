@@ -24,18 +24,18 @@ use File::Copy;
 
 ##  hash of arrays with selected pages (from Arba Sicula issues)
 my %as = (
-    "as31" => [ 40..45,  48..59,   72..93,  122..141 ],
-    "as30" => [ 42..57,  60..75,   78..91,  112..119, 142..143, 146..147 ],
-    "as29" => [ 44..85, 104..105, 124..129, 138..141 ],
-    "as28" => [ 50..99, 112..121, 130..135 ],
     "as27" => [ 34..55,  58..69,  122..133, 136..137, 138..153 ],
+    "as28" => [ 50..99, 112..121, 130..135 ],
+    "as29" => [ 44..85, 104..105, 124..129, 138..141 ],
+    "as30" => [ 42..57,  60..75,   78..91,  112..119, 142..143, 146..147 ],
+    "as31" => [ 40..45,  48..59,   72..93,  122..141 ],
     );
 
 ##  extract the text from each issue
 foreach my $key (sort keys %as) {
 
     ##  symbolic link to the original PDF file
-    my $asfile = "links/" . $key . ".pdf";
+    my $asfile = "as-issues/" . $key . ".pdf";
 
     ##  add selected pages to TeX files
     my $scfile = $key . "_sc.tex";

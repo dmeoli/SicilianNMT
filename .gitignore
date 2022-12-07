@@ -1,11 +1,16 @@
 # PyCharm
 .idea
 
-__pycache__
-.pytest_cache
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # Arba Sicula issues
-extract-text/links
+extract-text/as-issues
+extract-text/*.pdf
+extract-text/*.tex
+extract-text/*.txt
+
+# WikiMatrix files
+extract-text/WikiMatrix.it-scn.tsv.gz
+extract-text/WikiMatrix.it-scn.txt.it
+extract-text/WikiMatrix.it-scn.txt.scn

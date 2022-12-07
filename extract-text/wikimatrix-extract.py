@@ -14,10 +14,8 @@
 #
 # Tool to extract subset of mined bitexts in a tsv.gz file
 
-import os
-import sys
-import gzip
 import argparse
+import gzip
 
 ###############################################################################
 #
