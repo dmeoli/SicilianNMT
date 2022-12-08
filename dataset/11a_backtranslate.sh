@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  input and output files
 INFILE_SC_BT="./dataset/backtrans/clean_bt-scen_good_tkn.sc"

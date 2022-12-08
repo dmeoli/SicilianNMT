@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 MAX_SEQ_LEN="300"
 
@@ -27,12 +27,12 @@ TARGET="data-sbw/m2e_train_v2-sbw.en"
 SRC_VOCAB="${SUBWORDS}/vocab.sc.json"
 TGT_VOCAB="${SUBWORDS}/vocab.en.json"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 sockeye-prepare-data --source ${SOURCE} --target ${TARGET} \
 		     --source-vocab ${SRC_VOCAB} --target-vocab ${TGT_VOCAB} \
 		     --max-seq-len ${MAX_SEQ_LEN} \
 		     --output ${OUTPUT}
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##

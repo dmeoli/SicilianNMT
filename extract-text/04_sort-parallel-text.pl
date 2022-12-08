@@ -16,7 +16,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 use strict;
 use warnings;
@@ -29,8 +29,50 @@ my $maxratio =  1.33;
 my $minscore =  0.30;
 
 ##  hunaligned files
-my @infiles = ("aligned/as31_ha.csv", "aligned/as30_ha.csv", "aligned/as29_ha.csv",
-	       "aligned/as28_ha.csv", "aligned/as27_ha.csv",);
+my @infiles = (
+    "aligned/as01_ha.csv",
+    "aligned/as02_ha.csv",
+    "aligned/as03_ha.csv",
+    "aligned/as04_05_ha.csv",
+    "aligned/as06_ha.csv",
+    "aligned/as07_ha.csv",
+    "aligned/as08_1_ha.csv",
+    "aligned/as09_1_ha.csv",
+    "aligned/as09_2_ha.csv",
+    "aligned/as10_1_ha.csv",
+    "aligned/as10_2_ha.csv",
+    "aligned/as11_1_ha.csv",
+    "aligned/as11_2_ha.csv",
+    "aligned/as12_ha.csv",
+    "aligned/as13_ha.csv",
+    "aligned/as14_ha.csv",
+    "aligned/as15_ha.csv",
+    "aligned/as16_ha.csv",
+    "aligned/as17_ha.csv",
+    "aligned/as18_ha.csv",
+    "aligned/as19_ha.csv",
+    "aligned/as20_ha.csv",
+    "aligned/as21_ha.csv",
+    "aligned/as22_ha.csv",
+    "aligned/as23_ha.csv",
+    "aligned/as24_ha.csv",
+    "aligned/as25_ha.csv",
+    "aligned/as26_ha.csv",
+    "aligned/as27_ha.csv",
+    "aligned/as28_ha.csv",
+    "aligned/as29_ha.csv",
+    "aligned/as30_ha.csv",
+    "aligned/as31_ha.csv",
+    "aligned/as32_ha.csv",
+    "aligned/as33_ha.csv",
+    "aligned/as34_ha.csv",
+    "aligned/as35_ha.csv",
+    "aligned/as36_ha.csv",
+    "aligned/as37_ha.csv",
+    "aligned/as38_ha.csv",
+    "aligned/as39_ha.csv",
+    "aligned/as40_ha.csv",
+    );
 
 ##  one file of "good lines" and one file of "unused lines" (we'll use them later)
 my $csvfile = "AS27-31_aligned_set01.csv";

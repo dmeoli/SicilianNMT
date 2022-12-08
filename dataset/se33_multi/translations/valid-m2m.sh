@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  input files
 INFILES=(
@@ -47,7 +47,7 @@ SE_EVAL="${HOME}/.local/bin/sockeye-evaluate"
 OUTPUT_TYPE="translation"
 #OUTPUT_TYPE="translation_with_score"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 for (( IDX = 0; IDX < ${#INFILES[@]}; IDX++ )) ; do
     INFILE=${INFILES[$IDX]}
@@ -66,5 +66,5 @@ for (( IDX = 0; IDX < ${#INFILES[@]}; IDX++ )) ; do
 
 done
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##

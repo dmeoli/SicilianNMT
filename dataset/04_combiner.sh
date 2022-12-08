@@ -14,11 +14,11 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  combine files into datasets for training and validation
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  directories
 BASE_DIR="se33_multi"
@@ -58,7 +58,7 @@ VALID_BPE_M2E_SCEN_EN="${PCS_DIR}/m2e_valid_v2-sbw_sc-en.en"
 VALID_BPE_M2E_ITEN_EN="${PCS_DIR}/m2e_valid_v2-sbw_it-en.en"
 VALID_BPE_M2E_ITEN_IT="${PCS_DIR}/m2e_valid_v2-sbw_it-en.it"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  combined training data
 TRAIN_E2M_EN="${FNL_DIR}/e2m_train_v2-sbw.en"
@@ -74,8 +74,8 @@ VALID_E2M_SC="${FNL_DIR}/e2m_valid_v2-sbw.sc"
 VALID_M2E_EN="${FNL_DIR}/m2e_valid_v2-sbw.en"
 VALID_M2E_SC="${FNL_DIR}/m2e_valid_v2-sbw.sc"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  multi to english, so do not need directional tokens here
 
@@ -87,7 +87,7 @@ cat  $TRAIN_BPE_M2E_SCEN_SC  $TRAIN_BPE_M2E_SCEN_SC  $TRAIN_BPE_M2E_ITEN_IT  >  
 cat  $VALID_BPE_M2E_SCEN_EN  $VALID_BPE_M2E_ITEN_EN  >  $VALID_M2E_EN
 cat  $VALID_BPE_M2E_SCEN_SC  $VALID_BPE_M2E_ITEN_IT  >  $VALID_M2E_SC
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  english to multi
 
@@ -105,5 +105,5 @@ perl -nle '{chomp; print "<2it> " . $_ ;}' $TRAIN_BPE_E2M_ITEN_EN  >>  $TRAIN_E2
 perl -nle '{chomp; print "<2sc> " . $_ ;}' $VALID_BPE_E2M_SCEN_EN  >   $VALID_E2M_EN
 perl -nle '{chomp; print "<2it> " . $_ ;}' $VALID_BPE_E2M_ITEN_EN  >>  $VALID_E2M_EN
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##

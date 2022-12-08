@@ -31,8 +31,8 @@ The SG and CBOW models were introduced by "Mikolov et al. Efficient estimation
 of word representations in vector space. ICLR Workshop, 2013". The fastText
 model was introduced by "Bojanowski et al. Enriching word vectors with subword
 information. TACL 2017"
-
 """
+
 import argparse
 import logging
 import os
@@ -47,7 +47,8 @@ import gluonnlp as nlp
 import evaluation
 from utils import get_context, print_time
 from model import SG, CBOW
-from data import transform_data_word2vec, transform_data_fasttext, preprocess_dataset, wiki
+from data import (transform_data_word2vec, transform_data_fasttext,
+                  preprocess_dataset, wiki)
 
 
 def parse_args():
@@ -94,21 +95,21 @@ def parse_args():
     group.add_argument(
         '--ngram-buckets', type=int, default=2000000,
         help='Size of word_context set of the ngram hash function. '
-        'Set this to 0 for Word2Vec style training.')
+             'Set this to 0 for Word2Vec style training.')
     group.add_argument('--model', type=str, default='skipgram',
                        help='SkipGram or CBOW.')
     group.add_argument('--window', type=int, default=5,
                        help='Context window size.')
     group.add_argument(
         '--negative', type=int, default=5, help='Number of negative samples '
-        'per source-context word pair.')
+                                                'per source-context word pair.')
     group.add_argument('--frequent-token-subsampling', type=float,
                        default=1E-4,
                        help='Frequent token subsampling constant.')
     group.add_argument(
         '--max-vocab-size', type=int,
         help='Limit the number of words considered. '
-        'OOV words will be ignored.')
+             'OOV words will be ignored.')
 
     # Optimization options
     group = parser.add_argument_group('Optimization arguments')
@@ -124,7 +125,7 @@ def parse_args():
     group.add_argument(
         '--eval-interval', type=int,
         help='Evaluate every --eval-interval iterations '
-        'in addition to at the end of every epoch.')
+             'in addition to at the end of every epoch.')
     group.add_argument('--no-eval-analogy', action='store_true',
                        help='Don\'t evaluate on the analogy task.')
 
@@ -189,16 +190,15 @@ def train(args):
                       negatives_weights=mx.nd.array(idx_to_counts),
                       subword_function=subword_function)
 
-
     context = get_context(args)
-    
+
     if args.params == None:
         embedding.initialize(ctx=context)
         if not args.no_hybridize:
             embedding.hybridize(static_alloc=True, static_shape=True)
     else:
         inparams = args.params
-        embedding.load_parameters( inparams )
+        embedding.load_parameters(inparams)
 
     optimizer_kwargs = dict(learning_rate=args.lr)
     try:
@@ -267,13 +267,14 @@ def train(args):
                 # bound
                 num_batches = num_tokens // args.batch_size
                 if args.model.lower() == 'skipgram':
-                    num_batches = (num_tokens * args.window * 2) // args.batch_size
+                    num_batches = (
+                                          num_tokens * args.window * 2) // args.batch_size
                 else:
                     num_batches = num_tokens // args.batch_size
                 logging.info('[Epoch {} Batch {}/{}] loss={:.4f}, '
                              'throughput={:.2f}K wps, wc={:.2f}K'.format(
-                                 epoch, i + 1, num_batches, log_avg_loss,
-                                 wps / 1000, log_wc / 1000))
+                    epoch, i + 1, num_batches, log_avg_loss,
+                           wps / 1000, log_wc / 1000))
                 log_start_time = time.time()
                 log_avg_loss = 0
                 log_wc = 0
@@ -295,7 +296,7 @@ def train(args):
     # Evaluate
     with print_time('mx.nd.waitall()'):
         mx.nd.waitall()
-    #with print_time('evaluate'):
+    # with print_time('evaluate'):
     #    evaluate(args, embedding, vocab, num_update,
     #             eval_analogy=not args.no_eval_analogy)
 

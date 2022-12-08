@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 use strict;
 use warnings;
@@ -102,7 +102,7 @@ if ( $blocked ne "FALSE" ) {
     $intext =~ s/^ //g;
     $intext =~ s/ $//g;
     
-    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
     
     ##  TRANSLATE and DETOKENIZE
     ##  ========= === ==========
@@ -204,7 +204,7 @@ if ( $blocked ne "FALSE" ) {
 	}
     }
     
-    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
     ##  what to do if no input
     my $empty = 'On this page, you can see the tokenization and subword splitting of an input sentence. ';
@@ -212,7 +212,7 @@ if ( $blocked ne "FALSE" ) {
     $empty .= '<br><br>'."\n";
     $empty .= 'Type a sentence into the box, then press "Translate."'."\n";
     
-    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
     ##  PRINT HTML
     ##  ===== ====

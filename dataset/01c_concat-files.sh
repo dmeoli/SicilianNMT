@@ -14,11 +14,11 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  script to concatenate raw parallel text files
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 OTDIR="./se33_multi/data-raw"
 
@@ -33,7 +33,7 @@ E2MTEST="e2m_valid_v0-raw"
 #DIELI="./dataset/dieli-cchiu/dieli-cchiu-vocab.txt"
 #E2MBACK_DIELI="e2m_trbck-dieli_v0-raw"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 SCFILES=(
     "./dataset/assembly-up-to-n33/mparamu-bonner"
@@ -53,7 +53,7 @@ BKFILES=(
 SCTEST="./dataset/assembly-up-to-n33/test-data_as38-39"
 #ITTEST="./dataset/opus-farkas/opus-farkas_valid"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  sicilian-english
 for LG in "sc" "en"; do

@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  input and output files
 INFILE_SC_BT="dataset/backtrans/clean_bt-scen_good_tkn.sc"
@@ -37,7 +37,7 @@ SOCKEYE="${HOME}/.local/bin/sockeye-translate"
 OUTPUT_TYPE="translation"
 #OUTPUT_TYPE="translation_with_score"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  translate
 ${SOCKEYE} --models ${TNF_SCEN} --input ${INFILE_SC_BT} --output ${OTFILE_EN_BT} --output-type ${OUTPUT_TYPE} --use-cpu --quiet
@@ -48,5 +48,5 @@ sed -i "s/@@\s//g;s/\s~~'s/'s/g" ${OTFILE_EN_BT}
 ##  extract translation
 #awk -F "\t" '{print $2}' ${OTFILE_EN_BT} >> ${OTFILE_EN_BT}_extracted
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##

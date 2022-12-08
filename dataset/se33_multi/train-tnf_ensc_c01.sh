@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 PREPPED="data-prep-ensc"
 
@@ -31,7 +31,7 @@ CHECKPOINT_INTERVAL="2000"
 
 INITIAL_LEARNING_RATE="0.00020"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 #MAX_SEQ_LEN="200"
 #BATCH_SIZE="20"
@@ -60,7 +60,7 @@ LABEL_SMOOTHING="0.10"
 
 OPTIMIZER="adam"
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 sockeye-train --prepared-data ${PREPPED} \
               --validation-source ${VALID_SOURCE} --validation-target ${VALID_TARGET} \

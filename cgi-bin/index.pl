@@ -14,7 +14,7 @@
 ##  See the License for the specific language governing permissions and
 ##  limitations under the License.
 
-##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 use strict;
 use warnings;
@@ -101,7 +101,7 @@ if ( $blocked ne "FALSE" ) {
     $intext =~ s/^ //g;
     $intext =~ s/ $//g;
     
-    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
     
     ##  TRANSLATE and DETOKENIZE
     ##  ========= === ==========
@@ -194,7 +194,7 @@ if ( $blocked ne "FALSE" ) {
 	$switch = "FALSE";
     }
     
-    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
+    ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
     
     ##  PRINT HTML
     ##  ===== ====

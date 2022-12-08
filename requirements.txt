@@ -1,2 +1,6 @@
-mxnet
+executors
 gluonnlp
+mxnet
+nltk
+numpy
+scipy
