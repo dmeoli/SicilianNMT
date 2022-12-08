@@ -28,8 +28,8 @@ my $sc_otfile = "dataset/train-mparamu_v3-lemmatized.sc.tsv";
 my $en_infile = "dataset/train-mparamu_v2-lemmatized.en";
 my $en_otfile = "dataset/train-mparamu_v3-lemmatized.en.tsv";
 
-my @all_files = ([ $sc_infile , $sc_otfile ],
-		 [ $en_infile , $en_otfile ]);
+my @all_files = ([ $sc_infile, $sc_otfile ],
+    [ $en_infile, $en_otfile ]);
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
@@ -42,18 +42,18 @@ foreach my $file_pair (@all_files) {
     my @otwords;
 
     ##  read it in
-    open( INFILE , $infile) || die "could not open $infile";
-    while(<INFILE>){
-	chomp;
-	my $line = $_;
-	my @words = split(/ /,$line);
-	push( @otwords, '<BOS>', @words , '<EOS>');
+    open(INFILE, $infile) || die "could not open $infile";
+    while (<INFILE>) {
+        chomp;
+        my $line = $_;
+        my @words = split(/ /, $line);
+        push(@otwords, '<BOS>', @words, '<EOS>');
     }
     close INFILE;
 
     ##  print it out
-    open( OTFILE , ">$otfile") || die "could not overwrite $otfile";
-    my $line = join( "\t", @otwords);
-    print OTFILE $line ;
+    open(OTFILE, ">$otfile") || die "could not overwrite $otfile";
+    my $line = join("\t", @otwords);
+    print OTFILE $line;
     close OTFILE;
 }

@@ -164,7 +164,7 @@ def evaluate_similarity(args, token_embedding, ctx, logfile=None,
                 token_embedding.token_to_idx[d[0]],
                 token_embedding.token_to_idx[d[1]], d[2]
             ] for d in dataset if d[0] in token_embedding.token_to_idx
-                             and d[1] in token_embedding.token_to_idx]
+                                  and d[1] in token_embedding.token_to_idx]
             num_dropped = initial_length - len(dataset_coded)
 
             # All words are unknown
@@ -225,9 +225,9 @@ def evaluate_analogy(args, token_embedding, ctx, logfile=None, global_step=0):
                 token_embedding.token_to_idx[d[2]],
                 token_embedding.token_to_idx[d[3]]
             ] for d in dataset if d[0] in token_embedding.token_to_idx
-                             and d[1] in token_embedding.token_to_idx
-                             and d[2] in token_embedding.token_to_idx
-                             and d[3] in token_embedding.token_to_idx]
+                                  and d[1] in token_embedding.token_to_idx
+                                  and d[2] in token_embedding.token_to_idx
+                                  and d[3] in token_embedding.token_to_idx]
             num_dropped = initial_length - len(dataset_coded)
 
             dataset_coded_batched = mx.gluon.data.DataLoader(

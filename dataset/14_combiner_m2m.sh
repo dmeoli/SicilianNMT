@@ -94,7 +94,6 @@ S2I_BACKT_BPE_SCIT_IT="${PCS_DIR}/s2i_backt_v2-sbw_sc-it.it"
 S2I_TEXTB_BPE_SCIT_IT="${PCS_DIR}/s2i_textb_v2-sbw_sc-it.it"
 S2I_VALID_BPE_SCIT_IT="${PCS_DIR}/s2i_valid_v2-sbw_sc-it.it"
 
-
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
@@ -112,66 +111,66 @@ VALID_M2M_TGT="${FNL_DIR}/m2m_valid_v2-sbw.tgt"
 ##  TARGET
 
 ##  combine training data (without directional token)
-cat $E2S_TEXTB_BPE_SCEN_SC >  $TRAIN_M2M_TGT
-cat $I2S_TEXTB_BPE_SCIT_SC >> $TRAIN_M2M_TGT
-cat $E2S_TRAIN_BPE_SCEN_SC >> $TRAIN_M2M_TGT
-cat $E2S_TRAIN_BPE_SCEN_SC >> $TRAIN_M2M_TGT
-head -n ${SCOFF} $E2S_TRAIN_BPE_SCEN_SC >> $TRAIN_M2M_TGT
-cat $I2S_BACKT_BPE_SCIT_SC >> $TRAIN_M2M_TGT
+cat $E2S_TEXTB_BPE_SCEN_SC >$TRAIN_M2M_TGT
+cat $I2S_TEXTB_BPE_SCIT_SC >>$TRAIN_M2M_TGT
+cat $E2S_TRAIN_BPE_SCEN_SC >>$TRAIN_M2M_TGT
+cat $E2S_TRAIN_BPE_SCEN_SC >>$TRAIN_M2M_TGT
+head -n ${SCOFF} $E2S_TRAIN_BPE_SCEN_SC >>$TRAIN_M2M_TGT
+cat $I2S_BACKT_BPE_SCIT_SC >>$TRAIN_M2M_TGT
 
-cat $S2E_TEXTB_BPE_SCEN_EN >> $TRAIN_M2M_TGT
-cat $I2E_TEXTB_BPE_ITEN_EN >> $TRAIN_M2M_TGT
-cat $S2E_TRAIN_BPE_SCEN_EN >> $TRAIN_M2M_TGT
-cat $I2E_TRAIN_BPE_ITEN_EN >> $TRAIN_M2M_TGT
+cat $S2E_TEXTB_BPE_SCEN_EN >>$TRAIN_M2M_TGT
+cat $I2E_TEXTB_BPE_ITEN_EN >>$TRAIN_M2M_TGT
+cat $S2E_TRAIN_BPE_SCEN_EN >>$TRAIN_M2M_TGT
+cat $I2E_TRAIN_BPE_ITEN_EN >>$TRAIN_M2M_TGT
 
-cat $S2I_TEXTB_BPE_SCIT_IT >> $TRAIN_M2M_TGT
-cat $E2I_TEXTB_BPE_ITEN_IT >> $TRAIN_M2M_TGT
-cat $E2I_TRAIN_BPE_ITEN_IT >> $TRAIN_M2M_TGT
-head -n ${ITOFF} $E2I_TRAIN_BPE_ITEN_IT >> $TRAIN_M2M_TGT
-cat $S2I_BACKT_BPE_SCIT_IT >> $TRAIN_M2M_TGT
+cat $S2I_TEXTB_BPE_SCIT_IT >>$TRAIN_M2M_TGT
+cat $E2I_TEXTB_BPE_ITEN_IT >>$TRAIN_M2M_TGT
+cat $E2I_TRAIN_BPE_ITEN_IT >>$TRAIN_M2M_TGT
+head -n ${ITOFF} $E2I_TRAIN_BPE_ITEN_IT >>$TRAIN_M2M_TGT
+cat $S2I_BACKT_BPE_SCIT_IT >>$TRAIN_M2M_TGT
 
 ##  combine validation data (without directional token)
-cat $E2S_VALID_BPE_SCEN_SC >  $VALID_M2M_TGT
-cat $S2E_VALID_BPE_SCEN_EN >> $VALID_M2M_TGT
+cat $E2S_VALID_BPE_SCEN_SC >$VALID_M2M_TGT
+cat $S2E_VALID_BPE_SCEN_EN >>$VALID_M2M_TGT
 
-cat $I2E_VALID_BPE_ITEN_EN >> $VALID_M2M_TGT
-cat $E2I_VALID_BPE_ITEN_IT >> $VALID_M2M_TGT
+cat $I2E_VALID_BPE_ITEN_EN >>$VALID_M2M_TGT
+cat $E2I_VALID_BPE_ITEN_IT >>$VALID_M2M_TGT
 
-cat $I2S_VALID_BPE_SCIT_SC >> $VALID_M2M_TGT
-cat $S2I_VALID_BPE_SCIT_IT >> $VALID_M2M_TGT
+cat $I2S_VALID_BPE_SCIT_SC >>$VALID_M2M_TGT
+cat $S2I_VALID_BPE_SCIT_IT >>$VALID_M2M_TGT
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  SOURCE
 
 ##  add directional token to training data
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $E2S_TEXTB_BPE_SCEN_EN >  $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $I2S_TEXTB_BPE_SCIT_IT >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $E2S_TRAIN_BPE_SCEN_EN >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $E2S_TRAIN_BPE_SCEN_EN >> $TRAIN_M2M_SRC
-head -n ${SCOFF} $E2S_TRAIN_BPE_SCEN_EN | perl -nle '{chomp; print "<2sc> " . $_ ;}'  >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $I2S_BACKT_BPE_SCIT_IT >> $TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $E2S_TEXTB_BPE_SCEN_EN >$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $I2S_TEXTB_BPE_SCIT_IT >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $E2S_TRAIN_BPE_SCEN_EN >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $E2S_TRAIN_BPE_SCEN_EN >>$TRAIN_M2M_SRC
+head -n ${SCOFF} $E2S_TRAIN_BPE_SCEN_EN | perl -nle '{chomp; print "<2sc> " . $_ ;}' >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $I2S_BACKT_BPE_SCIT_IT >>$TRAIN_M2M_SRC
 
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $S2E_TEXTB_BPE_SCEN_SC >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $I2E_TEXTB_BPE_ITEN_IT >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $S2E_TRAIN_BPE_SCEN_SC >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $I2E_TRAIN_BPE_ITEN_IT >> $TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $S2E_TEXTB_BPE_SCEN_SC >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $I2E_TEXTB_BPE_ITEN_IT >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $S2E_TRAIN_BPE_SCEN_SC >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $I2E_TRAIN_BPE_ITEN_IT >>$TRAIN_M2M_SRC
 
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $S2I_TEXTB_BPE_SCIT_SC >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $E2I_TEXTB_BPE_ITEN_EN >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $E2I_TRAIN_BPE_ITEN_EN >> $TRAIN_M2M_SRC
-head -n ${ITOFF} $E2I_TRAIN_BPE_ITEN_EN | perl -nle '{chomp; print "<2it> " . $_ ;}'  >> $TRAIN_M2M_SRC
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $S2I_BACKT_BPE_SCIT_SC >> $TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $S2I_TEXTB_BPE_SCIT_SC >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $E2I_TEXTB_BPE_ITEN_EN >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $E2I_TRAIN_BPE_ITEN_EN >>$TRAIN_M2M_SRC
+head -n ${ITOFF} $E2I_TRAIN_BPE_ITEN_EN | perl -nle '{chomp; print "<2it> " . $_ ;}' >>$TRAIN_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $S2I_BACKT_BPE_SCIT_SC >>$TRAIN_M2M_SRC
 
 ##  add directional token to validation data
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $E2S_VALID_BPE_SCEN_EN >  $VALID_M2M_SRC
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $S2E_VALID_BPE_SCEN_SC >> $VALID_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $E2S_VALID_BPE_SCEN_EN >$VALID_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $S2E_VALID_BPE_SCEN_SC >>$VALID_M2M_SRC
 
-perl -nle '{chomp; print "<2en> " . $_ ;}'  $I2E_VALID_BPE_ITEN_IT >> $VALID_M2M_SRC
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $E2I_VALID_BPE_ITEN_EN >> $VALID_M2M_SRC
+perl -nle '{chomp; print "<2en> " . $_ ;}' $I2E_VALID_BPE_ITEN_IT >>$VALID_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $E2I_VALID_BPE_ITEN_EN >>$VALID_M2M_SRC
 
-perl -nle '{chomp; print "<2sc> " . $_ ;}'  $I2S_VALID_BPE_SCIT_IT >> $VALID_M2M_SRC
-perl -nle '{chomp; print "<2it> " . $_ ;}'  $S2I_VALID_BPE_SCIT_SC >> $VALID_M2M_SRC
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $I2S_VALID_BPE_SCIT_IT >>$VALID_M2M_SRC
+perl -nle '{chomp; print "<2it> " . $_ ;}' $S2I_VALID_BPE_SCIT_SC >>$VALID_M2M_SRC
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##

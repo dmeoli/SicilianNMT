@@ -181,62 +181,62 @@ S2I_VALID_BPE_SCIT_IT="${FNL_DIR}/s2i_valid_v2-sbw_sc-it.it"
 
 ##  sicilian
 
-subword-nmt apply-bpe -c $CODES_SC < $E2S_TRAIN_SCEN_SC  > $E2S_TRAIN_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $E2S_TEXTB_SCEN_SC  > $E2S_TEXTB_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $E2S_VALID_SCEN_SC  > $E2S_VALID_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2S_TRAIN_SCEN_SC >$E2S_TRAIN_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2S_TEXTB_SCEN_SC >$E2S_TEXTB_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2S_VALID_SCEN_SC >$E2S_VALID_BPE_SCEN_SC
 
-subword-nmt apply-bpe -c $CODES_SC < $S2E_TRAIN_SCEN_SC  > $S2E_TRAIN_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $S2E_TEXTB_SCEN_SC  > $S2E_TEXTB_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $S2E_VALID_SCEN_SC  > $S2E_VALID_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2E_TRAIN_SCEN_SC >$S2E_TRAIN_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2E_TEXTB_SCEN_SC >$S2E_TEXTB_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2E_VALID_SCEN_SC >$S2E_VALID_BPE_SCEN_SC
 
 #subword-nmt apply-bpe -c $CODES_SC < $I2S_TRAIN_SCIT_SC  > $I2S_TRAIN_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $I2S_BACKT_SCIT_SC  > $I2S_BACKT_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $I2S_TEXTB_SCIT_SC  > $I2S_TEXTB_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $I2S_VALID_SCIT_SC  > $I2S_VALID_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$I2S_BACKT_SCIT_SC >$I2S_BACKT_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$I2S_TEXTB_SCIT_SC >$I2S_TEXTB_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$I2S_VALID_SCIT_SC >$I2S_VALID_BPE_SCIT_SC
 
 #subword-nmt apply-bpe -c $CODES_SC < $S2I_TRAIN_SCIT_SC  > $S2I_TRAIN_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $S2I_BACKT_SCIT_SC  > $S2I_BACKT_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $S2I_TEXTB_SCIT_SC  > $S2I_TEXTB_BPE_SCIT_SC
-subword-nmt apply-bpe -c $CODES_SC < $S2I_VALID_SCIT_SC  > $S2I_VALID_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2I_BACKT_SCIT_SC >$S2I_BACKT_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2I_TEXTB_SCIT_SC >$S2I_TEXTB_BPE_SCIT_SC
+subword-nmt apply-bpe -c $CODES_SC <$S2I_VALID_SCIT_SC >$S2I_VALID_BPE_SCIT_SC
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  english
 
-subword-nmt apply-bpe -c $CODES_EN < $E2S_TRAIN_SCEN_EN  > $E2S_TRAIN_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2S_TEXTB_SCEN_EN  > $E2S_TEXTB_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2S_VALID_SCEN_EN  > $E2S_VALID_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2S_TRAIN_SCEN_EN >$E2S_TRAIN_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2S_TEXTB_SCEN_EN >$E2S_TEXTB_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2S_VALID_SCEN_EN >$E2S_VALID_BPE_SCEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $S2E_TRAIN_SCEN_EN  > $S2E_TRAIN_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $S2E_TEXTB_SCEN_EN  > $S2E_TEXTB_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $S2E_VALID_SCEN_EN  > $S2E_VALID_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$S2E_TRAIN_SCEN_EN >$S2E_TRAIN_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$S2E_TEXTB_SCEN_EN >$S2E_TEXTB_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$S2E_VALID_SCEN_EN >$S2E_VALID_BPE_SCEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $I2E_TRAIN_ITEN_EN  > $I2E_TRAIN_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $I2E_TEXTB_ITEN_EN  > $I2E_TEXTB_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $I2E_VALID_ITEN_EN  > $I2E_VALID_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$I2E_TRAIN_ITEN_EN >$I2E_TRAIN_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$I2E_TEXTB_ITEN_EN >$I2E_TEXTB_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$I2E_VALID_ITEN_EN >$I2E_VALID_BPE_ITEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $E2I_TRAIN_ITEN_EN  > $E2I_TRAIN_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2I_TEXTB_ITEN_EN  > $E2I_TEXTB_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2I_VALID_ITEN_EN  > $E2I_VALID_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2I_TRAIN_ITEN_EN >$E2I_TRAIN_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2I_TEXTB_ITEN_EN >$E2I_TEXTB_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2I_VALID_ITEN_EN >$E2I_VALID_BPE_ITEN_EN
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  italian
 
-subword-nmt apply-bpe -c $CODES_IT < $E2I_TRAIN_ITEN_IT  > $E2I_TRAIN_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $E2I_TEXTB_ITEN_IT  > $E2I_TEXTB_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $E2I_VALID_ITEN_IT  > $E2I_VALID_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$E2I_TRAIN_ITEN_IT >$E2I_TRAIN_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$E2I_TEXTB_ITEN_IT >$E2I_TEXTB_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$E2I_VALID_ITEN_IT >$E2I_VALID_BPE_ITEN_IT
 
-subword-nmt apply-bpe -c $CODES_IT < $I2E_TRAIN_ITEN_IT  > $I2E_TRAIN_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $I2E_TEXTB_ITEN_IT  > $I2E_TEXTB_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $I2E_VALID_ITEN_IT  > $I2E_VALID_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2E_TRAIN_ITEN_IT >$I2E_TRAIN_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2E_TEXTB_ITEN_IT >$I2E_TEXTB_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2E_VALID_ITEN_IT >$I2E_VALID_BPE_ITEN_IT
 
 #subword-nmt apply-bpe -c $CODES_IT < $I2S_TRAIN_SCIT_IT  > $I2S_TRAIN_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $I2S_BACKT_SCIT_IT  > $I2S_BACKT_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $I2S_TEXTB_SCIT_IT  > $I2S_TEXTB_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $I2S_VALID_SCIT_IT  > $I2S_VALID_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2S_BACKT_SCIT_IT >$I2S_BACKT_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2S_TEXTB_SCIT_IT >$I2S_TEXTB_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$I2S_VALID_SCIT_IT >$I2S_VALID_BPE_SCIT_IT
 
 #subword-nmt apply-bpe -c $CODES_IT < $S2I_TRAIN_SCIT_IT  > $S2I_TRAIN_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $S2I_BACKT_SCIT_IT  > $S2I_BACKT_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $S2I_TEXTB_SCIT_IT  > $S2I_TEXTB_BPE_SCIT_IT
-subword-nmt apply-bpe -c $CODES_IT < $S2I_VALID_SCIT_IT  > $S2I_VALID_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$S2I_BACKT_SCIT_IT >$S2I_BACKT_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$S2I_TEXTB_SCIT_IT >$S2I_TEXTB_BPE_SCIT_IT
+subword-nmt apply-bpe -c $CODES_IT <$S2I_VALID_SCIT_IT >$S2I_VALID_BPE_SCIT_IT

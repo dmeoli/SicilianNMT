@@ -133,38 +133,38 @@ M2E_VALID_BPE_ITEN_IT="${FNL_DIR}/m2e_valid_v2-sbw_it-en.it"
 
 ##  sicilian
 
-subword-nmt apply-bpe -c $CODES_SC < $E2M_TRAIN_SCEN_SC  > $E2M_TRAIN_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $E2M_BACKT_SCEN_SC  > $E2M_BACKT_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $E2M_VALID_SCEN_SC  > $E2M_VALID_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2M_TRAIN_SCEN_SC >$E2M_TRAIN_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2M_BACKT_SCEN_SC >$E2M_BACKT_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$E2M_VALID_SCEN_SC >$E2M_VALID_BPE_SCEN_SC
 
-subword-nmt apply-bpe -c $CODES_SC < $M2E_TRAIN_SCEN_SC  > $M2E_TRAIN_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$M2E_TRAIN_SCEN_SC >$M2E_TRAIN_BPE_SCEN_SC
 #subword-nmt apply-bpe -c $CODES_SC < $M2E_BACKT_SCEN_SC  > $M2E_BACKT_BPE_SCEN_SC
-subword-nmt apply-bpe -c $CODES_SC < $M2E_VALID_SCEN_SC  > $M2E_VALID_BPE_SCEN_SC
+subword-nmt apply-bpe -c $CODES_SC <$M2E_VALID_SCEN_SC >$M2E_VALID_BPE_SCEN_SC
 
 ##  english
 
-subword-nmt apply-bpe -c $CODES_EN < $E2M_TRAIN_SCEN_EN  > $E2M_TRAIN_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2M_BACKT_SCEN_EN  > $E2M_BACKT_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2M_VALID_SCEN_EN  > $E2M_VALID_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2M_TRAIN_SCEN_EN >$E2M_TRAIN_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2M_BACKT_SCEN_EN >$E2M_BACKT_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2M_VALID_SCEN_EN >$E2M_VALID_BPE_SCEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $M2E_TRAIN_SCEN_EN  > $M2E_TRAIN_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$M2E_TRAIN_SCEN_EN >$M2E_TRAIN_BPE_SCEN_EN
 #subword-nmt apply-bpe -c $CODES_EN < $M2E_BACKT_SCEN_EN  > $M2E_BACKT_BPE_SCEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $M2E_VALID_SCEN_EN  > $M2E_VALID_BPE_SCEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$M2E_VALID_SCEN_EN >$M2E_VALID_BPE_SCEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $E2M_TRAIN_ITEN_EN  > $E2M_TRAIN_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2M_TRAIN_ITEN_EN >$E2M_TRAIN_BPE_ITEN_EN
 #subword-nmt apply-bpe -c $CODES_EN < $E2M_BACKT_ITEN_EN  > $E2M_BACKT_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $E2M_VALID_ITEN_EN  > $E2M_VALID_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$E2M_VALID_ITEN_EN >$E2M_VALID_BPE_ITEN_EN
 
-subword-nmt apply-bpe -c $CODES_EN < $M2E_TRAIN_ITEN_EN  > $M2E_TRAIN_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$M2E_TRAIN_ITEN_EN >$M2E_TRAIN_BPE_ITEN_EN
 #subword-nmt apply-bpe -c $CODES_EN < $M2E_BACKT_ITEN_EN  > $M2E_BACKT_BPE_ITEN_EN
-subword-nmt apply-bpe -c $CODES_EN < $M2E_VALID_ITEN_EN  > $M2E_VALID_BPE_ITEN_EN
+subword-nmt apply-bpe -c $CODES_EN <$M2E_VALID_ITEN_EN >$M2E_VALID_BPE_ITEN_EN
 
 ##  italian
 
-subword-nmt apply-bpe -c $CODES_IT < $E2M_TRAIN_ITEN_IT  > $E2M_TRAIN_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$E2M_TRAIN_ITEN_IT >$E2M_TRAIN_BPE_ITEN_IT
 #subword-nmt apply-bpe -c $CODES_IT < $E2M_BACKT_ITEN_IT  > $E2M_BACKT_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $E2M_VALID_ITEN_IT  > $E2M_VALID_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$E2M_VALID_ITEN_IT >$E2M_VALID_BPE_ITEN_IT
 
-subword-nmt apply-bpe -c $CODES_IT < $M2E_TRAIN_ITEN_IT  > $M2E_TRAIN_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$M2E_TRAIN_ITEN_IT >$M2E_TRAIN_BPE_ITEN_IT
 #subword-nmt apply-bpe -c $CODES_IT < $M2E_BACKT_ITEN_IT  > $M2E_BACKT_BPE_ITEN_IT
-subword-nmt apply-bpe -c $CODES_IT < $M2E_VALID_ITEN_IT  > $M2E_VALID_BPE_ITEN_IT
+subword-nmt apply-bpe -c $CODES_IT <$M2E_VALID_ITEN_IT >$M2E_VALID_BPE_ITEN_IT

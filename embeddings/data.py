@@ -543,7 +543,7 @@ class WikiDumpStream(SimpleDatasetStream):
             raise ValueError('{} is not valid. '
                              'Please make sure that the path exists and '
                              'contains the preprocessed files.'.format(
-                                 self._path))
+                self._path))
 
         self._file_pattern = os.path.join(self._path, '*.txt')
         super(WikiDumpStream, self).__init__(

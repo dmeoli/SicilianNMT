@@ -1,13 +1,13 @@
 #!/bin/bash
 
 ##  Copyright 2021 Eryk Wdowiak
-##  
+##
 ##  Licensed under the Apache License, Version 2.0 (the "License");
 ##  you may not use this file except in compliance with the License.
 ##  You may obtain a copy of the License at
-##  
+##
 ##      http://www.apache.org/licenses/LICENSE-2.0
-##  
+##
 ##  Unless required by applicable law or agreed to in writing, software
 ##  distributed under the License is distributed on an "AS IS" BASIS,
 ##  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,20 +49,20 @@ OUTPUT_TYPE="translation"
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
-for (( IDX = 0; IDX < ${#INFILES[@]}; IDX++ )) ; do
-    INFILE=${INFILES[$IDX]}
-    OTFILE=$(echo $INFILE | sed 's/v2-sbw/v3-tkn/;s/src/tgt/;s/validation/valid-out/')
-    RFFILE=$(echo $INFILE | sed 's/v2-sbw/v3-tkn/;s/src/tgt/')
+for ((IDX = 0; IDX < ${#INFILES[@]}; IDX++)); do
+  INFILE=${INFILES[$IDX]}
+  OTFILE=$(echo $INFILE | sed 's/v2-sbw/v3-tkn/;s/src/tgt/;s/validation/valid-out/')
+  RFFILE=$(echo $INFILE | sed 's/v2-sbw/v3-tkn/;s/src/tgt/')
 
-    ##  translate
-    ${SOCKEYE} --models ${TNF_M2M} --input ${INFILE} --output ${OTFILE} --output-type ${OUTPUT_TYPE} --quiet
+  ##  translate
+  ${SOCKEYE} --models ${TNF_M2M} --input ${INFILE} --output ${OTFILE} --output-type ${OUTPUT_TYPE} --quiet
 
-    ##  remove subword splitting
-    sed -i "s/@@\s//g;s/\s~~'s/'s/g" ${OTFILE}
+  ##  remove subword splitting
+  sed -i "s/@@\s//g;s/\s~~'s/'s/g" ${OTFILE}
 
-    ##  evaluate translation
-    printf "${OTFILE} -- " >> ${SCORES}
-    ${SE_EVAL} --references ${RFFILE} --hypotheses ${OTFILE} --quiet  >> ${SCORES}
+  ##  evaluate translation
+  printf "${OTFILE} -- " >>${SCORES}
+  ${SE_EVAL} --references ${RFFILE} --hypotheses ${OTFILE} --quiet >>${SCORES}
 
 done
 

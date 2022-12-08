@@ -29,17 +29,17 @@ my $otfile = "dataset/train-mparamu_v2-lemmatized.sc";
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
-open( OTFILE , ">$otfile") || die "could not overwrite $otfile";
-open( INFILE , $infile) || die "could not open $infile";
-while(<INFILE>){
+open(OTFILE, ">$otfile") || die "could not overwrite $otfile";
+open(INFILE, $infile) || die "could not open $infile";
+while (<INFILE>) {
     chomp;
     my $line = $_;
 
     $line = unigramify($line);
     $line = rm_stopwords($line);
     $line = lemmatize($line);
-    
-    print OTFILE $line ."\n";
+
+    print OTFILE $line . "\n";
 }
 close INFILE;
 close OTFILE;

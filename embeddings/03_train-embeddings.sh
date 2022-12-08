@@ -16,8 +16,8 @@ NGRAM_BUCKETS="0"
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ./train_sg_cbow.py --model ${MODEL} \
-		   --ngram-buckets ${NGRAM_BUCKETS} \
-		   --batch-size ${BATCH_SIZE} \
-		   --epochs ${EPOCHS} \
-		   --data ${TSV_DATA} \
-		   --params ${INPARAMS}
+  --ngram-buckets ${NGRAM_BUCKETS} \
+  --batch-size ${BATCH_SIZE} \
+  --epochs ${EPOCHS} \
+  --data ${TSV_DATA} \
+  --params ${INPARAMS}

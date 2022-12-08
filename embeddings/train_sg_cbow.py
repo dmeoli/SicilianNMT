@@ -31,8 +31,8 @@ The SG and CBOW models were introduced by "Mikolov et al. Efficient estimation
 of word representations in vector space. ICLR Workshop, 2013". The fastText
 model was introduced by "Bojanowski et al. Enriching word vectors with subword
 information. TACL 2017"
-"""
 
+"""
 import argparse
 import logging
 import os

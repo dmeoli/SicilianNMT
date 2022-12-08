@@ -46,7 +46,6 @@ TRAIN_BPE_M2E_ITEN_IT="${PCS_DIR}/m2e_train_v2-sbw_it-en.it"
 #BACKT_BPE_M2E_ITEN_EN="${PCS_DIR}/m2e_backt_v2-sbw_it-en.en"
 #BACKT_BPE_M2E_ITEN_IT="${PCS_DIR}/m2e_backt_v2-sbw_it-en.it"
 
-
 ##  subword split validation data
 VALID_BPE_E2M_SCEN_SC="${PCS_DIR}/e2m_valid_v2-sbw_sc-en.sc"
 VALID_BPE_E2M_SCEN_EN="${PCS_DIR}/e2m_valid_v2-sbw_sc-en.en"
@@ -80,30 +79,30 @@ VALID_M2E_SC="${FNL_DIR}/m2e_valid_v2-sbw.sc"
 ##  multi to english, so do not need directional tokens here
 
 ##  combine training data
-cat  $TRAIN_BPE_M2E_SCEN_EN  $TRAIN_BPE_M2E_SCEN_EN  $TRAIN_BPE_M2E_ITEN_EN  >  $TRAIN_M2E_EN
-cat  $TRAIN_BPE_M2E_SCEN_SC  $TRAIN_BPE_M2E_SCEN_SC  $TRAIN_BPE_M2E_ITEN_IT  >  $TRAIN_M2E_SC
+cat $TRAIN_BPE_M2E_SCEN_EN $TRAIN_BPE_M2E_SCEN_EN $TRAIN_BPE_M2E_ITEN_EN >$TRAIN_M2E_EN
+cat $TRAIN_BPE_M2E_SCEN_SC $TRAIN_BPE_M2E_SCEN_SC $TRAIN_BPE_M2E_ITEN_IT >$TRAIN_M2E_SC
 
 ##  combine validation data
-cat  $VALID_BPE_M2E_SCEN_EN  $VALID_BPE_M2E_ITEN_EN  >  $VALID_M2E_EN
-cat  $VALID_BPE_M2E_SCEN_SC  $VALID_BPE_M2E_ITEN_IT  >  $VALID_M2E_SC
+cat $VALID_BPE_M2E_SCEN_EN $VALID_BPE_M2E_ITEN_EN >$VALID_M2E_EN
+cat $VALID_BPE_M2E_SCEN_SC $VALID_BPE_M2E_ITEN_IT >$VALID_M2E_SC
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 
 ##  english to multi
 
 ##  do not need directional tokens on the outputs
-cat  $TRAIN_BPE_E2M_SCEN_SC  $TRAIN_BPE_E2M_SCEN_SC  $BACKT_BPE_E2M_SCEN_SC  $TRAIN_BPE_E2M_ITEN_IT  >  $TRAIN_E2M_SC
-cat  $VALID_BPE_E2M_SCEN_SC  $VALID_BPE_E2M_ITEN_IT  >  $VALID_E2M_SC
+cat $TRAIN_BPE_E2M_SCEN_SC $TRAIN_BPE_E2M_SCEN_SC $BACKT_BPE_E2M_SCEN_SC $TRAIN_BPE_E2M_ITEN_IT >$TRAIN_E2M_SC
+cat $VALID_BPE_E2M_SCEN_SC $VALID_BPE_E2M_ITEN_IT >$VALID_E2M_SC
 
 ##  add directional token to training data
-perl -nle '{chomp; print "<2sc> " . $_ ;}' $TRAIN_BPE_E2M_SCEN_EN  >   $TRAIN_E2M_EN
-perl -nle '{chomp; print "<2sc> " . $_ ;}' $TRAIN_BPE_E2M_SCEN_EN  >>  $TRAIN_E2M_EN
-perl -nle '{chomp; print "<2sc> " . $_ ;}' $BACKT_BPE_E2M_SCEN_EN  >>  $TRAIN_E2M_EN
-perl -nle '{chomp; print "<2it> " . $_ ;}' $TRAIN_BPE_E2M_ITEN_EN  >>  $TRAIN_E2M_EN
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $TRAIN_BPE_E2M_SCEN_EN >$TRAIN_E2M_EN
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $TRAIN_BPE_E2M_SCEN_EN >>$TRAIN_E2M_EN
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $BACKT_BPE_E2M_SCEN_EN >>$TRAIN_E2M_EN
+perl -nle '{chomp; print "<2it> " . $_ ;}' $TRAIN_BPE_E2M_ITEN_EN >>$TRAIN_E2M_EN
 
 ##  add directional token to validation data
-perl -nle '{chomp; print "<2sc> " . $_ ;}' $VALID_BPE_E2M_SCEN_EN  >   $VALID_E2M_EN
-perl -nle '{chomp; print "<2it> " . $_ ;}' $VALID_BPE_E2M_ITEN_EN  >>  $VALID_E2M_EN
+perl -nle '{chomp; print "<2sc> " . $_ ;}' $VALID_BPE_E2M_SCEN_EN >$VALID_E2M_EN
+perl -nle '{chomp; print "<2it> " . $_ ;}' $VALID_BPE_E2M_ITEN_EN >>$VALID_E2M_EN
 
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
 ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##  ##
