@@ -14,8 +14,3 @@ extract-text/aligned/*.csv
 
 # Arthur Dieli sicilian vocabulary
 extract-text/aligner/dieli-scen-dict.txt
-
-# WikiMatrix files
-extract-text/WikiMatrix.it-scn.tsv.gz
-extract-text/WikiMatrix.it-scn.txt.it
-extract-text/WikiMatrix.it-scn.txt.scn
