@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-##  Sicilian_Translator/extract-text/02_wrap_text.pl
+##  Sicilian_Translator/extract-text/02_wrap-text.pl
 
 ##  Copyright 2020 Eryk Wdowiak
 ##  

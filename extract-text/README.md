@@ -8,6 +8,6 @@ It's an excellent source of parallel text, but first we have to extract it from 
 
 For reasons unknown, setting the viewport is not enough to remove the text of the headers and footers.  We also need to flip the page upside down (`angle=180`) to remove the header and footer text.
 
-Next, in `02_wrap_text.pl`, we parse the text and (attempt to) identify the component sentences in each file.  In `03_align.sh`, we use the [_hunalign_](https://github.com/danielvarga/hunalign) sentence aligner to (attempt to) identify pairs of translated sentences.  And in `04_sort-parallel-text.pl`, we select a set of pairs and set the rest aside for later.
+Next, in `02_wrap-text.pl`, we parse the text and (attempt to) identify the component sentences in each file.  In `03_align.sh`, we use the [_hunalign_](https://github.com/danielvarga/hunalign) sentence aligner to (attempt to) identify pairs of translated sentences.  And in `04_sort-parallel-text.pl`, we select a set of pairs and set the rest aside for later.
 
 Finally, it's important to note that this is not (and cannot be) a fully automatic process.  We must edit the text files by hand to remove image captions and other impurities that inhibit our alignment tool's ability to identify pairs of translated sentences.

@@ -6,9 +6,9 @@
 
 # Arba Sicula issues
 extract-text/as-issues
-extract-text/*.pdf
-extract-text/*.tex
-extract-text/*.txt
+extract-text/output_pdf/*.tex
+extract-text/output_pdf/*.pdf
+extract-text/output_txt/*.txt
 
 # WikiMatrix files
 extract-text/WikiMatrix.it-scn.tsv.gz
