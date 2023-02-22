@@ -9,6 +9,8 @@ extract-text/as-issues
 extract-text/output_pdf/*.tex
 extract-text/output_pdf/*.pdf
 extract-text/output_txt/*.txt
+extract-text/wrapped/*.txt
+extract-text/aligned/*.csv
 
 # WikiMatrix files
 extract-text/WikiMatrix.it-scn.tsv.gz
