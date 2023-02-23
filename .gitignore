@@ -11,6 +11,7 @@ extract-text/output_pdf/*.pdf
 extract-text/output_txt/*.txt
 extract-text/wrapped/*.txt
 extract-text/aligned/*.csv
+extract-text/*.csv
 
 # Arthur Dieli sicilian vocabulary
 extract-text/aligner/dieli-scen-dict.txt

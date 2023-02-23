@@ -1,6 +1,11 @@
 executors
 gluonnlp
+matplotlib
 mxnet
 nltk
 numpy
+pandas
 scipy
+sockeye
+subword-nmt
+wordcloud
