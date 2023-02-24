@@ -13,7 +13,7 @@ extract-text/wrapped/*.txt
 extract-text/aligned/*.csv
 extract-text/*.csv
 
-# Arthur Dieli sicilian vocabulary
+# concatenation of Arthur Dieli's vocabulary and Wiktionary
 extract-text/aligner/dieli-scen-dict.txt
 
 # WikiMatrix files
