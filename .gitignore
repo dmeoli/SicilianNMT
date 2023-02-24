@@ -15,8 +15,3 @@ extract-text/*.csv
 
 # concatenation of Arthur Dieli's vocabulary and Wiktionary
 extract-text/aligner/dieli-scen-dict.txt
-
-# WikiMatrix files
-extract-text/WikiMatrix.it-scn.tsv.gz
-extract-text/WikiMatrix.it-scn.txt.it
-extract-text/WikiMatrix.it-scn.txt.scn
