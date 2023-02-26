@@ -39,6 +39,22 @@ Our largest source of parallel text are issues of the literary journal [_Arba Si
 
 The ["Developing a Parallel Corpus"](https://www.doviak.net/pages/ml-sicilian/ml-scn_p03.shtml) article provides a longer discussion of our data sources and introduces the question of how much parallel text is needed to create a good translator.
 
+### Running WikiMatrix for Sicilian dialect
+
+```
+cd extract-text
+wget https://dl.fbaipublicfiles.com/laser/WikiMatrix/v1/WikiMatrix.it-scn.tsv.gz
+python wikimatrix-extract.py \
+  --tsv WikiMatrix.it-scn.tsv.gz \
+  --bitext WikiMatrix.it-scn.txt \
+  --src-lang it --trg-lang scn \
+  --threshold 1.04
+```
+
+One can specify the threshold on the margin score. The higher the value, the more likely the sentences are mutual
+translations, but the less data one will get. A value of 1.04 seems to be good choice for most language pairs.
+
+Please see the analysis in the paper for more information [1].
 
 ##  Translation Models and Practices
 
@@ -50,3 +66,8 @@ The ["Just Split, Dropout and Pay Attention"](https://www.doviak.net/pages/ml-si
 ##  Unni si trova stu [_Tradutturi Sicilianu_](https://translate.napizia.com/)_?_
 
 _A_ [_Napizia_](https://www.napizia.com/)_!_  Come visit us there.  Come [_Behind the Curtain_](https://translate.napizia.com/cgi-bin/darreri.pl).  And come join us in our study of the Sicilian language!
+
+
+## References
+
+[1] Schwenk, Holger, et al., [*WikiMatrix: Mining 135M Parallel Sentences in 1620 Language Pairs from Wikipedia*](https://arxiv.org/pdf/1907.05791.pdf).
