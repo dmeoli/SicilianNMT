@@ -1,6 +1,12 @@
 # PyCharm
 .idea
 
+# Python virtual environment
+.venv/
+
+# local safety backups
+*.tar.gz
+
 # Jupyter Notebook
 .ipynb_checkpoints
 
