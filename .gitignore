@@ -30,3 +30,4 @@ extract-text/WikiMatrix.it-scn.txt.scn
 data/external/
 data/processed/
 data/dataset/
+__pycache__/
