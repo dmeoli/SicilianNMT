@@ -26,3 +26,6 @@ extract-text/aligner/dieli-scen-dict.txt
 extract-text/WikiMatrix.it-scn.tsv.gz
 extract-text/WikiMatrix.it-scn.txt.it
 extract-text/WikiMatrix.it-scn.txt.scn
+# downloaded external datasets (HuggingFace etc.)
+data/external/
+data/processed/
