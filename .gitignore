@@ -2,7 +2,7 @@
 .idea
 
 # Python virtual environment
-.venv/
+.venv*/
 
 # local safety backups
 *.tar.gz
@@ -31,3 +31,4 @@ data/external/
 data/processed/
 data/dataset/
 __pycache__/
+data/baseline*/

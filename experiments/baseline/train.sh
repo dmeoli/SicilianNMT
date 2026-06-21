@@ -2,7 +2,7 @@
 # CPU baseline: small high-dropout Transformer (paper "our models" config), Sockeye 3.
 # Run inside .venv-sockeye:  bash experiments/baseline/train.sh
 set -e
-O=data/baseline
+O=${1:-data/baseline}
 export OMP_NUM_THREADS=8
 
 sockeye-train \
