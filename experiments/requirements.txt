@@ -2,3 +2,4 @@
 # Env: uv venv --python 3.12 .venv ; uv pip install -r experiments/requirements.txt
 pymupdf==1.27.2.3
 pdfplumber==0.11.10
+pysbd==0.3.4

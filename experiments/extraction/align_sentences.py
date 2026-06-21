@@ -15,16 +15,34 @@ from pathlib import Path
 
 import fitz  # PyMuPDF
 import numpy as np
+import pysbd
 from sentence_transformers import SentenceTransformer
 
 HEADER_RE = re.compile(r"^\s*(arba sicula\b.*|\d{1,3})\s*$", re.IGNORECASE)
-SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Þ“\"'])")
+
+_SEGMENTERS: dict[str, pysbd.Segmenter] = {}
 
 
-def page_sentences(doc: fitz.Document, idx: int) -> list[str]:
+def _segmenter(lang: str) -> pysbd.Segmenter:
+    if lang not in _SEGMENTERS:
+        _SEGMENTERS[lang] = pysbd.Segmenter(language=lang, clean=False)
+    return _SEGMENTERS[lang]
+
+
+def is_furniture(s: str) -> bool:
+    """Drop page furniture: mastheads, all-caps headers, stray tokens."""
+    letters = [c for c in s if c.isalpha()]
+    if len(letters) < 3 or len(s.split()) < 2:
+        return True
+    return sum(c.isupper() for c in letters) / len(letters) > 0.6
+
+
+def page_sentences(doc: fitz.Document, idx: int, lang: str = "it") -> list[str]:
+    """Sentence-segment a page's text (pysbd; lang 'it' for Sicilian, 'en' for English)."""
     lines = [ln for ln in doc[idx].get_text("text").splitlines() if not HEADER_RE.match(ln)]
     text = re.sub(r"\s+", " ", " ".join(lines)).strip()
-    return [s.strip() for s in SENT_SPLIT.split(text) if len(s.strip()) > 1]
+    return [s.strip() for s in _segmenter(lang).segment(text)
+            if len(s.strip()) > 1 and not is_furniture(s)]
 
 
 def align(sim: np.ndarray, null_pen: float = 0.5):
@@ -74,8 +92,8 @@ def main() -> None:
     args = ap.parse_args()
 
     doc = fitz.open(args.pdf)
-    scn = page_sentences(doc, args.scn_page)
-    en = page_sentences(doc, args.en_page)
+    scn = page_sentences(doc, args.scn_page, "it")
+    en = page_sentences(doc, args.en_page, "en")
     print(f"scn sentences: {len(scn)} | en sentences: {len(en)}\n")
 
     model = SentenceTransformer("sentence-transformers/LaBSE")
