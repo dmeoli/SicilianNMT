@@ -1,11 +1,25 @@
-executors
-gluonnlp
-matplotlib
-mxnet
-nltk
-numpy
+# Main environment (.venv) — data pipeline, tokenization, evaluation, NLLB.
+# Create with uv + CPython 3.12:
+#   uv venv --python 3.12 .venv && source .venv/bin/activate
+#   uv pip install -r requirements.txt
+#
+# The legacy Sockeye-3 training stack lives in a SEPARATE env (.venv-sockeye,
+# CPython 3.10) — see experiments/baseline/README.md — because Sockeye pins old
+# torch and a bare `pip install sockeye` wrongly resolves to the dead MXNet 2.x.
+
+# PDF extraction + sentence alignment
+pymupdf==1.27.2.3
+pdfplumber==0.11.10
+pysbd==0.3.4
+sentence-transformers     # LaBSE for alignment; pulls torch (CPU)
+
+# dataset assembly + evaluation
 pandas
-scipy
-sockeye
 subword-nmt
-wordcloud
+sacrebleu==2.6.0
+
+# NLLB (modern model eval / fine-tune)
+transformers
+sentencepiece
+huggingface_hub
+datasets

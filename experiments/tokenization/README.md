@@ -13,12 +13,16 @@ python experiments/tokenization/sicilian_tok.py en < in.en  > out.en
 
 ## Fidelity
 
-`verify_tok.sh` runs both the Perl and the Python tokenizers and diffs them.
-On the test set the core logic is **identical** (0 differences). The Python
+The port was verified byte-for-byte against the original Perl (commit that added
+this module): core logic **identical** (0 differences on the test set). The Python
 additionally normalizes em/en-dashes and ellipses, which the Perl's byte-mode
 `rm_morejunk` silently skips (`\x{2026}` cannot match UTF-8 bytes) — a latent Perl
 bug the port fixes. Note: Perl `lc()` here is byte-mode (ASCII-only); the port
 replicates that with `_ascii_lower`, then handles accents via explicit maps.
 
-This is the canonical tokenizer; `experiments/baseline/lever_b_prep.sh` uses it.
-The Perl `tokenize.pl`/`detokenize.pl` remain only for cross-checking.
+This is now the canonical tokenizer (`experiments/baseline/lever_b_prep.sh` uses it);
+the Perl module has been removed from the repo.
+
+**TODO:** port the inverse (detokenizer) to Python for serving. The original Perl
+`en_detokenizer` was buggy (dropped first/last words), so evaluation is done in
+tokenized space anyway.

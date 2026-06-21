@@ -1,73 +1,61 @@
-# Sicilian Translator
+# Sicilian NMT — modernized pipeline
 
-This repository documents our [_Tradutturi Sicilianu_](https://translate.napizia.com/), the first neural machine translator for the Sicilian language.  It documents our work and the steps to reproduce it.  We hope it opens the door to natural language processing for the Sicilian language.
+A reproduction and modernization of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
+the first neural machine translator for the Sicilian language
+([paper](https://arxiv.org/abs/2110.01938), Springer
+[DOI](https://doi.org/10.1007/978-3-031-10464-0_50)). This fork rebuilds the data
+pipeline with modern, maintained, CPU-friendly tooling and a reproducible dataset,
+evaluation harness, and baselines.
 
+Upstream: [`ewdowiak/Sicilian_Translator`](https://github.com/ewdowiak/Sicilian_Translator).
 
-##  What is the Sicilian language?
-
-It's the language spoken by the people of Sicily, Calabria and Puglia.  It's the language that they speak at home, with family and friends.  It's the language that the Sicilian School of Poets recited at the imperial court of Frederick II in the 13th century.  And it's a language spoken here in Brooklyn, NY.
-
-###  How is Sicilian different from Italian?
-
-Comparing Sicilian to Italian is like comparing American football to Australian rules football. Both football codes trace their origins to 19th-century England, but they evolved separately and have different sets of rules. Analogously, both Sicilian and Italian are Romance languages. Most of their vocabularies and grammars come from Latin, but they evolved separately and have different sets of rules.
-
-But they have (of course) influenced each other.  Sicilian poetry inspired Dante, the "father of the Italian language," to write poetry in his native Florentine.  And this influence on Dante reveals Sicilian's cultural importance:  Sicilian had emerged as a literary language long before Italian.
-
-###  Can you help me learn Sicilian?
-
-Yes.  That's our goal.  We hope that the [_Dieli Dictionary_](https://www.napizia.com/cgi-bin/sicilian.pl) will help you learn vocabulary, that [_Chiù dâ Palora_](https://www.napizia.com/cgi-bin/cchiu-da-palora.pl) will help you learn grammar and that [_Tradutturi Sicilianu_](https://translate.napizia.com/) will help you write in Sicilian.
-
-One of the best sources of information and learning materials is [Arba Sicula](http://www.arbasicula.org/).  For over 40 years, they have been publishing books and journals about Sicilian history, language, literature, art, folklore and cuisine. And the [_Mparamu lu sicilianu_](http://www.arbasicula.org/LegasOnlineStore.html#!/26-Learn-Sicilian-Mparamu-lu-sicilianu-by-Gaetano-Cipolla/p/82865121/category=0) textbook by its editor, [Gaetano Cipolla](https://en.wikipedia.org/wiki/Gaetano_Cipolla), is more than just a grammar book.  It's a complete introduction to Sicily, its language, culture and people.
-
-
-##  What's in this repository?
-
-This repository documents the individual steps that we took to create a neural machine translator and provides the code necessary to reproduce them.  Separately, the "[With Patience and Dedication](https://www.doviak.net/pages/ml-sicilian/index.shtml)" introduction provides a broader overview.
-
-Here in this repository, the `extract-text` directory contains the scripts that we used to collect parallel text from issues of [_Arba Sicula_](http://www.arbasicula.org/) (which are in PDF format).  The `dataset` directory contains the scripts that we used to prepare the data for training, while its subdirectory `sockeye_n30_sw3000` contains the scripts that we'll use to train the models.
-
-The `perl-module/Napizia` directory provides a Perl module with tokenization and detokenization subroutines.  The `cgi-bin` directory contains scripts to put the translator on a website.
-
-The `embeddings` directory contains some experimental work, where we lemmatize the text of both languages and train word embedding models.  By computing the matrix of cosine similarity from the embeddings, we can create lists of context similar words and include them in our dictionary one day.
-
-And the `presentation` directory contains our [presentation](presentation/Sicilian-Translator.pdf) of this project along with links to the resources that made this project possible.
-
-
-##  Data Sources
-
-Our largest source of parallel text are issues of the literary journal [_Arba Sicula_](http://www.arbasicula.org/).  We mixed that data with [Arthur Dieli](http://www.dieli.net/)'s translations of poetry, proverbs and Giuseppe Pitrè's [_Folk Tales_](https://scn.wikipedia.org/wiki/F%C3%A0uli,_nueddi_e_cunti_pupulari_siciliani).  And to "learn" Sicilian, we also collected parallel text from the [_Mparamu lu sicilianu_](http://www.arbasicula.org/LegasOnlineStore.html#!/26-Learn-Sicilian-Mparamu-lu-sicilianu-by-Gaetano-Cipolla/p/82865121/category=0) textbook by [Gaetano Cipolla](https://en.wikipedia.org/wiki/Gaetano_Cipolla) (2013) and from Kirk Bonner's [_Introduction to Sicilian Grammar_](http://www.arbasicula.org/LegasOnlineStore.html#!/28-An-Introduction-to-Sicilian-Grammar-by-J-K-Kirk-Bonner-Edited-by-Gaetano-Cipolla/p/82865123/category=0) (2001).
-
-The ["Developing a Parallel Corpus"](https://www.doviak.net/pages/ml-sicilian/ml-scn_p03.shtml) article provides a longer discussion of our data sources and introduces the question of how much parallel text is needed to create a good translator.
-
-### Running WikiMatrix for Sicilian dialect
+## What's here
 
 ```
-cd extract-text
-wget https://dl.fbaipublicfiles.com/laser/WikiMatrix/v1/WikiMatrix.it-scn.tsv.gz
-python wikimatrix-extract.py \
-  --tsv WikiMatrix.it-scn.tsv.gz \
-  --bitext WikiMatrix.it-scn.txt \
-  --src-lang it --trg-lang scn \
-  --threshold 1.04
+experiments/
+  extraction/    PDF -> text -> page-language classify -> LaBSE confirm -> LaBSE sentence-align
+                 (PyMuPDF + sentence-transformers; replaces the old pdflatex+hunalign Perl)
+  tokenization/  pure-Python Sicilian/English tokenizer (port of the Napizia Perl module)
+  dataset/       NLLB quality inspection, clean-subset builder, unified dataset assembly
+  eval/          BLEU + chrF harness (sacrebleu)
+  baseline/      Sockeye-3 (PyTorch, CPU) small Transformer + the paper's "lever B"
+                 (tokenization + desinence-biased subwords)
+  nllb/          NLLB-200 zero-shot / fine-tune on Colab (Sicilian = scn_Latn)
+training/ translations/   upstream's Reverse-Training (Sockeye-3) scripts + recorded scores
+fastapi/         upstream's FastAPI translation server
+extract-text/    Arba Sicula PDFs (gitignored) + WikiMatrix it-scn + aligned gold CSVs
+vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas
+docs/            Standard-Sicilian standardization & contraction references
+papers/ presentation/
 ```
 
-One can specify the threshold on the margin score. The higher the value, the more likely the sentences are mutual
-translations, but the less data one will get. A value of 1.04 seems to be good choice for most language pairs.
+Two environments (kept isolated): **`.venv`** (CPython 3.12) for the data pipeline,
+tokenization, evaluation and NLLB; **`.venv-sockeye`** (CPython 3.10) for Sockeye-3
+training. See `experiments/baseline/README.md`.
 
-Please see the analysis in the paper for more information [1].
+## Data pipeline (all CPU)
 
-##  Translation Models and Practices
+1. **Extract** parallel text from Arba Sicula PDFs — `experiments/extraction/build_all.py`
+   (PyMuPDF + LaBSE). Recovers ~9.4k sentence pairs from 44 issues, fully automated,
+   surfacing parallel text the original hand-curated process missed.
+2. **Add** the author's curated `Napizia/Good-Sicilian-in-NLLB` (filtered for quality and
+   Corsican contamination) and WikiMatrix it-scn.
+3. **Assemble** a unified, deduped, split dataset — `experiments/dataset/assemble.py`:
+   **13.3k scn–en** (train/valid/test, test+valid held out from Arba Sicula = literary
+   standard, not FLORES) + 11k it–scn.
 
-To translate, we use [Sockeye](https://awslabs.github.io/sockeye/)'s implementation of [Vaswani et al's (2017)](https://arxiv.org/abs/1706.03762) Transformer model along with [Sennrich et al's subword-nmt](https://github.com/rsennrich/subword-nmt).  And following the best practices of [Sennrich and Zhang (2019)](https://arxiv.org/abs/1905.11901), the networks are small and have fewer layers and the models were trained with small batch sizes and larger dropout parameters.
+## Results so far (our held-out test set, scn→en, BLEU/chrF)
 
-The ["Just Split, Dropout and Pay Attention"](https://www.doviak.net/pages/ml-sicilian/ml-scn_p05.shtml) article explains why the method works.  In short:  we need a smaller model for our smaller dataset.
+| model | BLEU | chrF |
+|---|---|---|
+| floor (copy source) | 5.27 | 25.40 |
+| Sockeye-3 baseline (raw) | 5.54 | 28.28 |
+| Sockeye-3 + lever B (tokenization + desinences) | **7.24** | **29.52** |
 
+Lever B confirms the paper's recipe (+1.7 BLEU). Absolute scores are low — small,
+noisy data and a hard literary test set; the modern model (NLLB) and more data are the
+next levers. Numbers are **not** comparable to the paper's (different, harder test set).
 
-##  Unni si trova stu [_Tradutturi Sicilianu_](https://translate.napizia.com/)_?_
+## License
 
-_A_ [_Napizia_](https://www.napizia.com/)_!_  Come visit us there.  Come [_Behind the Curtain_](https://translate.napizia.com/cgi-bin/darreri.pl).  And come join us in our study of the Sicilian language!
-
-
-## References
-
-[1] Schwenk, Holger, et al., [*WikiMatrix: Mining 135M Parallel Sentences in 1620 Language Pairs from Wikipedia*](https://arxiv.org/pdf/1907.05791.pdf).
+Apache-2.0 (see `LICENSE`). Data sources retain their own terms (Arba Sicula; NLLB ODC-BY).
