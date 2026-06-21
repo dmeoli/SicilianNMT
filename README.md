@@ -1,13 +1,13 @@
-# Sicilian NMT — modernized pipeline
+# Sicilian NMT
 
 [![Open NLLB notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/experiments/nllb/sicilian_nllb_colab.ipynb)
 
-A reproduction and modernization of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
+A fork of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
 the first neural machine translator for the Sicilian language
 ([paper](https://arxiv.org/abs/2110.01938), Springer
 [DOI](https://doi.org/10.1007/978-3-031-10464-0_50)). This fork rebuilds the data
-pipeline with modern, maintained, CPU-friendly tooling and a reproducible dataset,
-evaluation harness, and baselines.
+pipeline with maintained, CPU-only tooling and adds a reproducible dataset,
+an evaluation harness, and baselines.
 
 Upstream: [`ewdowiak/Sicilian_Translator`](https://github.com/ewdowiak/Sicilian_Translator).
 
@@ -46,17 +46,32 @@ training. See `experiments/baseline/README.md`.
    **13.3k scn–en** (train/valid/test, test+valid held out from Arba Sicula = literary
    standard, not FLORES) + 11k it–scn.
 
-## Results so far (our held-out test set, scn→en, BLEU/chrF)
+## Results
+
+**Our models, on our held-out test set** (1000 Arba-Sicula literary pairs), scn→en:
 
 | model | BLEU | chrF |
 |---|---|---|
 | floor (copy source) | 5.27 | 25.40 |
-| Sockeye-3 baseline (raw) | 5.54 | 28.28 |
+| Sockeye-3 baseline | 5.54 | 28.28 |
 | Sockeye-3 + lever B (tokenization + desinences) | **7.24** | **29.52** |
 
-Lever B confirms the paper's recipe (+1.7 BLEU). Absolute scores are low — small,
-noisy data and a hard literary test set; the modern model (NLLB) and more data are the
-next levers. Numbers are **not** comparable to the paper's (different, harder test set).
+Lever B confirms the paper's recipe (+1.7 BLEU). Absolute scores are low — small, noisy
+data and a hard literary test set; NLLB and more data are the next levers.
+
+**Wdowiak's published numbers, on his own test set** (BLEU):
+
+| | En→Sc | Sc→En |
+|---|---|---|
+| paper baseline | 25.1 | 29.1 |
+| + backtranslation + multilingual | 35.0 | 36.8 |
+| Reverse-Training (his best) | 45.1 | 48.6 |
+
+⚠️ **Not a head-to-head.** His numbers are on a different, in-domain, hand-selected test
+set with his full recipe (backtranslation, multilingual, bigger model, curated data); ours
+is a small baseline on a harder held-out literary test set. Different rulers — a fair
+comparison requires running one model on the other's test set, or reproducing his full
+recipe on our data. Closing that gap on *our* test set is the point of the next experiments.
 
 ## License
 
