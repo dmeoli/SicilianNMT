@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{xcolor}
+
+%% placeholder marker for numbers/sections to fill in after the experiments finish
+\newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
+\newcommand{\num}[1]{\textcolor{blue}{#1}}   % wrap not-yet-final numbers
+
+\title{Sicilian--English Neural Machine Translation:\\
+       an Automated Data Pipeline and Reproducible Baselines}
+\author{Donato Meoli}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\TODO{abstract. Building on \citet{micelibarone2017deep}'s Sicilian translator, we
+rebuild the parallel-corpus pipeline with sentence-embedding extraction and alignment,
+assemble a reproducible Sicilian--English dataset, and report baselines on a held-out
+literary test set. Headline: lever B (paper-style tokenization + desinence-biased
+subwords) reaches \num{7.24} BLEU; NLLB and more data are evaluated as next steps.}
+\end{abstract}
+
+\section{Introduction}
+\TODO{Sicilian as a low-resource Romance language; the value of and prior work on
+\emph{Tradutturi Sicilianu} \citep{micelibarone2017deep}; what this fork adds.}
+Contributions:
+\begin{itemize}
+  \item An automated extraction + alignment pipeline for the \emph{Arba Sicula} PDFs
+        (PyMuPDF + LaBSE \citep{feng2022labse}), replacing the legacy pdflatex+hunalign flow.
+  \item A reproducible, deduplicated, provenance-tracked dataset with a held-out literary
+        test set (not FLORES).
+  \item A BLEU/chrF evaluation harness and CPU baselines (Sockeye), plus the paper's
+        ``lever B'' recipe ported to a Perl-free pipeline.
+  \item Queued experiments toward higher BLEU: NLLB fine-tuning, BPE-dropout, back-translation.
+\end{itemize}
+
+\section{Background}
+\TODO{Wdowiak's recipe: small high-dropout Transformer \citep{vaswani2017attention,
+sennrich2019loresnmt}, subword splitting \citep{sennrich2016subword}, desinence biasing,
+backtranslation \citep{sennrich2015backtrans}, multilingual bridging
+\citep{johnson2017zeroshot, fan2020beyond}. Low-resource methods overview.}
+
+\section{Data Pipeline}
+\subsection{Extraction from PDFs}
+\TODO{PyMuPDF text extraction; per-page language classification (even=scn/odd=en);
+recovering parallel pages the manual selection missed.}
+\subsection{Sentence alignment}
+\TODO{LaBSE embeddings + monotonic DP (1-1/1-2/2-1), page-pair confirmation; vs hunalign
+\citep{thompson2019vecalign}. \num{9{,}428} pairs from 44 issues.}
+\subsection{Additional sources}
+\TODO{Napizia ``Good-Sicilian-in-NLLB'' (LASER3-mined \citep{heffernan2022laser3,
+nllb2022}, rescored), quality + Corsican filtering; WikiMatrix it--scn
+\citep{schwenk2021wikimatrix}.}
+\subsection{Unified dataset}
+\TODO{cleaning, cross-source dedup, deterministic split. Table~\ref{tab:data}.}
+
+\begin{table}[t]\centering
+\caption{Unified dataset.}\label{tab:data}
+\begin{tabular}{lrr}
+\toprule
+split & pairs & source \\
+\midrule
+train & \num{11{,}293}/\num{22{,}456} & Arba Sicula + NLLB \\
+valid & 1{,}000 & Arba Sicula \\
+test  & 1{,}000 & Arba Sicula (literary) \\
+it--scn (aux) & \num{10{,}980} & WikiMatrix \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Tokenization and Subwords}
+\TODO{Pure-Python port of the Napizia tokenizer (ASCII-fold + uncontract); desinence-biased
+joint BPE from Dieli/Chi\`u-d\^a-Palora inflections \citep{sennrich2016subword}.}
+
+\section{Models}
+\TODO{Sockeye-3 small Transformer (3L/256/4h, weight tying, high dropout); ``lever B'';
+``lever C'' BPE-dropout \citep{provilkov2020bpedropout}; NLLB-200 zero-shot and LoRA
+fine-tuning \citep{nllb2022, hu2021lora}.}
+
+\section{Evaluation}
+\TODO{sacrebleu BLEU + chrF; why a held-out Arba-Sicula literary test set rather than the
+NLLB/FLORES set (post-2017 orthography mismatch).}
+
+\section{Results}
+On our held-out test set (1{,}000 literary pairs), scn$\rightarrow$en
+(Table~\ref{tab:results}). \TODO{add 22k, BPE-dropout, NLLB rows once runs finish.}
+
+\begin{table}[t]\centering
+\caption{Our models, our test set (scn$\rightarrow$en).}\label{tab:results}
+\begin{tabular}{lrr}
+\toprule
+model & BLEU & chrF \\
+\midrule
+floor (copy source) & 5.27 & 25.40 \\
+Sockeye baseline & 5.54 & 28.28 \\
+\;+ lever B (tok.\ + desinences) & \textbf{7.24} & \textbf{29.52} \\
+\;+ more data (22k) & \TODO{?} & \TODO{?} \\
+\;+ BPE-dropout & \TODO{?} & \TODO{?} \\
+NLLB-200 zero-shot & \TODO{?} & \TODO{?} \\
+NLLB-200 LoRA fine-tuned & \TODO{?} & \TODO{?} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Relation to prior published numbers.}
+Wdowiak reports (on his own, in-domain, hand-selected test set, with the full recipe)
+En$\rightarrow$Sc/Sc$\rightarrow$En BLEU of 25.1/29.1 (baseline), 35.0/36.8 (augmented),
+and 45.1/48.6 (Reverse-Training). These are \emph{not} a head-to-head with ours: different
+test sets and pipelines. A fair comparison requires running one system on the other's test
+set, or reproducing the full recipe on our data --- the goal of the next experiments.
+
+\section{Conclusion and Future Work}
+\TODO{summary; NLLB fine-tune, back-translation, Italian bridge / transfer from Romance
+high-resource languages; serving via FastAPI.}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,104 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+
+\usetheme{Madrid}
+\newcommand{\TODO}[1]{{\color{red}[TODO: #1]}}
+
+\title[Sicilian NMT]{Sicilian--English NMT}
+\subtitle{An automated data pipeline and reproducible baselines}
+\author{Donato Meoli}
+\date{\today}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{Problem}
+\begin{frame}{Sicilian: a low-resource Romance language}
+  \begin{itemize}
+    \item Building on Wdowiak's \emph{Tradutturi Sicilianu} (first Sicilian NMT).
+    \item This fork: \textbf{automated} data pipeline, reproducible dataset, eval harness,
+          CPU baselines --- and a path to higher BLEU.
+    \item \TODO{1 motivating example (a Sicilian--English pair).}
+  \end{itemize}
+\end{frame}
+
+\section{Data pipeline}
+\begin{frame}{From PDFs to parallel sentences (all CPU)}
+  \begin{enumerate}
+    \item \textbf{Extract} (PyMuPDF): clean text, classify page language (even=scn/odd=en).
+    \item \textbf{Align} (LaBSE + DP): confirm parallel pages, align sentences --- no
+          dictionary, no hunalign.
+    \item \textbf{Augment}: Napizia ``Good-Sicilian-in-NLLB'' (filtered), WikiMatrix it--scn.
+    \item \textbf{Assemble}: dedup + split, literary held-out test set.
+  \end{enumerate}
+  \TODO{pipeline diagram; ``recovers parallel text the manual process missed (p.30--31)''.}
+\end{frame}
+
+\begin{frame}{The dataset}
+  \begin{table}\centering
+  \begin{tabular}{lr}
+    \toprule split & pairs \\\midrule
+    train & 11k / 22k \\ valid & 1{,}000 \\ test & 1{,}000 (literary) \\
+    it--scn (aux) & 11k \\\bottomrule
+  \end{tabular}
+  \end{table}
+\end{frame}
+
+\section{Method}
+\begin{frame}{Tokenization + desinence-biased subwords (``lever B'')}
+  \begin{itemize}
+    \item Pure-Python tokenizer: ASCII-fold + uncontract (\^o$\to$a lu, d\^u$\to$di lu).
+    \item Bias joint BPE toward textbook desinences (Dieli / Chi\`u d\^a Palora).
+    \item \textbf{+1.7 BLEU} over the raw baseline.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Models}
+  Sockeye-3 small high-dropout Transformer (CPU) $\;\to\;$ lever B $\;\to\;$ BPE-dropout;
+  NLLB-200 zero-shot + LoRA fine-tune (Colab). \TODO{model-size table.}
+\end{frame}
+
+\section{Results}
+\begin{frame}{Results (our test set, scn$\rightarrow$en)}
+  \begin{table}\centering
+  \begin{tabular}{lrr}
+    \toprule model & BLEU & chrF \\\midrule
+    floor (copy) & 5.27 & 25.40 \\
+    Sockeye baseline & 5.54 & 28.28 \\
+    + lever B & \textbf{7.24} & \textbf{29.52} \\
+    + 22k / NLLB & \TODO{?} & \TODO{?} \\
+    \bottomrule
+  \end{tabular}
+  \end{table}
+\end{frame}
+
+\begin{frame}{Versus published numbers --- not a head-to-head}
+  Wdowiak (his test set, full recipe): Sc$\rightarrow$En 29.1 $\to$ 36.8 $\to$ \textbf{48.6}.
+  \begin{itemize}
+    \item Different test sets and pipelines $\Rightarrow$ different rulers.
+    \item Fair comparison = run one model on the other's test set (the NLLB run does this).
+  \end{itemize}
+\end{frame}
+
+\section{Next}
+\begin{frame}{Next steps}
+  \begin{itemize}
+    \item NLLB-200 fine-tune (strongest expected lever), back-translation.
+    \item Italian bridge / transfer from high-resource Romance languages.
+    \item Serving via FastAPI.
+  \end{itemize}
+  \centering \vspace{1em} \emph{Grazzi!}
+\end{frame}
+
+\bibliographystyle{plain}
+\bibliography{../paper/references}
+
+\end{document}

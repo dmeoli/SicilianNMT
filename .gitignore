@@ -32,3 +32,14 @@ data/processed/
 data/dataset/
 __pycache__/
 data/baseline*/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.nav
+*.snm
+*.toc
+*.bbl
+*.blg
+docs/**/*.pdf
