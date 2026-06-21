@@ -8,9 +8,12 @@ Sicilian = `scn_Latn`, English = `eng_Latn`, Italian = `ita_Latn`.
 
 ## Quick path (Colab)
 
-1. Open `nllb_colab.ipynb` in Colab; set Runtime → GPU (T4 is enough for 600M).
-2. Run cells; upload `data/dataset/test.scn` and `data/dataset/test.en` when prompted.
-3. It prints BLEU/chrF for scn→en and en→scn.
+Open **`sicilian_nllb_colab.ipynb`** (all-in-one: zero-shot + LoRA fine-tune) — use the
+"Open in Colab" badge in the top-level README, or open it manually. Set Runtime → GPU,
+run top to bottom, and upload the six `data/dataset/{train,valid,test}.{scn,en}` files
+when prompted. It prints zero-shot and fine-tuned BLEU/chrF for both directions.
+
+`nllb_eval.py` / `nllb_finetune.py` are the standalone script equivalents.
 
 Models: `facebook/nllb-200-distilled-600M` (fast, fits free T4) → `...-1.3B` →
 `...-3.3B` (more VRAM). Bigger = better, slower.

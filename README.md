@@ -1,5 +1,7 @@
 # Sicilian NMT — modernized pipeline
 
+[![Open NLLB notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/experiments/nllb/sicilian_nllb_colab.ipynb)
+
 A reproduction and modernization of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
 the first neural machine translator for the Sicilian language
 ([paper](https://arxiv.org/abs/2110.01938), Springer
