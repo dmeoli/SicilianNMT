@@ -2,11 +2,10 @@
 # Lever B prep: paper-style Sicilian tokenization + desinence-biased subwords.
 # Run in the MAIN env (.venv: subword-nmt + perl):  bash experiments/baseline/lever_b_prep.sh
 set -e
-D=data/dataset
-O=data/baseline-tok
+D=${1:-data/dataset}
+O=${2:-data/baseline-tok}
 mkdir -p "$O"
-TOK="perl experiments/baseline/tokenize.pl"
-export PERL5LIB=perl-module
+TOK="python experiments/tokenization/sicilian_tok.py"   # pure-Python port (no Perl needed)
 
 # 1. tokenize splits (sc with sc_tokenizer, en with en_tokenizer)
 for split in train valid test; do
