@@ -29,3 +29,4 @@ extract-text/WikiMatrix.it-scn.txt.scn
 # downloaded external datasets (HuggingFace etc.)
 data/external/
 data/processed/
+data/dataset/
