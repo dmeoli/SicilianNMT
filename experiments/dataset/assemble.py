@@ -64,7 +64,10 @@ def load_pairs() -> list[dict]:
     for _, r in asdf.iterrows():
         s, e = clean(r["sicilian"], r["english"])
         if ok(s, e):
-            recs.append({"scn": s, "en": e, "src": "arbasicula"}); n += 1
+            # only the original LaBSE-extracted pairs are eligible for test/valid, so
+            # adding Perl-merged (or any future) pairs never changes the held-out sets
+            heldout = "_perl" not in str(r.get("issue", ""))
+            recs.append({"scn": s, "en": e, "src": "arbasicula", "heldout": heldout}); n += 1
     stats["arbasicula"] = (len(asdf), n)
 
     nl = pd.read_csv(NLLB_TSV, sep="\t")
@@ -72,7 +75,7 @@ def load_pairs() -> list[dict]:
     for _, r in nl.iterrows():
         s, e = clean(r["scn"], r["en"])
         if ok(s, e):
-            recs.append({"scn": s, "en": e, "src": "nllb"}); n += 1
+            recs.append({"scn": s, "en": e, "src": "nllb", "heldout": False}); n += 1
     stats["nllb"] = (len(nl), n)
     return recs, stats
 
@@ -99,13 +102,14 @@ def main() -> None:
             seen.add(k); dedup.append(r)
     print(f"combined {len(recs):,} -> after scn dedup {len(dedup):,}")
 
-    # split: test+valid drawn from Arba Sicula only (literary standard)
+    # split: test+valid drawn ONLY from original Arba Sicula pairs (heldout-eligible),
+    # so the held-out sets stay fixed as we add Perl-merged / more data to train.
     rng = random.Random(args.seed)
-    as_recs = [r for r in dedup if r["src"] == "arbasicula"]
-    other = [r for r in dedup if r["src"] != "arbasicula"]
-    rng.shuffle(as_recs)
-    test, valid = as_recs[:args.test], as_recs[args.test:args.test + args.valid]
-    train = as_recs[args.test + args.valid:] + other
+    cand = [r for r in dedup if r["src"] == "arbasicula" and r.get("heldout")]
+    rng.shuffle(cand)
+    test, valid = cand[:args.test], cand[args.test:args.test + args.valid]
+    hold = {id(r) for r in test} | {id(r) for r in valid}
+    train = [r for r in dedup if id(r) not in hold]
     rng.shuffle(train)
 
     args.out.mkdir(parents=True, exist_ok=True)
