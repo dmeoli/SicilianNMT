@@ -54,10 +54,12 @@ training. See `experiments/baseline/README.md`.
 |---|---|---|
 | floor (copy source) | 5.27 | 25.40 |
 | Sockeye-3 baseline | 5.54 | 28.28 |
-| Sockeye-3 + lever B (tokenization + desinences) | **7.24** | **29.52** |
+| Sockeye-3 + lever B (tokenization + desinences) | 7.24 | 29.52 |
+| \;+ more data (22k, NLLB threshold 3.0) | **9.79** | **33.82** |
 
-Lever B confirms the paper's recipe (+1.7 BLEU). Absolute scores are low — small, noisy
-data and a hard literary test set; NLLB and more data are the next levers.
+Each lever stacks: tokenization + desinences (+1.7 BLEU) then more data (+2.55) take the
+baseline from 5.54 to 9.79 (+77% relative). Absolute scores are still low — small model
+(6.6M), noisy data and a hard literary test set; NLLB and BPE-dropout are the next levers.
 
 **Wdowiak's published numbers, on his own test set** (BLEU):
 
