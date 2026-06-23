@@ -23,8 +23,6 @@ experiments/
   baseline/      Sockeye-3 (PyTorch, CPU) small Transformer + the paper's "lever B"
                  (tokenization + desinence-biased subwords)
   nllb/          NLLB-200 zero-shot / fine-tune on Colab (Sicilian = scn_Latn)
-training/ translations/   upstream's Reverse-Training (Sockeye-3) scripts + recorded scores
-fastapi/         upstream's FastAPI translation server
 extract-text/    Arba Sicula PDFs (gitignored) + WikiMatrix it-scn + aligned gold CSVs
 vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas
 docs/            Standard-Sicilian standardization & contraction references
