@@ -26,8 +26,8 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--issues", type=Path, default=REPO / "extract-text/as-issues")
     ap.add_argument("--out", type=Path, default=REPO / "data/processed/arbasicula")
-    ap.add_argument("--min-page-sim", type=float, default=0.62)
-    ap.add_argument("--min-sent-sim", type=float, default=0.50)
+    ap.add_argument("--min-page-sim", type=float, default=0.50)
+    ap.add_argument("--min-sent-sim", type=float, default=0.40)
     args = ap.parse_args()
 
     pdfs = sorted(args.issues.glob("*.pdf"))

@@ -23,7 +23,7 @@ from align_sentences import page_sentences, align
 
 
 def process_issue(pdf: Path, model, scn_stop: set[str],
-                  min_page_sim: float = 0.62, min_sent_sim: float = 0.50):
+                  min_page_sim: float = 0.50, min_sent_sim: float = 0.40):
     """Return (out_scn, out_en, n_candidates, n_confirmed) for one issue PDF."""
     pages = classify_document(pdf, scn_stop)
     candidates = parallel_pairs(pages)
@@ -61,9 +61,9 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("pdf", type=Path)
     ap.add_argument("--out", type=Path, required=True)
-    ap.add_argument("--min-page-sim", type=float, default=0.62,
+    ap.add_argument("--min-page-sim", type=float, default=0.50,
                     help="confirm a facing pair only if mean page cosine >= this")
-    ap.add_argument("--min-sent-sim", type=float, default=0.50)
+    ap.add_argument("--min-sent-sim", type=float, default=0.40)
     args = ap.parse_args()
 
     model = SentenceTransformer("sentence-transformers/LaBSE")
