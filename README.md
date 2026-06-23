@@ -36,13 +36,13 @@ training. See `experiments/baseline/README.md`.
 ## Data pipeline (all CPU)
 
 1. **Extract** parallel text from Arba Sicula PDFs — `experiments/extraction/build_all.py`
-   (PyMuPDF + LaBSE). Recovers ~9.4k sentence pairs from 44 issues, fully automated,
-   surfacing parallel text the original hand-curated process missed.
+   (PyMuPDF + LaBSE). Recovers **~14k** sentence pairs from 44 issues, fully automated;
+   thresholds tuned against Eryk Wdowiak's hand-aligned AS41-42 gold (`tune_vs_gold.py`).
 2. **Add** the author's curated `Napizia/Good-Sicilian-in-NLLB` (filtered for quality and
-   Corsican contamination) and WikiMatrix it-scn.
+   Corsican contamination), `Good-Sicilian-from-WikiMatrix`, and WikiMatrix it-scn.
 3. **Assemble** a unified, deduped, split dataset — `experiments/dataset/assemble.py`:
-   **13.3k scn–en** (train/valid/test, test+valid held out from Arba Sicula = literary
-   standard, not FLORES) + 11k it–scn.
+   **~29k scn–en** (train 27.4k, + a frozen 1k valid / 1k test held out from Arba Sicula =
+   literary standard, not FLORES) + 11.4k it–scn.
 
 ## Results
 
