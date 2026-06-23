@@ -56,11 +56,13 @@ training. See `experiments/baseline/README.md`.
 | Sockeye-3 baseline | 5.54 | 28.28 |
 | Sockeye-3 + lever B (tokenization + desinences) | 7.24 | 29.52 |
 | \;+ more data (22k, NLLB threshold 3.0) | **9.79** | **33.82** |
-| NLLB-200 distilled-600M, zero-shot † | **25.58** | **52.57** |
+| NLLB-200 distilled-600M, zero-shot † | 25.63 | 52.53 |
+| NLLB-200 distilled-600M, LoRA fine-tuned † | **28.93** | **55.12** |
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
-But the modern pretrained model wins decisively: **NLLB-200 zero-shot scn→en 25.58 BLEU**
-(en→scn 9.44 / chrF 40.40), with **no training** — and fine-tuning should push it higher.
+The modern pretrained model wins decisively: **NLLB-200 zero-shot scn→en 25.63 BLEU**
+(en→scn 9.64), and **LoRA fine-tuning lifts it to 28.93** (+3.3) — essentially matching the
+paper's published *baseline* (Sc→En 29.1), but on our harder held-out literary test set.
 
 † NLLB rows are evaluated on raw text; the Sockeye rows are tokenized space (raw floor is
 5.27 BLEU). Even allowing for that, the 600M pretrained model far exceeds the 6.6M baseline.
