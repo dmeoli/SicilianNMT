@@ -14,6 +14,8 @@ import re
 import unicodedata
 from pathlib import Path
 
+csv.field_size_limit(10 ** 7)  # some extracted "sentences" (junk pages) are very long
+
 REPO = Path(__file__).resolve().parents[2]
 CORPUS = REPO / "data/processed/arbasicula/corpus.tsv"
 ALIGNED = REPO / "extract-text/aligned"
