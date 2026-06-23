@@ -81,9 +81,11 @@ it--scn (aux) & \num{10{,}980} & WikiMatrix \\
 joint BPE from Dieli/Chi\`u-d\^a-Palora inflections \citep{sennrich2016subword}.}
 
 \section{Models}
-\TODO{Sockeye-3 small Transformer (3L/256/4h, weight tying, high dropout); ``lever B'';
-``lever C'' BPE-dropout \citep{provilkov2020bpedropout}; NLLB-200 zero-shot and LoRA
-fine-tuning \citep{nllb2022, hu2021lora}.}
+\TODO{Sockeye-3 \citep{hieber2017sockeye} small Transformer (3L/256/4h, weight tying, high
+dropout); ``lever B''; ``lever C'' BPE-dropout \citep{provilkov2020bpedropout}; ``lever D''
+linguistic input features (lemma source factors) \citep{sennrich2016linguistic}; NLLB-200
+zero-shot and LoRA fine-tuning \citep{nllb2022, hu2021lora}. Alignment uses LaBSE
+\citep{feng2022labse}.}
 
 \section{Evaluation}
 \TODO{sacrebleu BLEU + chrF; why a held-out Arba-Sicula literary test set rather than the

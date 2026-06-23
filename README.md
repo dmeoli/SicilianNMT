@@ -79,6 +79,21 @@ is a small baseline on a harder held-out literary test set. Different rulers —
 comparison requires running one model on the other's test set, or reproducing his full
 recipe on our data. Closing that gap on *our* test set is the point of the next experiments.
 
+## References
+
+We build on (PDFs and links in [`papers/`](papers/)): Wdowiak's *Recipe for Low-Resource NMT*;
+the Transformer ([Vaswani et al. 2017](https://arxiv.org/abs/1706.03762)); the low-resource
+recipe ([Sennrich & Zhang 2019](https://arxiv.org/abs/1905.11901)) and subword splitting
+([Sennrich et al. 2016](https://arxiv.org/abs/1508.07909)); linguistic input features
+([Sennrich & Haddow 2016](https://arxiv.org/abs/1606.02892)); NLLB-200
+([NLLB Team 2022](https://arxiv.org/abs/2207.04672)) and LASER3
+([Heffernan et al. 2022](https://arxiv.org/abs/2205.12654)); LaBSE
+([Feng et al. 2022](https://arxiv.org/abs/2007.01852)); LoRA
+([Hu et al. 2021](https://arxiv.org/abs/2106.09685)); WikiMatrix
+([Schwenk et al. 2021](https://arxiv.org/abs/1907.05791)); Sockeye
+([Hieber et al. 2017](https://arxiv.org/abs/1712.05690)); plus BPE-dropout, back-translation,
+multilingual zero-shot and beyond-English-centric MT. Full list in `papers/README.md`.
+
 ## License
 
 Apache-2.0 (see `LICENSE`). Data sources retain their own terms (Arba Sicula; NLLB ODC-BY).
