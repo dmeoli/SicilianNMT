@@ -102,14 +102,25 @@ def main() -> None:
             seen.add(k); dedup.append(r)
     print(f"combined {len(recs):,} -> after scn dedup {len(dedup):,}")
 
-    # split: test+valid drawn ONLY from original Arba Sicula pairs (heldout-eligible),
-    # so the held-out sets stay fixed as we add Perl-merged / more data to train.
+    # split: if a frozen test/valid exists, reuse it VERBATIM so numbers stay comparable as
+    # the dataset grows; otherwise draw test/valid from heldout-eligible Arba Sicula pairs.
     rng = random.Random(args.seed)
-    cand = [r for r in dedup if r["src"] == "arbasicula" and r.get("heldout")]
-    rng.shuffle(cand)
-    test, valid = cand[:args.test], cand[args.test:args.test + args.valid]
-    hold = {id(r) for r in test} | {id(r) for r in valid}
-    train = [r for r in dedup if id(r) not in hold]
+    FROZEN = REPO / "data/dataset_frozen_test"
+    if (FROZEN / "test.scn").exists():
+        def _load(name):
+            sc = (FROZEN / f"{name}.scn").read_text(encoding="utf-8").splitlines()
+            en = (FROZEN / f"{name}.en").read_text(encoding="utf-8").splitlines()
+            return [{"scn": s, "en": e, "src": "frozen"} for s, e in zip(sc, en)]
+        test, valid = _load("test"), _load("valid")
+        holdkeys = {key(r["scn"]) for r in test} | {key(r["scn"]) for r in valid}
+        train = [r for r in dedup if key(r["scn"]) not in holdkeys]
+        print(f"using FROZEN test/valid ({len(test)}/{len(valid)}); train excludes their keys")
+    else:
+        cand = [r for r in dedup if r["src"] == "arbasicula" and r.get("heldout")]
+        rng.shuffle(cand)
+        test, valid = cand[:args.test], cand[args.test:args.test + args.valid]
+        hold = {id(r) for r in test} | {id(r) for r in valid}
+        train = [r for r in dedup if id(r) not in hold]
     rng.shuffle(train)
 
     args.out.mkdir(parents=True, exist_ok=True)
@@ -121,9 +132,14 @@ def main() -> None:
             for r in split:
                 f.write(f"{r['src']}\t{r['scn']}\t{r['en']}\n")
 
-    # WikiMatrix it-scn (auxiliary, multilingual direction): clean + dedup, no split
+    # it-scn (auxiliary, multilingual direction): WikiMatrix + Napizia's hand-edited
+    # "Good Sicilian from WikiMatrix" (514 curated pairs); clean + dedup, no split.
     it = WIKI_IT.read_text(encoding="utf-8").splitlines()
     sc = WIKI_SCN.read_text(encoding="utf-8").splitlines()
+    GFWM = REPO / "data/external/Good-Sicilian-from-WikiMatrix/Napizia-edited-WikiMatrix.it-scn"
+    if (GFWM / "Napizia-edited-WikiMatrix.it-scn.it").exists():
+        it += (GFWM / "Napizia-edited-WikiMatrix.it-scn.it").read_text(encoding="utf-8").splitlines()
+        sc += (GFWM / "Napizia-edited-WikiMatrix.it-scn.scn").read_text(encoding="utf-8").splitlines()
     seen_it, kept_it, kept_sc = set(), [], []
     for i, s in zip(it, sc):
         i, s = norm(i), norm(s)

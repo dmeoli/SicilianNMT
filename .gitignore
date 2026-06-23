@@ -47,3 +47,4 @@ docs/**/*.pdf
 # private (email attachments, not for the public repo)
 private/
 docs/email-to-eryk.md
+data/dataset_frozen_test/
