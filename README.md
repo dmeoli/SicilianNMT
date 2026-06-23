@@ -59,13 +59,20 @@ training. See `experiments/baseline/README.md`.
 | NLLB-200 distilled-600M, zero-shot † | 25.63 | 52.53 |
 | NLLB-200 distilled-600M, LoRA fine-tuned † | 28.93 | 55.12 |
 | NLLB-200 1.3B, zero-shot † | 29.00 | 55.23 |
-| NLLB-200 1.3B, LoRA fine-tuned (27k train) † | **31.16** | **56.79** |
+| NLLB-200 1.3B, LoRA fine-tuned, scn→en only (27k) † | 31.16 | 56.79 |
+| NLLB-200 1.3B, LoRA **bidirectional** (27k) † | **31.33** | **56.92** |
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
 The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.00
-(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.16 BLEU** — now clearly
+(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.33 BLEU** — now clearly
 **above** Wdowiak's published *baseline* (Sc→En 29.1), on our harder held-out literary test
 set, and climbing toward his augmented numbers (36.8).
+
+**en→scn** (the reverse direction) on the same test set: NLLB-1.3B zero-shot 9.89 →
+**bidirectional LoRA 18.65 BLEU / 49.82 chrF** — the bidirectional fine-tune nearly doubles
+the weak direction at no cost to scn→en, and yields a usable two-way model (the saved adapter
+backs both the serving bot and back-translation). Still below the paper's en→scn baseline
+(25.1); back-translation and the Italian bridge are the next levers.
 
 † NLLB rows are evaluated on raw text; the Sockeye rows are tokenized space (raw floor is
 5.27 BLEU). Even allowing for that, the 600M pretrained model far exceeds the 6.6M baseline.

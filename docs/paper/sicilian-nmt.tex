@@ -109,10 +109,17 @@ Sockeye baseline & 5.54 & 28.28 \\
 NLLB-200 zero-shot (raw) & 25.63 & 52.53 \\
 NLLB-200 LoRA fine-tuned (raw) & 28.93 & 55.12 \\
 NLLB-200 1.3B zero-shot (raw) & 29.00 & 55.23 \\
-NLLB-200 1.3B LoRA fine-tuned (raw) & \textbf{31.16} & \textbf{56.79} \\
+NLLB-200 1.3B LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
+NLLB-200 1.3B LoRA \emph{bidirectional} & \textbf{31.33} & \textbf{56.92} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts
+NLLB-1.3B from \num{9.89} (zero-shot) to \num{18.65} BLEU / \num{49.82} chrF, nearly
+doubling the weak direction at no cost to scn$\rightarrow$en and giving a usable two-way
+model. This is still below the published en$\rightarrow$scn baseline (25.1); back-translation
+and Italian bridging are the next levers.
 
 \paragraph{Relation to prior published numbers.}
 Wdowiak reports (on his own, in-domain, hand-selected test set, with the full recipe)

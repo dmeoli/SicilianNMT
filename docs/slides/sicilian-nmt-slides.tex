@@ -77,10 +77,12 @@
     + more data (22k) & 9.79 & 33.82 \\
     + lever D (lemma factors, 27k) & 10.85 & 35.22 \\
     NLLB-200 zero-shot (raw) & 25.63 & 52.53 \\
-    NLLB-1.3B LoRA fine-tuned & \textbf{31.16} & \textbf{56.79} \\
+    NLLB-1.3B LoRA bidirectional & \textbf{31.33} & \textbf{56.92} \\
     \bottomrule
   \end{tabular}
   \end{table}
+  \footnotesize en$\rightarrow$scn: zero-shot 9.89 $\to$ bidirectional LoRA \textbf{18.65}
+  (nearly doubled, no cost to scn$\rightarrow$en).
 \end{frame}
 
 \begin{frame}{Versus published numbers --- not a head-to-head}
