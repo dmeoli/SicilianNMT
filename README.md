@@ -55,12 +55,15 @@ training. See `experiments/baseline/README.md`.
 | Sockeye-3 + lever B (tokenization + desinences) | 7.24 | 29.52 |
 | \;+ more data (22k, NLLB threshold 3.0) | **9.79** | **33.82** |
 | NLLB-200 distilled-600M, zero-shot † | 25.63 | 52.53 |
-| NLLB-200 distilled-600M, LoRA fine-tuned † | **28.93** | **55.12** |
+| NLLB-200 distilled-600M, LoRA fine-tuned † | 28.93 | 55.12 |
+| NLLB-200 1.3B, zero-shot † | 29.00 | 55.23 |
+| NLLB-200 1.3B, LoRA fine-tuned (27k train) † | **31.16** | **56.79** |
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
-The modern pretrained model wins decisively: **NLLB-200 zero-shot scn→en 25.63 BLEU**
-(en→scn 9.64), and **LoRA fine-tuning lifts it to 28.93** (+3.3) — essentially matching the
-paper's published *baseline* (Sc→En 29.1), but on our harder held-out literary test set.
+The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.00
+(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.16 BLEU** — now clearly
+**above** Wdowiak's published *baseline* (Sc→En 29.1), on our harder held-out literary test
+set, and climbing toward his augmented numbers (36.8).
 
 † NLLB rows are evaluated on raw text; the Sockeye rows are tokenized space (raw floor is
 5.27 BLEU). Even allowing for that, the 600M pretrained model far exceeds the 6.6M baseline.
