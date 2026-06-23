@@ -54,7 +54,8 @@ training. See `experiments/baseline/README.md`.
 | floor (copy source) | 5.27 | 25.40 |
 | Sockeye-3 baseline | 5.54 | 28.28 |
 | Sockeye-3 + lever B (tokenization + desinences) | 7.24 | 29.52 |
-| \;+ more data (22k, NLLB threshold 3.0) | **9.79** | **33.82** |
+| \;+ more data (22k, NLLB threshold 3.0) | 9.79 | 33.82 |
+| \;+ lever D (27k + lemma source factors) | **10.85** | **35.22** |
 | NLLB-200 distilled-600M, zero-shot † | 25.63 | 52.53 |
 | NLLB-200 distilled-600M, LoRA fine-tuned † | 28.93 | 55.12 |
 | NLLB-200 1.3B, zero-shot † | 29.00 | 55.23 |
