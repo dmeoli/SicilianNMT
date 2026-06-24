@@ -4,26 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tradutturi Sicilianu</title>
-  <meta name="description" content="Traduci tra Sicilianu e Nglisi. Translate between Sicilian and English.">
+  <meta name="description" content="Traduci tra Sicilianu, Nglisi e Talianu. Translate between Sicilian, English and Italian.">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <header>
     <div class="bar">
       <h1>Tradutturi <span class="gold">Sicilianu</span></h1>
-      <p class="tag">Sicilianu &#8596; Nglisi &nbsp;&middot;&nbsp; Sicilian &#8596; English</p>
+      <p class="tag">Sicilianu &middot; Nglisi &middot; Talianu &nbsp;|&nbsp; Sicilian &middot; English &middot; Italian</p>
     </div>
   </header>
 
   <main>
     <div class="dir">
-      <span id="srcLabel" class="lang">Sicilianu</span>
+      <select id="srcLang" aria-label="source language">
+        <option value="scn">Sicilianu</option>
+        <option value="en">English</option>
+        <option value="it">Italiano</option>
+      </select>
       <button id="swap" title="Gira / Swap" aria-label="swap">&#8646;</button>
-      <span id="tgtLabel" class="lang">English</span>
+      <select id="tgtLang" aria-label="target language">
+        <option value="en">English</option>
+        <option value="scn">Sicilianu</option>
+        <option value="it">Italiano</option>
+      </select>
     </div>
 
     <div class="panes">
-      <textarea id="src" placeholder="Scrivi ccà&#8230; / Type here&#8230;" autofocus></textarea>
+      <textarea id="src" placeholder="Scrivi cc&agrave;&#8230; / Type here&#8230;" autofocus></textarea>
       <textarea id="tgt" placeholder="Traduzioni / Translation" readonly></textarea>
     </div>
 

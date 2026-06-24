@@ -1,21 +1,21 @@
-// Minimal front-end: calls POST /translate on our FastAPI NLLB service.
-const LANGS = { scn: "Sicilianu", en: "English" };
-let dir = { src: "scn", tgt: "en" };
-
+// Front-end for the trilingual (scn/en/it) translator. Calls POST /translate.
 const $ = (id) => document.getElementById(id);
 const srcBox = $("src"), tgtBox = $("tgt"), statusEl = $("status"), goBtn = $("go");
+const srcLang = $("srcLang"), tgtLang = $("tgtLang");
 
-function renderDir() {
-  $("srcLabel").textContent = LANGS[dir.src];
-  $("tgtLabel").textContent = LANGS[dir.tgt];
-  srcBox.placeholder = dir.src === "scn" ? "Scrivi cc…" : "Type here…";
+// keep source and target languages distinct
+function ensureDistinct(changed) {
+  if (srcLang.value === tgtLang.value) {
+    const other = changed === srcLang ? tgtLang : srcLang;
+    other.value = ["scn", "en", "it"].find((l) => l !== changed.value);
+  }
 }
+srcLang.addEventListener("change", () => ensureDistinct(srcLang));
+tgtLang.addEventListener("change", () => ensureDistinct(tgtLang));
 
 $("swap").addEventListener("click", () => {
-  dir = { src: dir.tgt, tgt: dir.src };
-  // swap any existing text too, so a round-trip is easy
-  const s = srcBox.value; srcBox.value = tgtBox.value; tgtBox.value = s;
-  renderDir();
+  const s = srcLang.value; srcLang.value = tgtLang.value; tgtLang.value = s;
+  const t = srcBox.value; srcBox.value = tgtBox.value; tgtBox.value = t;
   srcBox.focus();
 });
 
@@ -29,7 +29,7 @@ async function translate() {
     const r = await fetch("/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, src: dir.src, tgt: dir.tgt }),
+      body: JSON.stringify({ text, src: srcLang.value, tgt: tgtLang.value }),
     });
     if (!r.ok) throw new Error("HTTP " + r.status);
     const data = await r.json();
@@ -43,9 +43,6 @@ async function translate() {
 }
 
 goBtn.addEventListener("click", translate);
-// Ctrl/Cmd + Enter to translate
 srcBox.addEventListener("keydown", (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === "Enter") translate();
 });
-
-renderDir();

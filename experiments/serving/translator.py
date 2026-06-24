@@ -13,7 +13,7 @@ BASE_MODEL = os.environ.get("NLLB_BASE", "facebook/nllb-200-1.3B")
 # leave unset to serve the plain zero-shot base model.
 ADAPTER_DIR = os.environ.get("NLLB_ADAPTER", "").strip() or None
 
-LANG = {"scn": "scn_Latn", "en": "eng_Latn"}
+LANG = {"scn": "scn_Latn", "en": "eng_Latn", "it": "ita_Latn"}
 
 
 class Translator:
