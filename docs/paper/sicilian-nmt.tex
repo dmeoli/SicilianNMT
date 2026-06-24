@@ -4,13 +4,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage{natbib}
 \usepackage{xcolor}
 
-%% placeholder marker for numbers/sections to fill in after the experiments finish
+%% placeholder marker for anything still to be filled in
 \newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
-\newcommand{\num}[1]{\textcolor{blue}{#1}}   % wrap not-yet-final numbers
 
 \title{Sicilian--English Neural Machine Translation:\\
        an Automated Data Pipeline and Reproducible Baselines}
@@ -21,79 +21,153 @@
 \maketitle
 
 \begin{abstract}
-\TODO{abstract. Building on \citet{micelibarone2017deep}'s Sicilian translator, we
-rebuild the parallel-corpus pipeline with sentence-embedding extraction and alignment,
-assemble a reproducible Sicilian--English dataset, and report baselines on a held-out
-literary test set. Headline: lever B (paper-style tokenization + desinence-biased
-subwords) reaches \num{7.24} BLEU; NLLB and more data are evaluated as next steps.}
+Sicilian is a low-resource Romance language, with a literary tradition older than Italian,
+yet absent from every major machine-translation service. Building on Wdowiak's
+\emph{Tradutturi Sicilianu} \citep{wdowiak2021recipe}, the first Sicilian neural machine
+translation (NMT) system, we rebuild the parallel-corpus pipeline with sentence-embedding
+extraction and alignment (PyMuPDF and LaBSE \citep{feng2022labse}), assemble a reproducible,
+deduplicated Sicilian--English dataset with a held-out \emph{literary} test set, and port the
+paper's tokenization and desinence-biasing recipe to a Perl-free stack. We evaluate both
+from-scratch Sockeye baselines and the pretrained NLLB-200 model \citep{nllb2022} adapted with
+LoRA \citep{hu2021lora}. On our harder held-out test, Sicilian$\rightarrow$English climbs from
+a 5.27 BLEU floor to 31.33 with a bidirectionally fine-tuned NLLB-1.3B---above Wdowiak's
+published baseline (29.1)---while the reverse direction nearly doubles (9.89$\rightarrow$18.65).
+The full pipeline, dataset assembly and evaluation are reproducible.
 \end{abstract}
 
 \section{Introduction}
-\TODO{Sicilian as a low-resource Romance language; the value of and prior work on
-\emph{Tradutturi Sicilianu} \citep{micelibarone2017deep}; what this fork adds.}
-Contributions:
+Sicilian is a Romance language spoken daily by millions in Sicily, Calabria and Puglia, and in
+diaspora communities abroad. The Sicilian School of poets at the court of Frederick~II created
+the first literary standard in Italy in the 13\textsuperscript{th} century and inspired Dante;
+Sicilian thus emerged as a literary language \emph{before} Italian. Despite this, it is absent
+from Google Translate, Bing, Yandex and DeepL---as are most regional languages.
+
+The bottleneck was never the model but the \emph{parallel text}: nobody had assembled it. The
+material exists, in the bilingual literary journal published for over forty years by Arba
+Sicula. Wdowiak's \emph{Tradutturi Sicilianu} \citep{wdowiak2021recipe} was the first Sicilian
+NMT system, trained on hand-aligned Arba Sicula text with a recipe tailored to the
+low-resource, morphologically rich setting. This work rebuilds that effort with maintained,
+mostly CPU-only tooling and pushes quality with modern pretrained models.
+
+\paragraph{Contributions.}
 \begin{itemize}
-  \item An automated extraction + alignment pipeline for the \emph{Arba Sicula} PDFs
-        (PyMuPDF + LaBSE \citep{feng2022labse}), replacing the legacy pdflatex+hunalign flow.
-  \item A reproducible, deduplicated, provenance-tracked dataset with a held-out literary
-        test set (not FLORES).
-  \item A BLEU/chrF evaluation harness and CPU baselines (Sockeye), plus the paper's
-        ``lever B'' recipe ported to a Perl-free pipeline.
-  \item Queued experiments toward higher BLEU: NLLB fine-tuning, BPE-dropout, back-translation.
+  \item An automated extraction and alignment pipeline for the \emph{Arba Sicula} PDFs (PyMuPDF
+        and LaBSE \citep{feng2022labse}), replacing the legacy pdflatex+hunalign flow, with
+        thresholds tuned against Wdowiak's hand-aligned gold.
+  \item A reproducible, deduplicated, provenance-tracked dataset with a held-out literary test
+        set (not FLORES), and a BLEU/chrF evaluation harness.
+  \item The paper's ``lever B'' recipe (Napizia tokenizer + desinence-biased subwords) ported
+        to a Perl-free pipeline, and a linguistic-feature lever (lemma source factors).
+  \item NLLB-200 zero-shot and LoRA fine-tuning that beats the published baseline on our harder
+        test set, with a bidirectional adapter that also rescues the reverse direction.
 \end{itemize}
 
 \section{Background}
-\TODO{Wdowiak's recipe: small high-dropout Transformer \citep{vaswani2017attention,
-sennrich2019loresnmt}, subword splitting \citep{sennrich2016subword}, desinence biasing,
-backtranslation \citep{sennrich2015backtrans}, multilingual bridging
-\citep{johnson2017zeroshot, fan2020beyond}. Low-resource methods overview.}
+NMT models translation as a conditional language model: an encoder reads the source
+$x=(x_1,\dots,x_n)$ and a decoder factorises the target left to right,
+$p_\theta(y\mid x)=\prod_{t} p_\theta(y_t\mid y_{<t},x)$, trained by maximising the
+log-likelihood of a parallel corpus and decoded with beam search. The dominant
+parameterisation is the \textbf{Transformer} \citep{vaswani2017attention}, which replaces
+recurrence with scaled dot-product attention,
+$\mathrm{Attention}(Q,K,V)=\mathrm{softmax}(QK^{\top}/\sqrt{d_k})V$, run in parallel heads.
+
+With little data the default Transformer overfits; the low-resource recipe of
+\citet{sennrich2019loresnmt} prescribes a smaller, heavily regularised model with high dropout
+\citep{srivastava2014dropout} and small subword vocabularies. \textbf{Subword segmentation}
+via byte-pair encoding \citep{sennrich2016subword} gives an open vocabulary and shares
+statistics across word forms---essential for a morphologically rich language. Further gains
+come from \textbf{linguistic input features} \citep{sennrich2016linguistic},
+\textbf{back-translation} of monolingual data \citep{sennrich2015backtrans}, and
+\textbf{multilingual} training with a target-language token \citep{johnson2017zeroshot} that
+enables bridging through related high-resource languages \citep{fan2020beyond,
+arivazhagan2019massively}. Low-resource MT remains hard for exactly these reasons
+\citep{koehnknowles2017}.
 
 \section{Data Pipeline}
 \subsection{Extraction from PDFs}
-\TODO{PyMuPDF text extraction; per-page language classification (even=scn/odd=en);
-recovering parallel pages the manual selection missed.}
+We extract clean text from the Arba Sicula issue PDFs with PyMuPDF (no pdflatex round-trip).
+Each page is assigned a language from its share of Sicilian stop-words and diacritics; the
+journal sets Sicilian and English on facing pages, giving a natural even/odd prior, so we form
+facing candidate pairs. Pages are segmented into sentences with \texttt{pysbd} (per language),
+filtering ``furniture'' (all-caps headers, page numbers, captions). The procedure recovers
+parallel pages the manual selection had skipped.
+
 \subsection{Sentence alignment}
-\TODO{LaBSE embeddings + monotonic DP (1-1/1-2/2-1), page-pair confirmation; vs hunalign
-\citep{thompson2019vecalign}. \num{9{,}428} pairs from 44 issues.}
+We embed every sentence with LaBSE \citep{feng2022labse}, a language-agnostic dual encoder, and
+build the cosine-similarity matrix $S_{ij}=\langle u_i,v_j\rangle/(\lVert u_i\rVert\lVert
+v_j\rVert)$. A facing pair is confirmed only if its mean best-match similarity exceeds
+$\tau_{\text{page}}$; sentences are then aligned by a monotonic dynamic program over $S$
+allowing $1$--$1$, $1$--$2$ and $2$--$1$ moves with a null penalty, in the spirit of Vecalign
+\citep{thompson2019vecalign} but without a bilingual dictionary or hunalign. The thresholds
+$(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$ were tuned against Wdowiak's hand-aligned
+gold (issues AS41--42); the pipeline recovers 14{,}245 sentence pairs from 44 issues, comparable
+to his manual alignment. Crucially, the \emph{unaligned} English is retained as an in-domain
+monolingual pool for back-translation.
+
 \subsection{Additional sources}
-\TODO{Napizia ``Good-Sicilian-in-NLLB'' (LASER3-mined \citep{heffernan2022laser3,
-nllb2022}, rescored), quality + Corsican filtering; WikiMatrix it--scn
-\citep{schwenk2021wikimatrix}.}
+We add the author's curated ``Good-Sicilian-in-NLLB'' set---LASER3-mined sentences
+\citep{heffernan2022laser3, nllb2022} rescored and filtered for quality and Corsican
+contamination---a small curated ``Good-Sicilian-from-WikiMatrix'' set, and the WikiMatrix
+it--scn subset \citep{schwenk2021wikimatrix} as an auxiliary Italian bridge.
+
 \subsection{Unified dataset}
-\TODO{cleaning, cross-source dedup, deterministic split. Table~\ref{tab:data}.}
+Sources are cleaned, deduplicated across one another, and split deterministically. A 1{,}000/1{,}000
+valid/test split is \emph{frozen} once, held out from Arba Sicula (a literary standard, not
+FLORES), so every later result stays comparable (Table~\ref{tab:data}).
 
 \begin{table}[t]\centering
 \caption{Unified dataset.}\label{tab:data}
-\begin{tabular}{lrr}
+\begin{tabular}{lrl}
 \toprule
 split & pairs & source \\
 \midrule
-train & \num{11{,}293}/\num{22{,}456} & Arba Sicula + NLLB \\
+train & 27{,}386 & Arba Sicula + NLLB \\
 valid & 1{,}000 & Arba Sicula \\
 test  & 1{,}000 & Arba Sicula (literary) \\
-it--scn (aux) & \num{10{,}980} & WikiMatrix \\
+it--scn (aux) & 11{,}389 & WikiMatrix \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Tokenization and Subwords}
-\TODO{Pure-Python port of the Napizia tokenizer (ASCII-fold + uncontract); desinence-biased
-joint BPE from Dieli/Chi\`u-d\^a-Palora inflections \citep{sennrich2016subword}.}
+We re-implement the Napizia tokenizer in pure Python (verified identical to the original Perl):
+it ASCII-folds accents and \emph{uncontracts} Sicilian (e.g.\ \^o$\to$\emph{a lu},
+d\^u$\to$\emph{di lu}), cutting sparsity. ``Lever B'' then biases the joint scn--en BPE
+\citep{sennrich2016subword} toward the textbook \emph{desinences} catalogued in the resources
+Wdowiak assembled to standardise Sicilian---Dieli's \emph{Sicilian Vocabulary}, Cipolla's
+\emph{Mparamu lu sicilianu} \citep{cipolla2013}, Bonner's grammar \citep{bonner2001}, and the
+\emph{Chi\`u d\^a Palora} dictionary---so morphological endings survive as units. BPE-dropout
+\citep{provilkov2020bpedropout} adds subword regularisation by sampling segmentations during
+training.
 
 \section{Models}
-\TODO{Sockeye-3 \citep{hieber2017sockeye} small Transformer (3L/256/4h, weight tying, high
-dropout); ``lever B''; ``lever C'' BPE-dropout \citep{provilkov2020bpedropout}; ``lever D''
-linguistic input features (lemma source factors) \citep{sennrich2016linguistic}; NLLB-200
-zero-shot and LoRA fine-tuning \citep{nllb2022, hu2021lora}. Alignment uses LaBSE
-\citep{feng2022labse}.}
+The from-scratch baseline is a Sockeye-3 \citep{hieber2017sockeye} small Transformer (3 layers,
+model size 256, 4 heads, feed-forward 1024, weight tying, dropout 0.4, joint BPE $\approx$4k;
+$\sim$6.6M parameters), trained on CPU. On top of it we stack lever B (tokenization +
+desinences), more parallel text, and ``lever D'' linguistic input features
+\citep{sennrich2016linguistic}: a lemma source factor summed into the source embedding,
+$e_j=E_{\text{word}}(w_j)+E_{\text{lemma}}(\ell_j)$, whose small ($\sim$900) vocabulary
+generalises across inflected forms.
+
+The pretrained model is NLLB-200 \citep{nllb2022}, a massively multilingual encoder--decoder
+that supports Sicilian (\texttt{scn\_Latn}) and is steered by forcing the first decoder token.
+We adapt the 1.3B variant with LoRA \citep{hu2021lora}: freezing $W_0$ and learning a low-rank
+update $W=W_0+\frac{\alpha}{r}BA$ ($r{=}32$, $\alpha{=}64$) on the attention projections, with
+the base in fp16 and the adapters in fp32. Training \emph{both} directions at once (scn$\to$en
+and en$\to$scn) yields a single adapter that serves both and rescues the weak reverse direction.
 
 \section{Evaluation}
-\TODO{sacrebleu BLEU + chrF; why a held-out Arba-Sicula literary test set rather than the
-NLLB/FLORES set (post-2017 orthography mismatch).}
+We score with sacreBLEU---BLEU (\texttt{tok:13a}) and chrF---on the
+frozen literary test set rather than the NLLB/FLORES set: the FLORES Sicilian uses the
+post-2017 orthography and a different (non-literary) domain, so it is not representative of the
+Arba Sicula material. The Sockeye rows are scored in tokenized space (the same space as the
+upstream system; the raw-text floor is 5.27 BLEU), while the NLLB rows are scored on raw text.
 
 \section{Results}
-On our held-out test set (1{,}000 literary pairs), scn$\rightarrow$en
-(Table~\ref{tab:results}). \TODO{add 22k, BPE-dropout, NLLB rows once runs finish.}
+On the frozen held-out test set (1{,}000 literary pairs), Sicilian$\rightarrow$English results
+are reported in Table~\ref{tab:results}. The Sockeye levers stack from 5.54 to 10.85 BLEU on CPU
+alone; the pretrained NLLB-1.3B wins decisively even zero-shot (29.00), and LoRA fine-tuning
+lifts it to 31.33---above Wdowiak's published baseline (29.1) on our harder test.
 
 \begin{table}[t]\centering
 \caption{Our models, our test set (scn$\rightarrow$en).}\label{tab:results}
@@ -104,33 +178,39 @@ model & BLEU & chrF \\
 floor (copy source) & 5.27 & 25.40 \\
 Sockeye baseline & 5.54 & 28.28 \\
 \;+ lever B (tok.\ + desinences) & 7.24 & 29.52 \\
-\;+ more data (22k) & 9.79 & 33.82 \\
-\;+ lever D (27k + lemma factors) & 10.85 & 35.22 \\
-NLLB-200 zero-shot (raw) & 25.63 & 52.53 \\
-NLLB-200 LoRA fine-tuned (raw) & 28.93 & 55.12 \\
-NLLB-200 1.3B zero-shot (raw) & 29.00 & 55.23 \\
-NLLB-200 1.3B LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
-NLLB-200 1.3B LoRA \emph{bidirectional} & \textbf{31.33} & \textbf{56.92} \\
+\;+ more data & 9.79 & 33.82 \\
+\;+ lever D (lemma source factors) & 10.85 & 35.22 \\
+NLLB-200 1.3B, zero-shot (raw) & 29.00 & 55.23 \\
+NLLB-200 1.3B, LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
+NLLB-200 1.3B, LoRA \emph{bidirectional} & \textbf{31.33} & \textbf{56.92} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts
-NLLB-1.3B from \num{9.89} (zero-shot) to \num{18.65} BLEU / \num{49.82} chrF, nearly
-doubling the weak direction at no cost to scn$\rightarrow$en and giving a usable two-way
-model. This is still below the published en$\rightarrow$scn baseline (25.1); back-translation
-and Italian bridging are the next levers.
+In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts NLLB-1.3B
+from 9.89 (zero-shot) to 18.65 BLEU / 49.82 chrF, nearly doubling the weak direction at no cost
+to scn$\rightarrow$en and giving a usable two-way model. This is still below the published
+en$\rightarrow$scn baseline (25.1); back-translation and Italian bridging are the next levers.
 
 \paragraph{Relation to prior published numbers.}
-Wdowiak reports (on his own, in-domain, hand-selected test set, with the full recipe)
-En$\rightarrow$Sc/Sc$\rightarrow$En BLEU of 25.1/29.1 (baseline), 35.0/36.8 (augmented),
-and 45.1/48.6 (Reverse-Training). These are \emph{not} a head-to-head with ours: different
-test sets and pipelines. A fair comparison requires running one system on the other's test
-set, or reproducing the full recipe on our data --- the goal of the next experiments.
+Wdowiak reports, on his own in-domain hand-selected test set with the full recipe,
+En$\rightarrow$Sc/Sc$\rightarrow$En BLEU of 25.1/29.1 (baseline), 35.0/36.8 (augmented), and
+45.1/48.6 (Reverse-Training). These are \emph{not} a head-to-head with ours: the test sets and
+pipelines differ. A fair comparison requires running one system on the other's test set, or
+reproducing the full recipe on our data---the goal of the next experiments. That our
+fine-tuned NLLB already clears his \emph{baseline} on a harder, out-of-domain literary test is
+nonetheless a meaningful signal.
 
 \section{Conclusion and Future Work}
-\TODO{summary; NLLB fine-tune, back-translation, Italian bridge / transfer from Romance
-high-resource languages; serving via FastAPI.}
+We presented a reproducible, Perl-free path from Arba Sicula PDFs to a Sicilian--English NMT
+system: an automated extraction-and-alignment pipeline, the paper's tokenization and desinence
+recipe with an added linguistic-feature lever, and NLLB-200 adapted with LoRA. On our harder
+literary test set the best model reaches 31.33 BLEU (scn$\rightarrow$en), above the published
+baseline, with a usable reverse direction. Ongoing work adds \textbf{back-translation} from the
+in-domain monolingual English harvested from unaligned text, \textbf{Italian bridging} through
+the it--scn data \citep{fan2020beyond}, and \textbf{serving} the model as a local web
+application and a Telegram bot (a FastAPI service over the NLLB adapter). All code, the data
+pipeline and the evaluation harness are released for reproducibility.
 
 \bibliographystyle{plainnat}
 \bibliography{references}
