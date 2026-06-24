@@ -55,3 +55,22 @@ python telegram_bot.py
 - **WhatsApp** would need Meta's official WhatsApp Business Cloud API (verified Business
   account + dedicated number; 24h reply window). Unofficial libraries violate the ToS.
   Add it later as a second front-end against the same `/translate` endpoint.
+
+## Deploy the bot (shared host, auto-update)
+
+The 1 GB shared host runs only the **bot** (API mode); the model API runs elsewhere.
+`Dockerfile` builds a light bot image; `docker-compose.yml` runs it plus a maintained
+Watchtower for auto-update on new images.
+
+```bash
+cp .env.example .env          # fill TOKEN (BotFather) and SICILIAN_API (your model host)
+docker compose up -d
+```
+
+To enable CI that builds & publishes the image to GHCR, copy the workflow into place
+(needs a token with the `workflow` scope) and add a `push:` trigger:
+
+```bash
+mkdir -p ../../.github/workflows
+cp github-ci.yml.example ../../.github/workflows/ci.yml
+```

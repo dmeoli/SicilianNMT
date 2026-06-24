@@ -1,0 +1,30 @@
+name: ci
+
+# Manual for now (workflow_dispatch): building publishes a public image to GHCR,
+# so it is opt-in. To enable auto-update on every push (Watchtower picks it up),
+# add:
+#   push:
+#     branches: [main]
+#     paths: ['experiments/serving/**']
+on:
+  workflow_dispatch:
+
+jobs:
+  bot-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: experiments/serving
+          file: experiments/serving/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/siciliannmt-bot:latest

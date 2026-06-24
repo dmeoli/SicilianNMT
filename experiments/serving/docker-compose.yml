@@ -1,0 +1,24 @@
+# Deploy the Telegram bot on the shared host with auto-update on git push
+# (see the project's deploy notes). The bot runs in API mode and calls the
+# translation service at SICILIAN_API; the model itself is NOT in this container
+# (the 1 GB host cannot hold NLLB-1.3B).
+services:
+  siciliannmt-bot:
+    image: ghcr.io/dmeoli/siciliannmt-bot:latest
+    container_name: siciliannmt-bot
+    restart: unless-stopped
+    environment:
+      - TOKEN=${TOKEN}
+      - SICILIAN_API=${SICILIAN_API}
+
+  # maintained Watchtower fork (containrrr/watchtower breaks on Docker 29+)
+  watchtower:
+    image: ghcr.io/nicholas-fedor/watchtower:latest
+    container_name: siciliannmt-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=120
+    command: siciliannmt-bot

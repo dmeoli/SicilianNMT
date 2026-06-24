@@ -1,0 +1,4 @@
+# Light deps for the Telegram bot in API mode (no torch/transformers):
+# it only forwards text to SICILIAN_API. Used by Dockerfile for the 1 GB host.
+python-telegram-bot>=21
+requests

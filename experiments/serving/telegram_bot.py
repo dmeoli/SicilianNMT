@@ -18,7 +18,7 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (Application, CommandHandler, MessageHandler,
                           CallbackQueryHandler, ContextTypes, filters)
 
-TOKEN = os.environ["TELEGRAM_TOKEN"]
+TOKEN = os.environ.get("TELEGRAM_TOKEN") or os.environ["TOKEN"]   # either name works
 API = os.environ.get("SICILIAN_API", "").strip() or None
 
 if API:

@@ -51,3 +51,6 @@ data/dataset_frozen_test/
 
 # paper PDFs (freely available; kept local, listed in papers/README.md)
 papers/*.pdf
+
+# bot secrets
+experiments/serving/.env
