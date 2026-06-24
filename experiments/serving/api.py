@@ -1,15 +1,27 @@
-"""FastAPI translation service. Run:  uvicorn api:app --host 0.0.0.0 --port 8000
+"""FastAPI app: the translation API + the local web front-end.
 
-POST /translate  {"text": "...", "src": "scn", "tgt": "en"}  ->  {"translation": "..."}
-The Telegram bot (and any other front-end) talk to this one endpoint.
+Run:  uvicorn api:app --host 0.0.0.0 --port 8000   (from experiments/serving/)
+
+- POST /translate  {"text": "...", "src": "scn", "tgt": "en"}  ->  {"translation": "..."}
+- GET  /health
+- GET  /            -> the web UI (static/index.html), which calls /translate
+
+The same /translate endpoint backs the Telegram bot (telegram_bot.py with SICILIAN_API).
 """
+import os
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from translator import Translator
 
-app = FastAPI(title="Sicilian NMT")
+app = FastAPI(title="Tradutturi Sicilianu")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
 _engine = None
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def engine():
@@ -27,7 +39,8 @@ class Req(BaseModel):
 
 @app.on_event("startup")
 def _warm():
-    engine()   # load the model once at boot, not on the first request
+    if os.environ.get("WARM", "1") == "1":
+        engine()   # load the model once at boot, not on the first request
 
 
 @app.get("/health")
@@ -37,5 +50,12 @@ def health():
 
 @app.post("/translate")
 def translate(req: Req):
-    out = engine().translate([req.text], req.src, req.tgt)[0]
+    text = req.text.strip()
+    if not text:
+        return {"translation": ""}
+    out = engine().translate([text], req.src, req.tgt)[0]
     return {"translation": out}
+
+
+# serve the web UI last, so it does not shadow the API routes above
+app.mount("/", StaticFiles(directory=os.path.join(HERE, "static"), html=True), name="static")

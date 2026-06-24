@@ -6,7 +6,8 @@ load the model in-process or forward to the API.
 
 ```
 translator.py    NLLB-200 base + optional LoRA adapter -> .translate(text, src, tgt)
-api.py           FastAPI POST /translate  (any front-end talks to this)
+api.py           FastAPI: POST /translate  +  serves the web UI at /
+static/          the local web front-end (Sicilian blue+gold), calls /translate
 telegram_bot.py  Telegram bot (BotFather token); in-process or via the API
 ```
 
@@ -19,13 +20,18 @@ pip install -r requirements.txt
 export NLLB_ADAPTER=/path/to/nllb-lora-bidir-1.3B   # optional; omit to serve zero-shot base
 ```
 
-API:
+API + web UI (run from `experiments/serving/`):
 
 ```bash
 uvicorn api:app --host 0.0.0.0 --port 8000
+# open http://localhost:8000/  for the translator web page, or call the API directly:
 curl -s localhost:8000/translate -H 'content-type: application/json' \
      -d '{"text":"Bongiornu, comu stai?","src":"scn","tgt":"en"}'
 ```
+
+The page at `/` is the local site (a Python-served, Perl-free front-end inspired by the
+original *Tradutturi*); it just POSTs to `/translate`. Set `WARM=0` to skip loading the model
+at startup (handy for serving the static UI without a GPU).
 
 Telegram bot (in-process model):
 
