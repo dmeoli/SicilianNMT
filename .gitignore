@@ -33,7 +33,7 @@ data/dataset/
 __pycache__/
 data/baseline*/
 
-# LaTeX build artifacts
+# LaTeX build artifacts only (the .tex and .pdf themselves stay tracked)
 *.aux
 *.log
 *.out
@@ -42,10 +42,10 @@ data/baseline*/
 *.toc
 *.bbl
 *.blg
-docs/**/*.pdf
-# ...but keep the compiled deck and paper so they're viewable on GitHub
-!docs/slides/sicilian-nmt-hlt.pdf
-!docs/paper/sicilian-nmt.pdf
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.run.xml
 
 # private (email attachments, not for the public repo)
 private/
