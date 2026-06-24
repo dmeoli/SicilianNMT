@@ -12,7 +12,7 @@
 %% placeholder marker for anything still to be filled in
 \newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
 
-\title{Sicilian--English Neural Machine Translation:\\
+\title{Sicilian, English and Italian Neural Machine Translation:\\
        an Automated Data Pipeline and Reproducible Baselines}
 \author{Donato Meoli}
 \date{\today}
@@ -32,7 +32,10 @@ from-scratch Sockeye baselines and the pretrained NLLB-200 model \citep{nllb2022
 LoRA \citep{hu2021lora}. On our harder held-out test, Sicilian$\rightarrow$English climbs from
 a 5.27 BLEU floor to 31.33 with a bidirectionally fine-tuned NLLB-1.3B---above Wdowiak's
 published baseline (29.1)---while the reverse direction nearly doubles (9.89$\rightarrow$18.65).
-The full pipeline, dataset assembly and evaluation are reproducible.
+We further include \textbf{Italian} as a closely-related, higher-resource bridge language
+(\texttt{ita\_Latn}): NLLB supports it$\leftrightarrow$scn natively, and we evaluate and
+fine-tune those directions on a frozen WikiMatrix it--scn split. The full pipeline, dataset
+assembly and evaluation are reproducible.
 \end{abstract}
 
 \section{Introduction}
@@ -191,6 +194,14 @@ In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter li
 from 9.89 (zero-shot) to 18.65 BLEU / 49.82 chrF, nearly doubling the weak direction at no cost
 to scn$\rightarrow$en and giving a usable two-way model. This is still below the published
 en$\rightarrow$scn baseline (25.1); back-translation and Italian bridging are the next levers.
+
+\paragraph{Italian directions (it$\leftrightarrow$scn).}
+Italian is a closely related, much higher-resource Romance language, and NLLB supports
+it$\leftrightarrow$scn natively. We hold out a frozen 1{,}000-pair it--scn test split from the
+WikiMatrix data, evaluate NLLB-1.3B zero-shot, then fine-tune the it$\leftrightarrow$scn
+directions jointly with scn$\leftrightarrow$en---a multilingual bridge in the sense of
+\citet{johnson2017zeroshot} and \citet{fan2020beyond}.
+\TODO{insert it$\to$scn / scn$\to$it BLEU and chrF (zero-shot and fine-tuned) from the run.}
 
 \paragraph{Relation to prior published numbers.}
 Wdowiak reports, on his own in-domain hand-selected test set with the full recipe,
