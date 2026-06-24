@@ -43,6 +43,9 @@ data/baseline*/
 *.bbl
 *.blg
 docs/**/*.pdf
+# ...but keep the compiled deck and paper so they're viewable on GitHub
+!docs/slides/sicilian-nmt-hlt.pdf
+!docs/paper/sicilian-nmt.pdf
 
 # private (email attachments, not for the public repo)
 private/
