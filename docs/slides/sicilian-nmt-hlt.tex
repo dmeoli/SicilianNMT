@@ -10,7 +10,8 @@
 \usepackage{booktabs}
 \graphicspath{{img/}{../../presentation/images/}}
 
-\definecolor{tan}{RGB}{102,80,148}   % professional violet/lilac accent
+\definecolor{tan}{RGB}{14,77,140}    % Mediterranean / Sicilian majolica blue (primary)
+\definecolor{gold}{RGB}{214,158,46}  % Sicilian gold/ochre (complementary accent)
 \definecolor{ink}{RGB}{40,40,40}
 \setbeamercolor{structure}{fg=tan}
 \setbeamercolor{frametitle}{fg=ink}
@@ -64,7 +65,7 @@
 \begin{frame}[plain]
   \vspace{1.2cm}
   \hfill\begin{minipage}{0.74\textwidth}\raggedleft
-  {\color{tan}\rule{2pt}{2.4cm}}\hspace{3mm}
+  {\color{gold}\rule{2pt}{2.4cm}}\hspace{3mm}
   \begin{minipage}{0.82\textwidth}\raggedright
     {\Huge Sicilian--English\\ Neural Machine\\ Translation}\\[3mm]
     {\small\color{tan}\textsc{a data pipeline and reproducible baselines}}\\[0.8mm]
@@ -505,18 +506,27 @@
 \end{frame}
 
 \begin{frame}{Bidirectional fine-tune --- one model, both directions}
-  \begin{itemize}
-    \item Fine-tuning only scn$\to$en leaves the reverse direction weak. Instead train
-          \textbf{both directions at once} on the union of the data,
-          \[
-            \mathcal D_{\leftrightarrow}=\{(x^{\text{scn}},y^{\text{en}})\}\,\cup\,\{(x^{\text{en}},y^{\text{scn}})\},
-          \]
-          each example tagged with its forced target token.
-    \item One adapter then serves \textbf{scn$\to$en} \emph{and} \textbf{en$\to$scn}; the shared
-          encoder/decoder regularise each other.
-    \item Result (preview): en$\to$scn \textbf{nearly doubles} (9.89 $\to$ 18.65 BLEU) at
-          \emph{no cost} to scn$\to$en --- and we now have a usable reverse model, which we need next.
-  \end{itemize}
+  \begin{columns}[c]
+    \begin{column}{0.56\textwidth}
+      \footnotesize
+      Fine-tuning only scn$\to$en leaves the reverse direction weak. Instead train
+      \textbf{both directions at once} on the union of the data,
+      \[
+        \mathcal D_{\leftrightarrow}=\{(x^{\text{scn}},y^{\text{en}})\}\cup\{(x^{\text{en}},y^{\text{scn}})\},
+      \]
+      each example tagged with its forced target token.
+      \begin{itemize}
+        \item One adapter serves \textbf{both} directions; the shared encoder/decoder
+              regularise each other.
+        \item en$\to$scn \textbf{nearly doubles} at \emph{no cost} to scn$\to$en --- a usable
+              reverse model, which back-translation needs next.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{bleu_directions.png}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \begin{frame}{Back-translation --- turning monolingual text into data}
@@ -600,27 +610,18 @@
 
 \begin{frame}{Our models vs the baseline (scn$\to$en, our test set)}
   \begin{columns}[c]
-    \begin{column}{0.6\textwidth}
-      \centering\small
-      \begin{tabular}{lrr}
-        \toprule model & BLEU & chrF \\\midrule
-        floor (copy source)            & 5.27 & 25.40 \\
-        Sockeye-3 baseline             & 5.54 & 28.28 \\
-        \;+ lever B (tok.\ + desinences) & 7.24 & 29.52 \\
-        \;+ more data                  & 9.79 & 33.82 \\
-        \;+ lever D (lemma factors)    & 10.85 & 35.22 \\\midrule
-        NLLB-1.3B, zero-shot           & 29.00 & 55.23 \\
-        NLLB-1.3B, LoRA bidirectional  & \textbf{31.33} & \textbf{56.92} \\\bottomrule
-      \end{tabular}
+    \begin{column}{0.62\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{bleu_progression.png}
     \end{column}
-    \begin{column}{0.4\textwidth}\footnotesize
+    \begin{column}{0.38\textwidth}\footnotesize
       \begin{itemize}
-        \item Each Sockeye lever \textbf{stacks}: $5.54\!\to\!10.85$ on CPU alone.
+        \item Each Sockeye lever \textbf{stacks}: $5.54\!\to\!10.85$ BLEU on CPU alone
+              (chrF $28.3\!\to\!35.2$).
         \item The pretrained model wins decisively: \textbf{+18 BLEU} zero-shot over the best
               from-scratch model.
-        \item LoRA adds \textbf{+2.3} on top, to \textbf{31.33}.
-        \item Reverse direction en$\to$scn: $9.89\!\to\!\textbf{18.65}$ after the bidirectional
-              fine-tune.
+        \item LoRA fine-tuning adds \textbf{+2.3} on top, to \textbf{31.33} --- past the
+              published baseline on our harder test.
       \end{itemize}
     \end{column}
   \end{columns}
