@@ -20,3 +20,12 @@ Cited in `docs/paper/`, `docs/slides/` (via `docs/paper/references.bib`) and the
 | Hu et al. (2021) *LoRA* — [2106.09685](https://arxiv.org/abs/2106.09685) | parameter-efficient fine-tuning |
 | Schwenk et al. (2021) *WikiMatrix* — [1907.05791](https://arxiv.org/abs/1907.05791) | it-scn parallel data |
 | Hieber et al. (2017) *Sockeye* — [1712.05690](https://arxiv.org/abs/1712.05690) | the baseline toolkit |
+| Thompson & Koehn (2019) *Vecalign* — [D19-1136](https://aclanthology.org/D19-1136) | monotonic-DP sentence alignment |
+| Koehn & Knowles (2017) *Six Challenges for NMT* — [1706.03872](https://arxiv.org/abs/1706.03872) | low-resource MT challenges |
+| Srivastava et al. (2014) *Dropout* — [JMLR](https://www.jmlr.org/papers/v15/srivastava14a.html) | high-dropout regularization |
+| Papineni et al. (2002) *BLEU* — [P02-1040](https://aclanthology.org/P02-1040) | evaluation metric |
+| Popović (2015) *chrF* — [W15-3049](https://aclanthology.org/W15-3049) | evaluation metric |
+| Post (2018) *sacreBLEU* — [1804.08771](https://arxiv.org/abs/1804.08771) | comparable scoring |
+
+Books (no PDF — Legas / Arba Sicula publications): Bonner (2001) *Introduction to Sicilian Grammar*;
+Cipolla (2013) *Mparamu lu sicilianu*. Used for the desinence inventory (lever B).

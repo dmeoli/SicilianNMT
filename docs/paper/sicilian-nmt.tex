@@ -160,7 +160,8 @@ the base in fp16 and the adapters in fp32. Training \emph{both} directions at on
 and en$\to$scn) yields a single adapter that serves both and rescues the weak reverse direction.
 
 \section{Evaluation}
-We score with sacreBLEU---BLEU (\texttt{tok:13a}) and chrF---on the
+We score with sacreBLEU \citep{post2018sacrebleu}---BLEU \citep{papineni2002bleu}
+(\texttt{tok:13a}) and chrF \citep{popovic2015chrf}---on the
 frozen literary test set rather than the NLLB/FLORES set: the FLORES Sicilian uses the
 post-2017 orthography and a different (non-literary) domain, so it is not representative of the
 Arba Sicula material. The Sockeye rows are scored in tokenized space (the same space as the
