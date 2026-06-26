@@ -263,6 +263,72 @@
   \end{columns}
 \end{frame}
 
+% ================================================================ PREPROCESSING
+\sectiondivider{Preprocessing\\ the Sicilian\\ language}{%
+  \begin{itemize}
+    \item No single orthography $\to$ \emph{Standard Sicilian}
+    \item ASCII-folding (drop circumflex accents)
+    \item Uncontraction (prepositions, \emph{aviri}, clitics)
+  \end{itemize}}{%
+  The orthographic standard of \emph{Arba Sicula}; rules following Wdowiak's
+  \emph{Tradutturi} text preprocessing. Done before any model sees the data.}
+
+\begin{frame}{Standardising the Sicilian language}
+  \begin{columns}[t]
+    \begin{column}{0.56\textwidth}
+      \begin{itemize}
+        \item Sicilian has \textbf{no single official orthography}: many local varieties,
+              writers omit accents, several spellings per word.
+        \item \emph{Arba Sicula} developed a \textbf{Standard Sicilian}; we normalise every
+              sentence to it \emph{before} training --- the data-quality step Wdowiak did
+              \textbf{by hand}, here automated and Perl-free.
+        \item Cuts vocabulary sparsity (decisive in low-resource) and aligns noisy web-mined
+              text with the literary standard.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \footnotesize
+      \textbf{Standardisation (sample rules):}\\[1mm]
+      \begin{tabular}{rcl}
+        cchi\`u & $\to$ & chi\`u \\
+        io / iu / eu & $\to$ & jo \\
+        non & $\to$ & nun \\
+        'un, 'unn & $\to$ & nun \\
+        bell\textit{-} & $\to$ & bedd\textit{-} \\
+        pri / pir & $\to$ & pi \\
+        picch\`i & $\to$ & pirch\`i \\
+      \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Normalisation rules: ASCII-fold + uncontraction}
+  \begin{columns}[t]
+    \begin{column}{0.5\textwidth}
+      \footnotesize
+      \textbf{ASCII-fold} --- drop circumflex accents (writers omit them anyway):
+      \[ \hat a\!\to\!a,\ \ \hat e\!\to\!e,\ \ \hat\imath\!\to\!i,\ \ \hat o\!\to\!o,\ \ \hat u\!\to\!u \]
+      \textbf{Uncontract} preposition\,+\,article (a/cu/di/pi/nta\dots):
+      \begin{tabular}{rcl@{\quad}rcl}
+        \^o & $\to$ & a lu & d\^u & $\to$ & di lu \\
+        c\^a & $\to$ & cu la & nt\^o & $\to$ & nta lu \\
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \footnotesize
+      \textbf{Uncontract} the verb \emph{aviri} and clitic pronouns:
+      \begin{tabular}{rcl@{\quad}rcl}
+        h\^a \{v\} & $\to$ & havi a \{v\} & & & \\
+        m\^u & $\to$ & mi lu & t\^a & $\to$ & ti la \\
+      \end{tabular}
+      \vspace{2mm}
+      \textbf{Before:} \texttt{ntô libbru dû nannu}\\
+      \textbf{After:} \;\, \texttt{nta lu libbru di lu nannu}\\[1.5mm]
+      Perl-free in \texttt{sicilian\_tok.py} (verified byte-identical to the Napizia tokenizer).
+    \end{column}
+  \end{columns}
+\end{frame}
+
 % ================================================================ BASELINE
 \sectiondivider{Neural MT:\\ the baseline}{%
   \begin{itemize}
