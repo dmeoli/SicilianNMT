@@ -139,7 +139,9 @@ d\^u$\to$\emph{di lu}), cutting sparsity. ``Lever B'' then biases the joint scn-
 \citep{sennrich2016subword} toward the textbook \emph{desinences} catalogued in the resources
 Wdowiak assembled to standardise Sicilian---Dieli's \emph{Sicilian Vocabulary}, Cipolla's
 \emph{Mparamu lu sicilianu} \citep{cipolla2013}, Bonner's grammar \citep{bonner2001}, and the
-\emph{Chi\`u d\^a Palora} dictionary---so morphological endings survive as units. BPE-dropout
+\emph{Chi\`u d\^a Palora} dictionary---so morphological endings survive as units (Wdowiak's
+example: \emph{Carinisi are dogs!} segments to \texttt{car@@ in@@ isi are dogs !}). This cut
+the vocabulary from 14{,}000 to 2{,}000 units and produced his largest BLEU gains. BPE-dropout
 \citep{provilkov2020bpedropout} adds subword regularisation by sampling segmentations during
 training.
 

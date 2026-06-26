@@ -401,6 +401,9 @@
   \begin{itemize}
     \item Crucial for a \textbf{morphologically rich}, \textbf{low-resource} language: Sicilian
           inflection explodes the word vocabulary; subwords cut sparsity.
+    \item Wdowiak's example --- \emph{Carinisi are dogs!} tokenizes to
+          \texttt{car@@ in@@ isi are dogs !}; biasing the merges toward textbook desinences cut
+          the vocabulary from \textbf{14{,}000 to 2{,}000} units and gave his largest BLEU gains.
     \item A small \textbf{joint} scn--en vocabulary (a few thousand merges) ties the two sides.
   \end{itemize}
 \end{frame}
