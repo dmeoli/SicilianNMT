@@ -648,33 +648,27 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{Relation to the published numbers --- not a head-to-head}
-  \begin{columns}[t]
-    \begin{column}{0.5\textwidth}
-      Wdowiak (his in-domain test set, full recipe), BLEU:
-      \begin{center}\small
-      \begin{tabular}{lcc}
-        \toprule & En$\to$Sc & Sc$\to$En \\\midrule
-        baseline            & 25.1 & 29.1 \\
-        + backtr.\ + multil.& 35.0 & 36.8 \\
-        Reverse-Training    & 45.1 & 48.6 \\\bottomrule
-      \end{tabular}
-      \end{center}
+\begin{frame}{We do not beat the state of the art (yet)}
+  \begin{columns}[c]
+    \begin{column}{0.58\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{bleu_vs_sota.png}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.42\textwidth}\footnotesize
       \begin{itemize}
-        \item \textbf{Different rulers}: his test set is in-domain and hand-selected; ours is a
-              harder held-out \emph{literary} set.
-        \item Still, NLLB-1.3B fine-tuned (\textbf{31.43}) already clears his published
-              \emph{baseline} (29.1) \emph{on our harder test}.
-        \item The next levers --- back-translation, Italian bridge --- target his
-              \emph{augmented} 36.8.
+        \item The SOTA is Wdowiak's \textbf{reverse-training} system; it leads on \emph{every}
+              direction (his Italian reaches 61--63).
+        \item We only clear his \emph{baseline} on Sc$\to$en (31.4 vs 29.1), on a harder test;
+              elsewhere we trail.
+        \item His full recipe builds a custom pretrained model from \textbf{tens of millions}
+              of pairs (forward + back-translation, 3 stages) --- not feasible to reproduce on
+              a single GPU.
+        \item \textbf{But NLLB-200 already \emph{is} that pretraining}: our run $\approx$ his
+              stage-3 fine-tune. Adding back-translation + multilingual closes the
+              \emph{method} gap; the residual is then \textbf{data quality}.
       \end{itemize}
     \end{column}
   \end{columns}
-  \vfill
-  \centerline{\footnotesize A fair comparison runs one model on the other's test set ---
-  which the NLLB experiments make possible.}
 \end{frame}
 
 \begin{frame}{Conclusion \& outlook}
@@ -682,10 +676,14 @@
     \item A \textbf{linear path}, fully reproduced: automated PDF$\to$parallel-text pipeline
           $\to$ small high-dropout Transformer $\to$ linguistic levers (desinences, lemma
           factors) $\to$ \textbf{NLLB-200} with LoRA and a bidirectional fine-tune.
-    \item On our harder literary test set we go from BLEU \textbf{5.27} (floor) to \textbf{31.43}
-          (scn$\to$en), \emph{above} the published baseline, with a usable reverse direction.
-    \item \textbf{In progress}: back-translation from in-domain monolingual English; Italian
-          bridging; and serving the model as a \textbf{Telegram bot}.
+    \item On our harder literary test set we reach \textbf{31.43} (scn$\to$en) from a 5.27
+          floor --- above the published \emph{baseline}, though Wdowiak's full reverse-training
+          system is well ahead on every direction.
+    \item \textbf{To close the method gap}: back-translation (in progress) and reverse-training
+          on top of NLLB. The likely \emph{residual} is then data quality --- his hand-curated
+          \emph{Arba Sicula} corpus vs our automatic extraction --- which motivates
+          \textbf{collaborating} rather than competing.
+    \item Also: Italian bridging (done) and serving as a web app + \textbf{Telegram bot}.
   \end{itemize}
   \vfill
   {\scriptsize Code, data pipeline and reproducible evaluation: \texttt{github.com/dmeoli/SicilianNMT}.}

@@ -68,9 +68,9 @@ training. See `experiments/baseline/README.md`.
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
 The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.02
-(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.43 BLEU** — now clearly
-**above** Wdowiak's published *baseline* (Sc→En 29.1), on our harder held-out literary test
-set, and climbing toward his augmented numbers (36.8).
+(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.43 BLEU** — above
+Wdowiak's published *baseline* (Sc→En 29.1) on our harder held-out literary test set, **but
+well below his reverse-training state of the art** (see below).
 
 **en→scn** (the reverse direction) on the same test set: NLLB-1.3B zero-shot 9.89 →
 **bidirectional LoRA 18.73 BLEU / 49.96 chrF** — the bidirectional fine-tune nearly doubles
@@ -92,19 +92,26 @@ languages (scn/en/it).
 † NLLB rows are evaluated on raw text; the Sockeye rows are tokenized space (raw floor is
 5.27 BLEU). Even allowing for that, the 600M pretrained model far exceeds the 6.6M baseline.
 
-**Wdowiak's published numbers, on his own test set** (BLEU):
+### We do not beat the state of the art (yet)
 
-| | En→Sc | Sc→En |
-|---|---|---|
-| paper baseline | 25.1 | 29.1 |
-| + backtranslation + multilingual | 35.0 | 36.8 |
-| Reverse-Training (his best) | 45.1 | 48.6 |
+The SOTA is Wdowiak's **reverse-training** system, on his own in-domain test set (BLEU):
 
-⚠️ **Not a head-to-head.** His numbers are on a different, in-domain, hand-selected test
-set with his full recipe (backtranslation, multilingual, bigger model, curated data); ours
-is a small baseline on a harder held-out literary test set. Different rulers — a fair
-comparison requires running one model on the other's test set, or reproducing his full
-recipe on our data. Closing that gap on *our* test set is the point of the next experiments.
+| | En→Sc | Sc→En | It→Sc | Sc→It |
+|---|---|---|---|---|
+| paper baseline | 25.1 | 29.1 | — | — |
+| + backtranslation + multilingual | 35.0 | 36.8 | 36.5 | 30.9 |
+| **reverse-training (his best)** | **45.1** | **48.6** | **61.4** | **62.9** |
+| **ours** (NLLB+LoRA, partial recipe) | 18.7 | 31.4 | 27.0 | 43.5 |
+
+⚠️ **Not a head-to-head** (different test sets), but the gap is too large to be that alone:
+we only clear his *baseline* on Sc→En, and trail on every other direction. His reverse-training
+builds a **custom pretrained model from tens of millions of pairs** (forward- and
+back-translation, three stages) before fine-tuning on hand-curated *Arba Sicula* — infeasible
+to reproduce on one GPU. But **NLLB-200 already provides that pretraining**, so our run is the
+analogue of his *stage-3 fine-tune*. The plan: apply the feasible parts of his recipe on top of
+NLLB (back-translation, multilingual) to isolate **method vs data** — if, with the method
+matched, our automatic corpus still trails his curated one, the residual is the **data**, which
+argues for combining his corpus with our pipeline rather than competing.
 
 ## References
 

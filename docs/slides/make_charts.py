@@ -110,8 +110,38 @@ def trilingual():
     plt.close(fig)
 
 
+def vs_sota():
+    # The published SOTA is Wdowiak's reverse-training system (on HIS test set);
+    # ours is NLLB-1.3B+LoRA WITHOUT his full recipe yet (on OUR harder test).
+    cats = ["Sc$\\to$En", "En$\\to$Sc", "It$\\to$Sc", "Sc$\\to$It"]
+    his = [48.6, 45.1, 61.4, 62.9]     # reverse-training, stage-3 (his best)
+    ours = [31.43, 18.73, 26.97, 43.47]
+    x = range(len(cats))
+    w = 0.38
+    fig, ax = plt.subplots(figsize=(8.6, 4.4))
+    ax.bar([i - w / 2 for i in x], his, w, label="Wdowiak reverse-training (SOTA)", color=NAVY, zorder=3)
+    ax.bar([i + w / 2 for i in x], ours, w, label="ours (NLLB+LoRA, partial recipe)", color=GOLD, zorder=3)
+    for i, (h, o) in enumerate(zip(his, ours)):
+        ax.text(i - w / 2, h + 0.6, f"{h:.1f}", ha="center", fontsize=9, color=INK)
+        ax.text(i + w / 2, o + 0.6, f"{o:.1f}", ha="center", fontsize=9, color=INK, fontweight="bold")
+    ax.set_xticks(list(x)); ax.set_xticklabels(cats, fontsize=12)
+    ax.set_ylabel("BLEU"); ax.set_ylim(0, 70)
+    ax.set_title("We do NOT beat the SOTA yet --- his full recipe is well ahead",
+                 fontsize=12.5, color=NAVY, pad=8)
+    ax.legend(frameon=False, fontsize=9.5, ncol=1, loc="upper left")
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    ax.grid(axis="y", color="#DDDDDD", lw=0.7, zorder=0)
+    fig.text(0.5, -0.01, "Different test sets (his in-domain hand-selected; ours a harder held-out "
+             "literary set) --- not a head-to-head.", ha="center", fontsize=8.5, color="#777777")
+    fig.tight_layout()
+    fig.savefig(OUT / "bleu_vs_sota.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     progression()
     directions()
     trilingual()
+    vs_sota()
     print("wrote bleu_progression.png, bleu_directions.png, bleu_trilingual.png to", OUT)
