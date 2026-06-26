@@ -132,7 +132,17 @@ it--scn (aux) & 11{,}389 & WikiMatrix \\
 \end{tabular}
 \end{table}
 
-\section{Tokenization and Subwords}
+\section{Standardization, Tokenization and Subwords}
+Sicilian has no single official orthography, so we first \textbf{normalise} text toward
+\emph{Standard Sicilian}---the standard of Cipolla, augmented by Wdowiak for MT clarity: strict
+\textbf{L} on articles (\emph{lu/la/li}), \textbf{h} on \emph{aviri} (\emph{haiu, havi, hannu}),
+\textbf{CI} for \c ci (\emph{\c ciuri$\to$ciuri}), and \textbf{R} retained before a clitic
+(\emph{farlu}). Our \texttt{normalize\_scn.py} applies the documented spelling rules
+(e.g.\ \emph{cchi\`u$\to$chi\`u}, \emph{io/iu/eu$\to$jo}, \emph{non$\to$nun}) at a ``std'' level,
+and additionally uncontracts and ASCII-folds at a ``full'' level. Because NLLB's own tokenizer
+was trained on un-normalised web Sicilian, whether this normalisation \emph{helps} the
+pretrained model is an empirical question we ablate (raw vs std vs full).
+
 We re-implement the Napizia tokenizer in pure Python (verified identical to the original Perl):
 it ASCII-folds accents and \emph{uncontracts} Sicilian (e.g.\ \^o$\to$\emph{a lu},
 d\^u$\to$\emph{di lu}), cutting sparsity. ``Lever B'' then biases the joint scn--en BPE

@@ -78,6 +78,7 @@ def _apply_prefix(text: str, mapping: dict) -> str:
 
 
 def normalize(text: str, level: str = "full") -> str:
+    text = text.replace("ç", "c").replace("Ç", "C")   # Napizia standard: CI denotes ÇI (çiuri -> ciuri)
     text = _apply_apos(text, APOS)
     text = _apply_word(text, WORD)
     text = _apply_prefix(text, PREFIX)
