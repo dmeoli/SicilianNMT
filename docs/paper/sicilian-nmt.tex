@@ -30,8 +30,8 @@ deduplicated Sicilian--English dataset with a held-out \emph{literary} test set,
 paper's tokenization and desinence-biasing recipe to a Perl-free stack. We evaluate both
 from-scratch Sockeye baselines and the pretrained NLLB-200 model \citep{nllb2022} adapted with
 LoRA \citep{hu2021lora}. On our harder held-out test, Sicilian$\rightarrow$English climbs from
-a 5.27 BLEU floor to 31.33 with a bidirectionally fine-tuned NLLB-1.3B---above Wdowiak's
-published baseline (29.1)---while the reverse direction nearly doubles (9.89$\rightarrow$18.65).
+a 5.27 BLEU floor to 31.43 with a bidirectionally fine-tuned NLLB-1.3B---above Wdowiak's
+published baseline (29.1)---while the reverse direction nearly doubles (9.89$\rightarrow$18.73).
 We further include \textbf{Italian} as a closely-related, higher-resource bridge language
 (\texttt{ita\_Latn}): NLLB supports it$\leftrightarrow$scn natively, and we evaluate and
 fine-tune those directions on a frozen WikiMatrix it--scn split. The full pipeline, dataset
@@ -170,8 +170,8 @@ upstream system; the raw-text floor is 5.27 BLEU), while the NLLB rows are score
 \section{Results}
 On the frozen held-out test set (1{,}000 literary pairs), Sicilian$\rightarrow$English results
 are reported in Table~\ref{tab:results}. The Sockeye levers stack from 5.54 to 10.85 BLEU on CPU
-alone; the pretrained NLLB-1.3B wins decisively even zero-shot (29.00), and LoRA fine-tuning
-lifts it to 31.33---above Wdowiak's published baseline (29.1) on our harder test.
+alone; the pretrained NLLB-1.3B wins decisively even zero-shot (29.02), and LoRA fine-tuning
+lifts it to 31.43---above Wdowiak's published baseline (29.1) on our harder test.
 
 \begin{table}[t]\centering
 \caption{Our models, our test set (scn$\rightarrow$en).}\label{tab:results}
@@ -184,25 +184,44 @@ Sockeye baseline & 5.54 & 28.28 \\
 \;+ lever B (tok.\ + desinences) & 7.24 & 29.52 \\
 \;+ more data & 9.79 & 33.82 \\
 \;+ lever D (lemma source factors) & 10.85 & 35.22 \\
-NLLB-200 1.3B, zero-shot (raw) & 29.00 & 55.23 \\
+NLLB-200 1.3B, zero-shot (raw) & 29.02 & 55.23 \\
 NLLB-200 1.3B, LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
-NLLB-200 1.3B, LoRA \emph{bidirectional} & \textbf{31.33} & \textbf{56.92} \\
+NLLB-200 1.3B, LoRA \emph{bidirectional} & \textbf{31.43} & \textbf{56.94} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts NLLB-1.3B
-from 9.89 (zero-shot) to 18.65 BLEU / 49.82 chrF, nearly doubling the weak direction at no cost
+from 9.89 (zero-shot) to 18.73 BLEU / 49.96 chrF, nearly doubling the weak direction at no cost
 to scn$\rightarrow$en and giving a usable two-way model. This is still below the published
-en$\rightarrow$scn baseline (25.1); back-translation and Italian bridging are the next levers.
+en$\rightarrow$scn baseline (25.1); back-translation is the next lever.
 
 \paragraph{Italian directions (it$\leftrightarrow$scn).}
 Italian is a closely related, much higher-resource Romance language, and NLLB supports
 it$\leftrightarrow$scn natively. We hold out a frozen 1{,}000-pair it--scn test split from the
-WikiMatrix data, evaluate NLLB-1.3B zero-shot, then fine-tune the it$\leftrightarrow$scn
-directions jointly with scn$\leftrightarrow$en---a multilingual bridge in the sense of
-\citet{johnson2017zeroshot} and \citet{fan2020beyond}.
-\TODO{insert it$\to$scn / scn$\to$it BLEU and chrF (zero-shot and fine-tuned) from the run.}
+WikiMatrix data, evaluate NLLB-1.3B zero-shot, then fine-tune \emph{all four} directions
+jointly (scn$\leftrightarrow$en and it$\leftrightarrow$scn) into a single multilingual adapter,
+a bridge in the sense of \citet{johnson2017zeroshot} and \citet{fan2020beyond}
+(Table~\ref{tab:italian}). Italian is by far the easiest pair---scn$\rightarrow$it reaches
+\textbf{43.5} BLEU and it$\rightarrow$scn climbs $17.6\rightarrow\textbf{27.0}$---as expected
+for a close, high-resource neighbour on in-domain WikiMatrix text. The multilingual adapter
+costs a little on scn$\leftrightarrow$en ($30.8/17.5$ vs the dedicated $31.4/18.7$), so one can
+ship either the trilingual all-rounder or the specialised pair.
+
+\begin{table}[t]\centering
+\caption{Trilingual model: all directions, zero-shot vs.\ the multilingual fine-tune
+(BLEU / chrF, frozen test sets).}\label{tab:italian}
+\begin{tabular}{lcc}
+\toprule
+direction & zero-shot & multilingual FT \\
+\midrule
+scn$\rightarrow$en & 29.02 / 55.23 & 30.75 / 56.57 \\
+en$\rightarrow$scn & 9.89 / 41.12 & 17.49 / 48.78 \\
+it$\rightarrow$scn & 17.61 / 44.77 & \textbf{26.97 / 51.69} \\
+scn$\rightarrow$it & 42.20 / 59.04 & \textbf{43.47 / 59.79} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{Relation to prior published numbers.}
 Wdowiak reports, on his own in-domain hand-selected test set with the full recipe,
@@ -217,7 +236,7 @@ nonetheless a meaningful signal.
 We presented a reproducible, Perl-free path from Arba Sicula PDFs to a Sicilian--English NMT
 system: an automated extraction-and-alignment pipeline, the paper's tokenization and desinence
 recipe with an added linguistic-feature lever, and NLLB-200 adapted with LoRA. On our harder
-literary test set the best model reaches 31.33 BLEU (scn$\rightarrow$en), above the published
+literary test set the best model reaches 31.43 BLEU (scn$\rightarrow$en), above the published
 baseline, with a usable reverse direction. Ongoing work adds \textbf{back-translation} from the
 in-domain monolingual English harvested from unaligned text, \textbf{Italian bridging} through
 the it--scn data \citep{fan2020beyond}, and \textbf{serving} the model as a local web

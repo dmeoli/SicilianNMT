@@ -26,7 +26,7 @@ blue_ramp = LinearSegmentedColormap.from_list("scn", ["#BcD3EA", BLUE, NAVY])
 def progression():
     labels = ["floor\n(copy)", "Sockeye\nbaseline", "+ lever B", "+ more\ndata",
               "+ lever D", "NLLB-1.3B\nzero-shot", "NLLB-1.3B\nbidir LoRA"]
-    bleu = [5.27, 5.54, 7.24, 9.79, 10.85, 29.00, 31.33]
+    bleu = [5.27, 5.54, 7.24, 9.79, 10.85, 29.02, 31.43]
     n = len(bleu)
     colors = [blue_ramp(i / (n - 1)) for i in range(n)]
     colors[-1] = GOLD                      # our best result pops in gold
@@ -57,8 +57,8 @@ def progression():
 
 def directions():
     cats = ["scn$\\to$en", "en$\\to$scn"]
-    zero = [29.00, 9.89]
-    ft = [31.33, 18.65]
+    zero = [29.02, 9.89]
+    ft = [31.43, 18.73]
     x = range(len(cats))
     w = 0.36
     fig, ax = plt.subplots(figsize=(5.4, 4.2))
@@ -83,7 +83,35 @@ def directions():
     plt.close(fig)
 
 
+def trilingual():
+    # one multilingual adapter, all four directions, zero-shot vs fine-tuned
+    cats = ["scn$\\to$en", "en$\\to$scn", "it$\\to$scn", "scn$\\to$it"]
+    zero = [29.02, 9.89, 17.61, 42.20]
+    ft = [30.75, 17.49, 26.97, 43.47]
+    x = range(len(cats))
+    w = 0.38
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    ax.bar([i - w / 2 for i in x], zero, w, label="zero-shot", color=BLUE, zorder=3)
+    ax.bar([i + w / 2 for i in x], ft, w, label="multilingual fine-tune", color=GOLD, zorder=3)
+    for i, (z, f) in enumerate(zip(zero, ft)):
+        ax.text(i - w / 2, z + 0.5, f"{z:.1f}", ha="center", fontsize=10, color=INK)
+        ax.text(i + w / 2, f + 0.5, f"{f:.1f}", ha="center", fontsize=10, color=INK, fontweight="bold")
+    ax.set_xticks(list(x)); ax.set_xticklabels(cats)
+    ax.set_ylabel("BLEU (frozen test)")
+    ax.set_ylim(0, 48)
+    ax.set_title("One trilingual model: Sicilian ↔ English ↔ Italian",
+                 fontsize=12.5, color=NAVY)
+    ax.legend(frameon=False, fontsize=10.5, loc="upper left")
+    for s in ("top", "right"):
+        ax.spines[s].set_visible(False)
+    ax.grid(axis="y", color="#DDDDDD", lw=0.7, zorder=0)
+    fig.tight_layout()
+    fig.savefig(OUT / "bleu_trilingual.png", dpi=200)
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     progression()
     directions()
-    print("wrote bleu_progression.png and bleu_directions.png to", OUT)
+    trilingual()
+    print("wrote bleu_progression.png, bleu_directions.png, bleu_trilingual.png to", OUT)

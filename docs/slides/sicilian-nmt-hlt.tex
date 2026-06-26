@@ -620,8 +620,29 @@
               (chrF $28.3\!\to\!35.2$).
         \item The pretrained model wins decisively: \textbf{+18 BLEU} zero-shot over the best
               from-scratch model.
-        \item LoRA fine-tuning adds \textbf{+2.3} on top, to \textbf{31.33} --- past the
+        \item LoRA fine-tuning adds \textbf{+2.3} on top, to \textbf{31.43} --- past the
               published baseline on our harder test.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Adding Italian --- one trilingual model}
+  \begin{columns}[c]
+    \begin{column}{0.6\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{bleu_trilingual.png}
+    \end{column}
+    \begin{column}{0.4\textwidth}\footnotesize
+      \begin{itemize}
+        \item A single multilingual LoRA adapter fine-tuned on four directions
+              (scn$\leftrightarrow$en, it$\leftrightarrow$scn).
+        \item \textbf{Italian is strong}: scn$\to$it \textbf{43.5}, it$\to$scn
+              $17.6\!\to\!\textbf{27.0}$ --- a close, high-resource Romance neighbour
+              (it--scn test is WikiMatrix-domain).
+        \item Small cost to scn$\leftrightarrow$en vs the dedicated bidirectional model
+              ($30.8/17.5$ vs $31.4/18.7$): ship the trilingual all-rounder or the
+              specialised pair.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -644,7 +665,7 @@
       \begin{itemize}
         \item \textbf{Different rulers}: his test set is in-domain and hand-selected; ours is a
               harder held-out \emph{literary} set.
-        \item Still, NLLB-1.3B fine-tuned (\textbf{31.33}) already clears his published
+        \item Still, NLLB-1.3B fine-tuned (\textbf{31.43}) already clears his published
               \emph{baseline} (29.1) \emph{on our harder test}.
         \item The next levers --- back-translation, Italian bridge --- target his
               \emph{augmented} 36.8.
@@ -661,7 +682,7 @@
     \item A \textbf{linear path}, fully reproduced: automated PDF$\to$parallel-text pipeline
           $\to$ small high-dropout Transformer $\to$ linguistic levers (desinences, lemma
           factors) $\to$ \textbf{NLLB-200} with LoRA and a bidirectional fine-tune.
-    \item On our harder literary test set we go from BLEU \textbf{5.27} (floor) to \textbf{31.33}
+    \item On our harder literary test set we go from BLEU \textbf{5.27} (floor) to \textbf{31.43}
           (scn$\to$en), \emph{above} the published baseline, with a usable reverse direction.
     \item \textbf{In progress}: back-translation from in-domain monolingual English; Italian
           bridging; and serving the model as a \textbf{Telegram bot}.
