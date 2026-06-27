@@ -332,6 +332,11 @@
       Perl-free in \texttt{sicilian\_tok.py} (verified byte-identical to the Napizia tokenizer).
     \end{column}
   \end{columns}
+  \vfill
+  {\footnotesize\color{gray} \textbf{Ablation (NLLB, scn$\to$en):} raw 30.6 $\to$ \emph{std}
+  \textbf{31.0} $\to$ \emph{full} 31.0 BLEU. Light standardisation helps a little; the
+  aggressive ``full'' preprocessing does \emph{not} beat it --- a pretrained tokenizer wants
+  un-normalised input. Orthography is a \emph{minor} lever; the residual is data curation.}
 \end{frame}
 
 % ================================================================ BASELINE

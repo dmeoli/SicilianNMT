@@ -141,7 +141,13 @@ Sicilian has no single official orthography, so we first \textbf{normalise} text
 (e.g.\ \emph{cchi\`u$\to$chi\`u}, \emph{io/iu/eu$\to$jo}, \emph{non$\to$nun}) at a ``std'' level,
 and additionally uncontracts and ASCII-folds at a ``full'' level. Because NLLB's own tokenizer
 was trained on un-normalised web Sicilian, whether this normalisation \emph{helps} the
-pretrained model is an empirical question we ablate (raw vs std vs full).
+pretrained model is an empirical question. We ablate it (scn$\rightarrow$en, identical English
+references): \textbf{raw 30.60, std 30.98, full 30.98} BLEU (chrF 56.31 / 56.63 / 56.50).
+The light ``std'' standardisation gives a small consistent gain (and the best chrF), while the
+aggressive ``full'' preprocessing does \emph{not} improve over it---consistent with the
+pretrained tokenizer expecting un-normalised input. Orthographic normalisation is thus a
+\emph{minor} lever for NLLB ($\sim$+0.4 BLEU); we adopt std by default, and conclude that the
+larger residual relative to the state of the art is \emph{data curation}, not spelling.
 
 We re-implement the Napizia tokenizer in pure Python (verified identical to the original Perl):
 it ASCII-folds accents and \emph{uncontracts} Sicilian (e.g.\ \^o$\to$\emph{a lu},
