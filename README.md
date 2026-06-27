@@ -1,6 +1,10 @@
 # Sicilian NMT
 
-[![Open NLLB notebook in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/experiments/nllb/sicilian_nllb_colab.ipynb)
+[![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/reproduce.ipynb)
+
+**[`reproduce.ipynb`](reproduce.ipynb)** runs the whole model pipeline end-to-end — data →
+Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate — narrated step by
+step, calling the implementations in `experiments/*.py`.
 
 A fork of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
 the first neural machine translator for the Sicilian language
