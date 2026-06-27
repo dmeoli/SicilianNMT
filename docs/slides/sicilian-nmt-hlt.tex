@@ -628,8 +628,11 @@
     \begin{column}{0.42\textwidth}
       \begin{itemize}
         \item Exactly the lever that took the original system from BLEU 29.1 to 36.8.
-        \item In-domain (literary) monolingual text $\Rightarrow$ matched to the test domain.
-        \item Synthetic pairs filtered by length ratio and deduped before training.
+        \item \textbf{Our result}: 7{,}498 synthetic pairs lift scn$\to$en only
+              $31.43\!\to\!\textbf{31.6}$ ($+0.17$).
+        \item \textbf{Why so small?} His gain came from \textbf{$\sim$550k} back-translations;
+              our in-domain pool is just \textbf{7.6k}. The lever is \emph{data-limited} ---
+              not a method failure but a \textbf{data} ceiling.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -699,8 +702,8 @@
               (chrF $28.3\!\to\!35.2$).
         \item The pretrained model wins decisively: \textbf{+18 BLEU} zero-shot over the best
               from-scratch model.
-        \item LoRA fine-tuning adds \textbf{+2.3} on top, to \textbf{31.43} --- past the
-              published baseline on our harder test.
+        \item LoRA fine-tuning adds \textbf{+2.3} (to 31.43); back-translation a further
+              $+0.17$ to \textbf{31.6} --- past the published baseline on our harder test.
       \end{itemize}
     \end{column}
   \end{columns}
@@ -755,14 +758,17 @@
     \item A \textbf{linear path}, fully reproduced: automated PDF$\to$parallel-text pipeline
           $\to$ small high-dropout Transformer $\to$ linguistic levers (desinences, lemma
           factors) $\to$ \textbf{NLLB-200} with LoRA and a bidirectional fine-tune.
-    \item On our harder literary test set we reach \textbf{31.43} (scn$\to$en) from a 5.27
+    \item On our harder literary test set we reach \textbf{31.6} (scn$\to$en) from a 5.27
           floor --- above the published \emph{baseline}, though Wdowiak's full reverse-training
           system is well ahead on every direction.
-    \item \textbf{To close the method gap}: back-translation (in progress) and reverse-training
-          on top of NLLB. The likely \emph{residual} is then data quality --- his hand-curated
-          \emph{Arba Sicula} corpus vs our automatic extraction --- which motivates
-          \textbf{collaborating} rather than competing.
-    \item Also: Italian bridging (done) and serving as a web app + \textbf{Telegram bot}.
+    \item \textbf{Method levers, all tested on NLLB}: multilingual Italian bridge (done),
+          orthographic normalisation ($+0.4$), back-translation ($+0.17$, capped by our 7.6k
+          monolingual pool vs his $\sim$550k). Each helps little --- the gap is \emph{not}
+          method.
+    \item \textbf{So the residual is data}: his hand-curated \emph{Arba Sicula} corpus, far more
+          back-translation, and an in-domain test set --- a concrete case for
+          \textbf{collaborating} with the author rather than competing. Also: a web app +
+          \textbf{Telegram bot}.
   \end{itemize}
   \vfill
   {\scriptsize Code, data pipeline and reproducible evaluation: \texttt{github.com/dmeoli/SicilianNMT}.}

@@ -64,7 +64,8 @@ training. See `experiments/baseline/README.md`.
 | NLLB-200 distilled-600M, LoRA fine-tuned † | 28.93 | 55.12 |
 | NLLB-200 1.3B, zero-shot † | 29.02 | 55.23 |
 | NLLB-200 1.3B, LoRA fine-tuned, scn→en only (27k) † | 31.16 | 56.79 |
-| NLLB-200 1.3B, LoRA **bidirectional** (27k) † | **31.43** | **56.94** |
+| NLLB-200 1.3B, LoRA **bidirectional** (27k) † | 31.43 | 56.94 |
+| \;+ back-translation (7.5k synthetic) † | **31.60** | **57.21** |
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
 The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.02
@@ -101,7 +102,7 @@ The SOTA is Wdowiak's **reverse-training** system, on his own in-domain test set
 | paper baseline | 25.1 | 29.1 | — | — |
 | + backtranslation + multilingual | 35.0 | 36.8 | 36.5 | 30.9 |
 | **reverse-training (his best)** | **45.1** | **48.6** | **61.4** | **62.9** |
-| **ours** (NLLB+LoRA, partial recipe) | 18.7 | 31.4 | 27.0 | 43.5 |
+| **ours** (NLLB+LoRA + back-transl.) | 18.7 | 31.6 | 27.0 | 43.5 |
 
 ⚠️ **Not a head-to-head** (different test sets), but the gap is too large to be that alone:
 we only clear his *baseline* on Sc→En, and trail on every other direction. His reverse-training

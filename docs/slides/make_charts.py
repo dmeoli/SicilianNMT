@@ -25,8 +25,8 @@ blue_ramp = LinearSegmentedColormap.from_list("scn", ["#BcD3EA", BLUE, NAVY])
 
 def progression():
     labels = ["floor\n(copy)", "Sockeye\nbaseline", "+ lever B", "+ more\ndata",
-              "+ lever D", "NLLB-1.3B\nzero-shot", "NLLB-1.3B\nbidir LoRA"]
-    bleu = [5.27, 5.54, 7.24, 9.79, 10.85, 29.02, 31.43]
+              "+ lever D", "NLLB-1.3B\nzero-shot", "NLLB-1.3B\nbidir LoRA", "+ back-\ntransl."]
+    bleu = [5.27, 5.54, 7.24, 9.79, 10.85, 29.02, 31.43, 31.60]
     n = len(bleu)
     colors = [blue_ramp(i / (n - 1)) for i in range(n)]
     colors[-1] = GOLD                      # our best result pops in gold
@@ -115,7 +115,7 @@ def vs_sota():
     # ours is NLLB-1.3B+LoRA WITHOUT his full recipe yet (on OUR harder test).
     cats = ["Sc$\\to$En", "En$\\to$Sc", "It$\\to$Sc", "Sc$\\to$It"]
     his = [48.6, 45.1, 61.4, 62.9]     # reverse-training, stage-3 (his best)
-    ours = [31.43, 18.73, 26.97, 43.47]
+    ours = [31.60, 18.73, 26.97, 43.47]   # scn->en after back-translation
     x = range(len(cats))
     w = 0.38
     fig, ax = plt.subplots(figsize=(8.6, 4.4))

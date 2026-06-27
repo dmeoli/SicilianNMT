@@ -204,7 +204,8 @@ Sockeye baseline & 5.54 & 28.28 \\
 \;+ lever D (lemma source factors) & 10.85 & 35.22 \\
 NLLB-200 1.3B, zero-shot (raw) & 29.02 & 55.23 \\
 NLLB-200 1.3B, LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
-NLLB-200 1.3B, LoRA \emph{bidirectional} & \textbf{31.43} & \textbf{56.94} \\
+NLLB-200 1.3B, LoRA \emph{bidirectional} & 31.43 & 56.94 \\
+\;+ back-translation (7.5k synthetic) & \textbf{31.60} & \textbf{57.21} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -244,31 +245,32 @@ scn$\rightarrow$it & 42.20 / 59.04 & \textbf{43.47 / 59.79} \\
 \paragraph{Relation to the state of the art.}
 We do \emph{not} beat the state of the art. Wdowiak's \textbf{reverse-training} system reports,
 on his own in-domain hand-selected test set, En$\rightarrow$Sc/Sc$\rightarrow$En BLEU of
-45.1/48.6 and It$\rightarrow$Sc/Sc$\rightarrow$It of 61.4/62.9---well ahead of our 18.7/31.4 and
+45.1/48.6 and It$\rightarrow$Sc/Sc$\rightarrow$It of 61.4/62.9---well ahead of our 18.7/31.6 and
 27.0/43.5 on every direction (his earlier marks were 25.1/29.1 baseline, 35.0/36.8 augmented).
 The numbers are \emph{not} a head-to-head (different test sets), but the gap is too large to be
-explained by that alone: on Sc$\rightarrow$en we only clear his \emph{baseline} (31.4 vs 29.1),
+explained by that alone: on Sc$\rightarrow$en we only clear his \emph{baseline} (31.6 vs 29.1),
 on a harder test, and trail elsewhere. Crucially, his reverse-training builds a \emph{custom
 pretrained model} from tens of millions of pairs (forward-translation, then back-translation,
 in three stages) before fine-tuning on \emph{Arba Sicula}---a pipeline infeasible to reproduce
 on a single GPU. NLLB-200, however, already provides that massive multilingual pretraining: our
-fine-tune is the analogue of his stage-3. Adding back-translation and multilingual training (in
-progress) closes the remaining \emph{method} gap; the likely \emph{residual} is then
-\textbf{data}---his hand-curated, standardised corpus versus our automatic extraction---which
-argues for combining the two rather than competing.
+fine-tune is the analogue of his stage-3. We applied the feasible parts of his recipe on top of
+NLLB and each adds little: the multilingual Italian bridge, orthographic normalisation
+($+0.4$ BLEU), and back-translation ($+0.17$, capped by our 7.6k in-domain monolingual pool
+versus his $\sim$550k). The \emph{method} gap is therefore largely closed; the residual is
+\textbf{data}---his hand-curated, standardised corpus, far more back-translation, and an
+in-domain test set---which argues for combining his corpus with our pipeline rather than
+competing.
 
 \section{Conclusion and Future Work}
 We presented a reproducible, Perl-free path from Arba Sicula PDFs to a Sicilian--English NMT
 system: an automated extraction-and-alignment pipeline, the paper's tokenization and desinence
 recipe with an added linguistic-feature lever, and NLLB-200 adapted with LoRA. On our harder
-literary test set the best model reaches 31.43 BLEU (scn$\rightarrow$en), above the published
-baseline but well below Wdowiak's reverse-training state of the art. Ongoing work applies the
-feasible parts of his recipe on top of NLLB---\textbf{back-translation} from the in-domain
-monolingual English harvested from unaligned text, and \textbf{multilingual} Italian bridging
-through the it--scn data \citep{fan2020beyond}---to isolate how much of the gap is
-\emph{method} versus \emph{data}. If, with the method matched, our automatically-extracted
-corpus still trails his hand-curated one, the difference is the data: a concrete case for
-combining his corpus with our pipeline. We also release \textbf{serving} (a local web app and a
+literary test set the best model reaches 31.6 BLEU (scn$\rightarrow$en), above the published
+baseline but well below Wdowiak's reverse-training state of the art. Having applied the feasible
+parts of his recipe on top of NLLB---\textbf{multilingual} Italian bridging, orthographic
+\textbf{normalisation}, and \textbf{back-translation}---each for only a small gain, we conclude
+the residual is \emph{data}: his hand-curated corpus, far more back-translation, and an
+in-domain test set. This is a concrete case for combining his corpus with our pipeline. We also release \textbf{serving} (a local web app and a
 Telegram bot, a FastAPI service over the NLLB adapter). All code, the data pipeline and the
 evaluation harness are released for reproducibility.
 
