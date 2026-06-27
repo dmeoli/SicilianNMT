@@ -26,7 +26,7 @@ experiments/
   eval/          BLEU + chrF harness (sacrebleu)
   baseline/      Sockeye-3 (PyTorch, CPU) small Transformer + the paper's "lever B"
                  (tokenization + desinence-biased subwords)
-  nllb/          NLLB-200 zero-shot / fine-tune on Colab (Sicilian = scn_Latn)
+  nllb/          NLLB-200 + LoRA engine (nllb_pipeline.py); driven by reproduce.ipynb
   serving/       FastAPI /translate + Telegram bot over the NLLB adapter
 extract-text/    Arba Sicula PDFs (gitignored) + WikiMatrix it-scn + aligned gold CSVs
 vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas

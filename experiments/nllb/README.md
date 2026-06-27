@@ -1,36 +1,37 @@
-# NLLB-200 on Sicilian (Colab GPU)
+# NLLB-200 on Sicilian
 
-Meta's **NLLB-200** already covers Sicilian (`scn_Latn`), so we can get a strong
-modern reference number on our test set with **zero training**, then optionally
-fine-tune. Same BLEU/chrF metrics as the local Sockeye baseline → directly comparable.
+Meta's **NLLB-200** already covers Sicilian (`scn_Latn`), so we adapt it with LoRA rather
+than training from scratch. Sicilian = `scn_Latn`, English = `eng_Latn`, Italian = `ita_Latn`.
 
-Sicilian = `scn_Latn`, English = `eng_Latn`, Italian = `ita_Latn`.
+## Code
 
-## Quick path (Colab)
+- **`nllb_pipeline.py`** — the reusable engine: `load_base`, `attach_lora`, `build_dataset`,
+  `finetune`, `translate`, `score`. Everything else (the notebook, any script) calls these.
 
-Open **`sicilian_nllb_colab.ipynb`** (all-in-one: zero-shot + LoRA fine-tune) — use the
-"Open in Colab" badge in the top-level README, or open it manually. Set Runtime → GPU,
-run top to bottom, and upload the six `data/dataset/{train,valid,test}.{scn,en}` files
-when prompted. It prints zero-shot and fine-tuned BLEU/chrF for both directions.
+## How to run it
 
-`nllb_eval.py` / `nllb_finetune.py` are the standalone script equivalents.
+The whole pipeline — data → preprocessing → fine-tune → evaluate, plus the optional levers
+(Italian bridge, back-translation, normalization ablation) — is one narrated notebook at the
+repo root: **[`reproduce.ipynb`](../../reproduce.ipynb)** (Colab badge in the top-level README).
+It imports `nllb_pipeline` and reads the prepared data from Drive.
 
-Models: `facebook/nllb-200-distilled-600M` (fast, fits free T4) → `...-1.3B` →
-`...-3.3B` (more VRAM). Bigger = better, slower.
+Minimal programmatic use:
 
-## Script path (any CUDA box)
-
-```bash
-pip install transformers sentencepiece sacrebleu torch
-python nllb_eval.py --src data/dataset/test.scn --ref data/dataset/test.en \
-    --src-lang scn_Latn --tgt-lang eng_Latn --out hyp.en
-python nllb_eval.py --src data/dataset/test.en  --ref data/dataset/test.scn \
-    --src-lang eng_Latn --tgt-lang scn_Latn
+```python
+from nllb_pipeline import load_base, attach_lora, build_dataset, finetune, translate, score
+model, tok = load_base('facebook/nllb-200-1.3B')
+ft = attach_lora(model)
+ds = build_dataset(tok, [(train_scn, train_en, 'scn', 'en'), (train_en, train_scn, 'en', 'scn')])
+finetune(ft, tok, ds, out_dir='nllb-lora-bidir', epochs=2)
+print(score(translate(ft, tok, test_scn, 'scn', 'en'), test_en))
 ```
+
+Models: `facebook/nllb-200-distilled-600M` (fast, free T4) → `...-1.3B` (our default) →
+`...-3.3B` (more VRAM).
 
 ## Caveat (important for interpretation)
 
-NLLB's own Sicilian training/eval used a post-2017 orthography that differs from the
-Arba Sicula literary standard our test set uses (see the Napizia "Good-Sicilian-in-NLLB"
-notes). So zero-shot NLLB may be penalised on chrF/BLEU for orthographic mismatch even
-when meaning is right — fine-tuning on our `train` data should help a lot.
+NLLB's own Sicilian training used a post-2017 orthography that differs from the Arba Sicula
+literary standard our test set uses. Zero-shot NLLB may be penalised on BLEU/chrF for
+orthographic mismatch even when meaning is right — fine-tuning on our `train` data helps a lot.
+We also adopt light Standard-Sicilian normalization (`../dataset/normalize_scn.py`).
