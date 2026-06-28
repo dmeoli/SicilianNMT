@@ -12,7 +12,7 @@ than training from scratch. Sicilian = `scn_Latn`, English = `eng_Latn`, Italian
 
 The whole pipeline — data → preprocessing → fine-tune → evaluate, plus the optional levers
 (Italian bridge, back-translation, normalization ablation) — is one narrated notebook at the
-repo root: **[`reproduce.ipynb`](../../reproduce.ipynb)** (Colab badge in the top-level README).
+repo root: **[`sicilian_nmt.ipynb`](../../sicilian_nmt.ipynb)** (Colab badge in the top-level README).
 It imports `nllb_pipeline` and reads the prepared data from Drive.
 
 Minimal programmatic use:

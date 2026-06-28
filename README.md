@@ -1,8 +1,8 @@
 # Sicilian NMT
 
-[![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/reproduce.ipynb)
+[![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/sicilian_nmt.ipynb)
 
-**[`reproduce.ipynb`](reproduce.ipynb)** runs the whole model pipeline end-to-end — data →
+**[`sicilian_nmt.ipynb`](sicilian_nmt.ipynb)** runs the whole model pipeline end-to-end — data →
 Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate — narrated step by
 step, calling the implementations in `experiments/*.py`.
 
@@ -26,7 +26,7 @@ experiments/
   eval/          BLEU + chrF harness (sacrebleu)
   baseline/      Sockeye-3 (PyTorch, CPU) small Transformer + the paper's "lever B"
                  (tokenization + desinence-biased subwords)
-  nllb/          NLLB-200 + LoRA engine (nllb_pipeline.py); driven by reproduce.ipynb
+  nllb/          NLLB-200 + LoRA engine (nllb_pipeline.py); driven by sicilian_nmt.ipynb
   serving/       FastAPI /translate + Telegram bot over the NLLB adapter
 extract-text/    Arba Sicula PDFs (gitignored) + WikiMatrix it-scn + aligned gold CSVs
 vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas
