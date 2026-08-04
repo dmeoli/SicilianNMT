@@ -69,6 +69,30 @@ Cipolla and for Pitrè) and, if anything, run opposite to the intuition. **Cavea
 se_score/ha_score are his model's signals, not our LaBSE extractor's recall; the
 definitive per-text LaBSE-recall test is the follow-up (needs the ML venv rebuilt).
 
+## `labse_by_text.py` (the DIRECT test — supersedes the first pass)
+
+The first pass used HIS model's signals; this uses OURS. LaBSE is the encoder our
+aligner scores with, so the LaBSE cosine of an already-correct (hand-aligned) pair
+measures how confidently our extractor could recover it. Reports per text the mean
+LaBSE cosine of the gold pairs and the recall at our production threshold (0.40).
+
+```
+python experiments/extraction/labse_by_text.py     # needs the ML .venv + gold in data/external/eryk/
+```
+
+**Finding (2026-08): with the RIGHT signal, Eryk's hypothesis largely HOLDS.** Genre
+means (LaBSE cos / recall@0.40): **standard-prose (Cipolla) 0.759 / 0.91 = easiest**,
+prose 0.666 / 0.85, poetry 0.635 / 0.80, folk-tale 0.607 / 0.88. Standard Sicilian
+aligns best and dialect poetry worst — the opposite of the his-model first pass, because
+se_score measures translatability under his small model (Cipolla's ornate literary prose
+is hard to *model*) whereas LaBSE measures alignability (clean standard orthography maps
+cleanly to English). Nuance: vocabulary OOV is NOT a smooth predictor (Spearman −0.11);
+the losses concentrate in a few strongly dialectal texts (e.g. "Giuseppe Sciacca" LaBSE
+0.359, recall 0.38) and in poetry. **Corrective measures suggested:** genre-aware / lower
+thresholds for poetry, a Sicilian-adapted encoder, and flagging low-mean-LaBSE texts for
+review. n=1 for the standard-prose and folk-tale genres (single texts) — treat those
+means as anecdotal; the standard > prose > poetry gradient is the robust signal.
+
 ### TODO (need a live inspection pass first)
 
 - **Napizia Dictionary** (`dizziunariu.napizia.com`) — example sentences from poetry /
