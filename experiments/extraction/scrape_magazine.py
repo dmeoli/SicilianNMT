@@ -88,7 +88,7 @@ class _Article(HTMLParser):
             self._grab = "p"
             self._buf = []
         elif tag == "br" and self._grab:
-            self._buf.append("\n")
+            self._buf.append(" ")   # keep a paragraph on ONE line (line-aligned output)
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "div" and self._div_classes:
@@ -101,7 +101,7 @@ class _Article(HTMLParser):
                 self._stop = True                 # translated body ends at the notes section
             self._grab = None
         elif tag == "p" and self._grab == "p":
-            text = re.sub(r"[ \t]+", " ", "".join(self._buf)).strip()
+            text = re.sub(r"\s+", " ", "".join(self._buf)).strip()
             if text and not _JUNK_RE.match(text):
                 self.paras.append(text)
             self._grab = None
