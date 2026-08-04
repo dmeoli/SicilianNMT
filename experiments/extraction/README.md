@@ -47,6 +47,28 @@ count mismatches are written out and flagged for LaBSE). Writes per-article
 hard-blocked by slug (`mulinazzu`) *and* by author line (any `<h2>` containing
 "Manzella"). Do not remove either guard.
 
+## `analyze_standard_vs_nonstandard.py`
+
+Tests Eryk's hypothesis (2026-08) that our extractor should agree with his
+hand-alignments more on **standard** Sicilian (esp. Cipolla) than on dialect poetry
+/ folk tales. Over his AS41-42 gold (18 texts, 1,373 pairs) it relates two objective
+non-standardness proxies (OOV vs the Dieli standard lexicon; orthographic divergence
+under `normalize_scn` std) to the alignment-difficulty signals already in his gold
+(`se_score` = his Sockeye model score; `score` = hunalign confidence). Pure stdlib.
+
+```
+python experiments/extraction/analyze_standard_vs_nonstandard.py   # needs gold in data/external/eryk/
+```
+
+**First-pass finding (2026-08):** the hypothesis is **not** strongly supported. Vocabulary
+OOV is essentially uncorrelated with difficulty (Spearman +0.07 vs se_score), and
+sentence length is not a confound (~0). Orthographic divergence shows only a modest
+negative correlation (Spearman −0.52) over a tiny dynamic range, and the two difficulty
+signals disagree in sign — i.e. weak effects. Per-genre means are anecdotal (n=1 for
+Cipolla and for Pitrè) and, if anything, run opposite to the intuition. **Caveat:**
+se_score/ha_score are his model's signals, not our LaBSE extractor's recall; the
+definitive per-text LaBSE-recall test is the follow-up (needs the ML venv rebuilt).
+
 ### TODO (need a live inspection pass first)
 
 - **Napizia Dictionary** (`dizziunariu.napizia.com`) — example sentences from poetry /
