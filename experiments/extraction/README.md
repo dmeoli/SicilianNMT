@@ -93,7 +93,37 @@ thresholds for poetry, a Sicilian-adapted encoder, and flagging low-mean-LaBSE t
 review. n=1 for the standard-prose and folk-tale genres (single texts) — treat those
 means as anecdotal; the standard > prose > poetry gradient is the robust signal.
 
-### TODO (need a live inspection pass first)
+## `labse_why_sicilian.py` — why does vanilla LaBSE work on Sicilian at all?
+
+Eryk's question (LaBSE has no official Sicilian support). On FLORES-200 (multi-parallel,
+includes scn_Latn): **scn→en retrieval P@1 = 99%**, trailing SUPPORTED Italian (100%) by
+1% — it genuinely works. Mechanism: raw cosines don't give a clean distance ladder
+(English is LaBSE's pivot, so scn-en cosine is highest), but ignoring English, each
+Sicilian sentence's nearest true translation is **Italian 18% vs French 8%** (2× the next
+Romance) — LaBSE places Sicilian in its Italian/Romance region and the transfer rides on
+that lexical/Romance proximity.
+
+```
+python experiments/extraction/labse_why_sicilian.py    # needs ML .venv + data/external/flores
+```
+
+## `poetry_rolling.py` — test Eryk's "roll verses into one line"
+
+Simulates rolling k consecutive hand-aligned pairs into one unit before scoring. **Eryk was
+right, especially for poetry.** Mean LaBSE cos / recall@0.40, k=1 → k=3:
+
+```
+  poetry          0.651/0.84 -> 0.722/0.96 -> 0.764/0.99   (+0.11 cos, +0.15 recall)
+  prose           0.707/0.90 -> 0.761/0.94 -> 0.793/0.95   (+0.05 recall)
+  standard-prose  0.759/0.91 -> 0.799/0.96 -> 0.830/1.00
+  folk-tale       0.607/0.88 -> 0.674/0.95 -> 0.714/1.00
+```
+Rolling helps every genre but **disproportionately poetry** (+0.15 recall vs +0.05 for
+prose), closing poetry's gap to prose by k=3. Caveat: recall here = clearance of the 0.40
+threshold; part of the gain is mechanical (fewer, longer, more distinctive units). Precision
+is plausibly up too (longer segments match less spuriously) but not directly measured here.
+
+## TODO (need a live inspection pass first)
 
 - **Napizia Dictionary** (`dizziunariu.napizia.com`) — example sentences from poetry /
   proverbs / prose. Search-based, no word list; the raw Dieli vocab we already have in
