@@ -22,7 +22,8 @@
 
 \begin{abstract}
 Sicilian is a low-resource Romance language, with a literary tradition older than Italian,
-yet absent from every major machine-translation service. Building on Wdowiak's
+yet still without high-quality machine translation: the massively multilingual systems that
+now include it learned it from noisy, non-standardised web text. Building on Wdowiak's
 \emph{Tradutturi Sicilianu} \citep{wdowiak2021recipe}, the first Sicilian neural machine
 translation (NMT) system, we rebuild the parallel-corpus pipeline with sentence-embedding
 extraction and alignment (PyMuPDF and LaBSE \citep{feng2022labse}), assemble a reproducible,
@@ -42,8 +43,12 @@ assembly and evaluation are reproducible.
 Sicilian is a Romance language spoken daily by millions in Sicily, Calabria and Puglia, and in
 diaspora communities abroad. The Sicilian School of poets at the court of Frederick~II created
 the first literary standard in Italy in the 13\textsuperscript{th} century and inspired Dante;
-Sicilian thus emerged as a literary language \emph{before} Italian. Despite this, it is absent
-from Google Translate, Bing, Yandex and DeepL---as are most regional languages.
+Sicilian thus emerged as a literary language \emph{before} Italian. For years it was absent
+from every major service; today it is included in massively multilingual models such as
+NLLB-200 \citep{nllb2022}, but the coverage is \emph{low-quality}: the Sicilian training text
+was mined from non-standardised web sources, so the model has, in effect, learned a
+non-standard orthography (Section~\ref{sec:standardization}). The barrier for Sicilian has thus
+shifted from \emph{absence} to \emph{quality}.
 
 The bottleneck was never the model but the \emph{parallel text}: nobody had assembled it. The
 material exists, in the bilingual literary journal published for over forty years by Arba
@@ -133,6 +138,7 @@ it--scn (aux) & 11{,}389 & WikiMatrix \\
 \end{table}
 
 \section{Standardization, Tokenization and Subwords}
+\label{sec:standardization}
 Sicilian has no single official orthography, so we first \textbf{normalise} text toward
 \emph{Standard Sicilian}---the standard of Cipolla, augmented by Wdowiak for MT clarity: strict
 \textbf{L} on articles (\emph{lu/la/li}), \textbf{h} on \emph{aviri} (\emph{haiu, havi, hannu}),
