@@ -166,6 +166,7 @@ filtering ``furniture'' (all-caps headers, page numbers, captions). The procedur
 parallel pages the manual selection had skipped.
 
 \subsection{Sentence alignment}
+\label{sec:alignment}
 We embed every sentence with LaBSE \citep{feng2022labse}, a language-agnostic dual encoder, and
 build the cosine-similarity matrix $S_{ij}=\langle u_i,v_j\rangle/(\lVert u_i\rVert\lVert
 v_j\rVert)$. A facing pair is confirmed only if its mean best-match similarity exceeds
@@ -225,6 +226,34 @@ And very few of the Sicilian sentences in the NLLB dataset
 were paired with a valid translation.
 We suspect that these data quality issues were caused
 by seed data which is inconsistent with the literary standard.
+
+\subsection{Why Sicilian lives in the Romance neighbourhood}
+\label{sec:dataquality}
+A pretrained multilingual encoder needs no explicit Sicilian support to represent Sicilian:
+it places it among its Romance languages. On the multi-parallel FLORES-200 devtest
+\citep{nllb2022}, LaBSE \citep{feng2022labse} retrieves the correct English translation of a
+Sicilian sentence \textbf{99\%} of the time (precision@1), one point behind \emph{supported}
+Italian (100\%); and, discounting English---LaBSE's pivot language, to which everything is
+close---each Sicilian sentence's nearest neighbour is overwhelmingly Italian (18\%, twice the
+next Romance language). Sicilian is close enough to Italian in lexicon and spelling that the
+model treats it almost as a variety of Italian.
+
+This same proximity, we believe, explains the seed-data failure. Because Corsican, Sicilian and
+Italian sit so close together, a Corsican--English model appears to ``work'' on Sicilian, and a
+selection process that trusts that signal will admit Corsican and other Romance web text as
+``Sicilian''---consistent with the roughly one-third dialectal, partly Corsican portion noted
+above. The proximity is double-edged: it is exactly what lets our own LaBSE-based aligner
+(Section~\ref{sec:alignment}) operate on an officially unsupported language, but it offers no
+protection against near-language contamination when a corpus is assembled by transfer alone.
+
+Crucially, alignability tracks \emph{standardness}. Scoring the LaBSE cosine of Wdowiak's
+hand-aligned gold pairs per text, standard literary prose (Cipolla's \emph{Don Chisciotti})
+aligns at cosine \textbf{0.76}, with 91\% of its pairs clearing our production threshold,
+whereas dialect poetry aligns at only \textbf{0.64} (80\% recovered). The non-standard material
+is thus both the larger source of noise in the collected data and the harder to recover, so
+curating toward the literary standard improves quality on both counts. Rolling short verses
+into longer lines recovers much of the poetry gap (mean cosine $0.65\!\to\!0.76$, recovery
+$84\%\!\to\!99\%$ when merging up to three verses), a cheap corrective for the poetic register.
 
 %% \citep{nllb2022}
 
