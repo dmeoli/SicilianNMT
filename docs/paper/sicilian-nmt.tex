@@ -1,7 +1,12 @@
 \documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2cm]{geometry}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+
+\usepackage{textcomp}
+\usepackage{tgpagella}
+
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{amsmath}
@@ -12,8 +17,13 @@
 %% placeholder marker for anything still to be filled in
 \newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
 
-\title{Sicilian, English and Italian Neural Machine Translation:\\
-       an Automated Data Pipeline and Reproducible Baselines}
+%% \title{Sicilian, English and Italian Neural Machine Translation:\\
+%%        an Automated Data Pipeline and Reproducible Baselines}
+
+\title{Climbing the Ladder:\\
+  Automating Data Pipelines and Reproducing Baselines\\
+  in Low-Resource Settings}
+
 \author{Donato Meoli}
 \date{\today}
 
@@ -21,11 +31,14 @@
 \maketitle
 
 \begin{abstract}
-Sicilian is a low-resource Romance language, with a literary tradition older than Italian,
-yet still without high-quality machine translation: the massively multilingual systems that
-now include it learned it from noisy, non-standardised web text. Building on Wdowiak's
-\emph{Tradutturi Sicilianu} \citep{wdowiak2021recipe}, the first Sicilian neural machine
-translation (NMT) system, we rebuild the parallel-corpus pipeline with sentence-embedding
+The massively multilingual translation systems that now include Sicilian
+learned it from noisy, non-standardised web text.
+%%
+To obtain better translation quality, we redevelop
+the small neural machine translation (NMT) system that
+\citet{wdowiak2022loresnmt} customized for Sicilian.
+%%
+We rebuild the parallel-corpus pipeline with sentence-embedding
 extraction and alignment (PyMuPDF and LaBSE \citep{feng2022labse}), assemble a reproducible,
 deduplicated Sicilian--English dataset with a held-out \emph{literary} test set, and port the
 paper's tokenization and desinence-biasing recipe to a Perl-free stack. We evaluate both
@@ -40,22 +53,74 @@ assembly and evaluation are reproducible.
 \end{abstract}
 
 \section{Introduction}
-Sicilian is a Romance language spoken daily by millions in Sicily, Calabria and Puglia, and in
-diaspora communities abroad. The Sicilian School of poets at the court of Frederick~II created
-the first literary standard in Italy in the 13\textsuperscript{th} century and inspired Dante;
-Sicilian thus emerged as a literary language \emph{before} Italian. For years it was absent
-from every major service; today it is included in massively multilingual models such as
+Languages without an army and navy often lack a standard orthography.
+Without specific spelling rules and conventions, written texts in these languages
+often exhibit great variability (sometimes even within a local dialect),
+which inhibits the ability of conventional metrics to assess model performance
+\citep{aepli2023benchmark}.
+%%
+But even languages like Sicilian -- where published dictionaries have presented
+a consistent orthography for several hundred years
+\citep{pasqualino1785,mortillaro1876,nicotra1883,traina1868} --
+can exhibit extreme orthographic diversity which
+(when incorporated into a training dataset)
+prevents a model from learning how to generate consistent text.
+
+During the 13\textsuperscript{th} century, 
+the Sicilian School of Poets at the court of Emperor Frederick~II
+created the first literary standard in Italy.  Their poetry
+inspired Dante to write in his native Florentine, which later
+became today's Italian language.
+%%
+Following in their footsteps, poets like
+Antonio Veneziano (1543-1593),
+Giovanni Meli (1740-1815),
+Domenico Tempio (1750-1821),
+Ignazio Buttitta (1899-1997) and
+Salvatore Camilleri (1921-2021)
+continued the Sicilian literary tradition,
+writing in a fairly consistent manner.
+%%
+But writing is different from speaking, so
+%% in the late 19\textsuperscript{th} century,
+Giuseppe Pitrè (1841-1916)
+developed a popular tradition which
+recorded the common people
+%% as they spoke -- both
+in their own words and in the sound of their own words.
+
+One can hear echoes of the popular tradition in the daily speech
+of millions of people in Sicily, Calabria and Puglia,
+as well as in diaspora communities abroad.
+And one can find echoes of the literary tradition in books,
+journals and pages of the internet.
+%% because the Sicilian language has an 800-year literary tradition.
+%%
+Nonetheless, the publicly available Sicilian language text
+often exhibits extreme orthographic diversity which
+once prevented practitioners from developing
+datasets of Sicilian-language parallel text and once
+caused Sicilian to be absent from every major translation service.
+
+Today, Sicilian is included in massively multilingual models such as
 NLLB-200 \citep{nllb2022}, but the coverage is \emph{low-quality}: the Sicilian training text
 was mined from non-standardised web sources, so the model has, in effect, learned a
 non-standard orthography (Section~\ref{sec:standardization}). The barrier for Sicilian has thus
 shifted from \emph{absence} to \emph{quality}.
 
-The bottleneck was never the model but the \emph{parallel text}: nobody had assembled it. The
-material exists, in the bilingual literary journal published for over forty years by Arba
-Sicula. Wdowiak's \emph{Tradutturi Sicilianu} \citep{wdowiak2021recipe} was the first Sicilian
-NMT system, trained on hand-aligned Arba Sicula text with a recipe tailored to the
-low-resource, morphologically rich setting. This work rebuilds that effort with maintained,
-mostly CPU-only tooling and pushes quality with modern pretrained models.
+High-quality material exists, especially in the bilingual literary journal \emph{Arba Sicula}
+(published since 1979), which \citet{wdowiak2022loresnmt} used to create 
+%% \emph{Tradutturi Sicilianu}, 
+the first Sicilian neural machine translation (NMT) system.
+His work demonstrated that it's possible to develop a fairly good translation model
+in low-resource settings, but it was a labor-intensive task.
+He aligned sentences by hand using a recipe tailored to the
+low-resource, morphologically rich setting.
+
+This work rebuilds that effort with maintained,
+mostly CPU-only tooling and seeks to obtain better quality
+with modern pretrained models.
+
 
 \paragraph{Contributions.}
 \begin{itemize}
@@ -137,13 +202,57 @@ it--scn (aux) & 11{,}389 & WikiMatrix \\
 \end{tabular}
 \end{table}
 
-\section{Standardization, Tokenization and Subwords}
+%% \section{Standardization, Tokenization and Subwords}
+\section{Standardization}
 \label{sec:standardization}
-Sicilian has no single official orthography, so we first \textbf{normalise} text toward
-\emph{Standard Sicilian}---the standard of Cipolla, augmented by Wdowiak for MT clarity: strict
-\textbf{L} on articles (\emph{lu/la/li}), \textbf{h} on \emph{aviri} (\emph{haiu, havi, hannu}),
-\textbf{CI} for \c ci (\emph{\c ciuri$\to$ciuri}), and \textbf{R} retained before a clitic
-(\emph{farlu}). Our \texttt{normalize\_scn.py} applies the documented spelling rules
+%%
+Although Sicilian does not have a single official orthography,
+a common literary standard has existed for several hundred years
+and provides a rough consistency, which we can refine
+because the majority of the Sicilian sentences
+in the NLLB dataset were written in that standard.
+
+Nonetheless,
+%% because schools in Sicily have never taught
+%% Sicilian language and literature to Sicilian students,
+%% many Sicilians remain unaware of the standard presented
+%% in 19\textsuperscript{th}-century Sicilian dictionaries.
+%% Consequently,
+approximately one-third of the Sicilian sentences
+that the NLLB team collected were written in local dialect.
+Some of the sentences were written in Corsican.
+And very few of the Sicilian sentences in the NLLB dataset
+were paired with a valid translation.
+We suspect that these data quality issues were caused
+by seed data which is inconsistent with the literary standard.
+
+%% \citep{nllb2022}
+
+For a translation model, we need sentences written in the Sicilian
+literary language and we need translations of those sentences.
+So we back-translated all of the Sicilian sentences into English and Italian,
+then we scored the resulting pair on the task of translation into Sicilian.
+because a sentence written in standard Sicilian will score better
+than a sentence written in local dialect, forward-scoring the back-translations
+allows us to identify the sentences written in standard Sicilian.
+%%
+This method yielded 549,486 back-translations to simulate English-to-Sicilian
+translation and 689,840 to simulate Italian-to-Sicilian translation.
+
+\section{Tokenization and Subword Segmentation}
+\label{sec:tokenization}
+%%
+Because the majority of the Sicilian sentences in the NLLB dataset were 
+written in a common literary standard, we can refine them for consistency.
+%%
+We first \textbf{normalise} text toward
+%% \emph{Standard Sicilian}---
+the standard established by Cipolla and augmented by Wdowiak for MT clarity:
+strict \textbf{L} on articles (\emph{lu/la/li}),
+\textbf{h} on \emph{aviri} (\emph{haiu, havi, hannu}),
+\textbf{CI} for \c ci (\emph{\c ciuri$\to$ciuri}), and
+\textbf{R} retained before a clitic (\emph{farlu}).
+Our \texttt{normalize\_scn.py} applies the documented spelling rules
 (e.g.\ \emph{cchi\`u$\to$chi\`u}, \emph{io/iu/eu$\to$jo}, \emph{non$\to$nun}) at a ``std'' level,
 and additionally uncontracts and ASCII-folds at a ``full'' level. Because NLLB's own tokenizer
 was trained on un-normalised web Sicilian, whether this normalisation \emph{helps} the
