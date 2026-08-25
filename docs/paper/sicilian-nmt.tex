@@ -229,22 +229,30 @@ by seed data which is inconsistent with the literary standard.
 
 \subsection{Why Sicilian lives in the Romance neighbourhood}
 \label{sec:dataquality}
-A pretrained multilingual encoder needs no explicit Sicilian support to represent Sicilian:
-it places it among its Romance languages. On the multi-parallel FLORES-200 devtest
-\citep{nllb2022}, LaBSE \citep{feng2022labse} retrieves the correct English translation of a
-Sicilian sentence \textbf{99\%} of the time (precision@1), one point behind \emph{supported}
-Italian (100\%); and, discounting English---LaBSE's pivot language, to which everything is
-close---each Sicilian sentence's nearest neighbour is overwhelmingly Italian (18\%, twice the
-next Romance language). Sicilian is close enough to Italian in lexicon and spelling that the
+A pretrained multilingual encoder needs no explicit Sicilian support to \emph{read} Sicilian.
+Such models organise their space around surface form rather than a shared interlingua
+\citep{verma2026script}, and the surface form of Sicilian is close to Italian, so reading it
+works well. On the multi-parallel FLORES-200 devtest \citep{nllb2022}, LaBSE
+\citep{feng2022labse} retrieves the correct English translation of a Sicilian sentence
+\textbf{99\%} of the time (precision@1, Sicilian$\rightarrow$English), one point behind
+\emph{supported} Italian (100\%); and, discounting English---LaBSE's pivot, to which everything
+is close---each Sicilian sentence's nearest neighbour is overwhelmingly Italian (18\%, twice the
+next Romance language). In lexicon and spelling Sicilian is close enough to Italian that the
 model treats it almost as a variety of Italian.
 
-This same proximity, we believe, explains the seed-data failure. Because Corsican, Sicilian and
-Italian sit so close together, a Corsican--English model appears to ``work'' on Sicilian, and a
-selection process that trusts that signal will admit Corsican and other Romance web text as
-``Sicilian''---consistent with the roughly one-third dialectal, partly Corsican portion noted
-above. The proximity is double-edged: it is exactly what lets our own LaBSE-based aligner
-(Section~\ref{sec:alignment}) operate on an officially unsupported language, but it offers no
-protection against near-language contamination when a corpus is assembled by transfer alone.
+The seed-data failure, however, is in the \emph{opposite} direction. Generating Sicilian
+(English$\rightarrow$Sicilian) reproduces whatever surface form the training data carried, and
+here that surface form is wrong. Because Corsican, Sicilian and Italian sit so close together, a
+Corsican--English model already appears to ``work'' on Sicilian, so a selection process that
+trusts that signal admits Corsican and other Romance web text as ``Sicilian''---the roughly
+one-third dialectal, partly Corsican portion noted above---and a model trained on it learns to
+emit that Corsican-tinged surface form when asked for Sicilian. Since multilingual models encode
+script and surface form over deeper linguistic structure \citep{verma2026script}, the two
+directions diverge for the same reason: an Italianate surface form retrieves the right English,
+while Corsican-looking seed data makes the model generate the wrong Sicilian. The proximity is
+thus double-edged: it is exactly what lets our own LaBSE-based aligner (Section~\ref{sec:alignment})
+operate on an officially unsupported language, but it offers no protection against near-language
+contamination when a corpus is assembled by transfer alone.
 
 Crucially, alignability tracks \emph{standardness}. Scoring the LaBSE cosine of Wdowiak's
 hand-aligned gold pairs per text, standard literary prose (Cipolla's \emph{Don Chisciotti})
