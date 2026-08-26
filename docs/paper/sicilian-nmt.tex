@@ -4,21 +4,61 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+%% support for extra text symbols
+%% set font to TeX Gyre Pagella (clone of Palatino)
 \usepackage{textcomp}
 \usepackage{tgpagella}
 
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{amsmath}
-\usepackage{hyperref}
+
+%% \usepackage{xcolor}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
 \usepackage{natbib}
-\usepackage{xcolor}
+%% \bibliographystyle{abbrvnat}
+\bibliographystyle{plainnat}
+%% \bibliographystyle{unsrtnat}
+%% 
+%%  %%  author-year style
+\bibpunct{(}{)}{;}{a}{,}{,}
+%%  %%  numerical style
+%%  \bibpunct{[}{]}{,}{s}{,}{,}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%% properly format hyperlinks and file paths
+%% make URL's font match surrounding text
+%% break URLs onto a new line after forward slash (/) or hyphen (-).
+\usepackage{url}
+\urlstyle{same}
+\def\UrlBreaks{\do\/\do-}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+\usepackage[breaklinks]{hyperref}
+%% \usepackage{hyperref}
+\hypersetup{
+  %% bookmarks,
+  %% bookmarksopen,
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  %% filecolor=black,
+  urlcolor=blue,
+  bookmarksnumbered=false,
+  pdftitle = {Climbing the Ladder: Automating Data Pipelines and Reproducing Baselines in Low-Resource Settings},
+  pdfauthor = {Donato Meoli},
+  pdfsubject = {low-resource neural machine translation},
+  pdfkeywords = {language models, low-resource NMT, Sicilian language},
+}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %% placeholder marker for anything still to be filled in
 \newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
-
-%% \title{Sicilian, English and Italian Neural Machine Translation:\\
-%%        an Automated Data Pipeline and Reproducible Baselines}
 
 \title{Climbing the Ladder:\\
   Automating Data Pipelines and Reproducing Baselines\\
@@ -26,6 +66,11 @@
 
 \author{Donato Meoli}
 \date{\today}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  TITLE and ABSTRACT
 
 \begin{document}
 \maketitle
@@ -51,6 +96,10 @@ We further include \textbf{Italian} as a closely-related, higher-resource bridge
 fine-tune those directions on a frozen WikiMatrix it--scn split. The full pipeline, dataset
 assembly and evaluation are reproducible.
 \end{abstract}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  INTRODUCTION
 
 \section{Introduction}
 Languages without an army and navy often lack a standard orthography.
@@ -121,6 +170,9 @@ This work rebuilds that effort with maintained,
 mostly CPU-only tooling and seeks to obtain better quality
 with modern pretrained models.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (par) contributions
 
 \paragraph{Contributions.}
 \begin{itemize}
@@ -135,9 +187,13 @@ with modern pretrained models.
         test set, with a bidirectional adapter that also rescues the reverse direction.
 \end{itemize}
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  BACKGROUND
+
 \section{Background}
-NMT models translation as a conditional language model: an encoder reads the source
-$x=(x_1,\dots,x_n)$ and a decoder factorises the target left to right,
+NMT models translation as a conditional language model, in which an encoder reads the source
+$x=(x_1,\dots,x_n)$ and a decoder factorises the target from left to right,
 $p_\theta(y\mid x)=\prod_{t} p_\theta(y_t\mid y_{<t},x)$, trained by maximising the
 log-likelihood of a parallel corpus and decoded with beam search. The dominant
 parameterisation is the \textbf{Transformer} \citep{vaswani2017attention}, which replaces
@@ -156,6 +212,10 @@ enables bridging through related high-resource languages \citep{fan2020beyond,
 arivazhagan2019massively}. Low-resource MT remains hard for exactly these reasons
 \citep{koehnknowles2017}.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  DATA PIPELINE
+
 \section{Data Pipeline}
 \subsection{Extraction from PDFs}
 We extract clean text from the Arba Sicula issue PDFs with PyMuPDF (no pdflatex round-trip).
@@ -164,6 +224,10 @@ journal sets Sicilian and English on facing pages, giving a natural even/odd pri
 facing candidate pairs. Pages are segmented into sentences with \texttt{pysbd} (per language),
 filtering ``furniture'' (all-caps headers, page numbers, captions). The procedure recovers
 parallel pages the manual selection had skipped.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (sub) sentence alignment
 
 \subsection{Sentence alignment}
 \label{sec:alignment}
@@ -178,16 +242,29 @@ gold (issues AS41--42); the pipeline recovers 14{,}245 sentence pairs from 44 is
 to his manual alignment. Crucially, the \emph{unaligned} English is retained as an in-domain
 monolingual pool for back-translation.
 
+%%  TO DO (??):  go back and collect the unaligned Sicilian for back-translation
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (sub) additional sources
+
 \subsection{Additional sources}
 We add the author's curated ``Good-Sicilian-in-NLLB'' set---LASER3-mined sentences
 \citep{heffernan2022laser3, nllb2022} rescored and filtered for quality and Corsican
 contamination---a small curated ``Good-Sicilian-from-WikiMatrix'' set, and the WikiMatrix
 it--scn subset \citep{schwenk2021wikimatrix} as an auxiliary Italian bridge.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (sub) unified dataset
+
 \subsection{Unified dataset}
-Sources are cleaned, deduplicated across one another, and split deterministically. A 1{,}000/1{,}000
-valid/test split is \emph{frozen} once, held out from Arba Sicula (a literary standard, not
-FLORES), so every later result stays comparable (Table~\ref{tab:data}).
+Sources are cleaned, deduplicated across one another, and split deterministically.
+Then a 1{,}000/1{,}000 valid/test split is \emph{frozen} once, held out from Arba Sicula
+(which provides the high-quality literary standard that FLORES does not),
+so that every later result stays comparable (Table~\ref{tab:data}).
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \begin{table}[t]\centering
 \caption{Unified dataset.}\label{tab:data}
@@ -202,6 +279,10 @@ it--scn (aux) & 11{,}389 & WikiMatrix \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  STANDARDIZATION
 
 %% \section{Standardization, Tokenization and Subwords}
 \section{Standardization}
@@ -227,12 +308,19 @@ were paired with a valid translation.
 We suspect that these data quality issues were caused
 by seed data which is inconsistent with the literary standard.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (sub) why Sicilian lives in the Romance neighborhood
+
 \subsection{Why Sicilian lives in the Romance neighbourhood}
 \label{sec:dataquality}
-A pretrained multilingual encoder needs no explicit Sicilian support to \emph{read} Sicilian.
-Such models organise their space around surface form rather than a shared interlingua
-\citep{verma2026script}, and the surface form of Sicilian is close to Italian, so reading it
-works well. On the multi-parallel FLORES-200 devtest \citep{nllb2022}, LaBSE
+A pretrained multilingual encoder needs no explicit Sicilian support to \emph{read} Sicilian
+because the multilingual representations that they learn is not a shared interlingua, where
+sentences from different languages get mapped into an abstract, universal representation of meaning.
+Instead they organise their parameter space around surface-form cues \citep{verma2026script}.
+
+The surface form of literary Sicilian is close to Italian, so reading it works well.
+On the multi-parallel FLORES-200 devtest \citep{nllb2022}, LaBSE
 \citep{feng2022labse} retrieves the correct English translation of a Sicilian sentence
 \textbf{99\%} of the time (precision@1, Sicilian$\rightarrow$English), one point behind
 \emph{supported} Italian (100\%); and, discounting English---LaBSE's pivot, to which everything
@@ -240,13 +328,25 @@ is close---each Sicilian sentence's nearest neighbour is overwhelmingly Italian 
 next Romance language). In lexicon and spelling Sicilian is close enough to Italian that the
 model treats it almost as a variety of Italian.
 
-The seed-data failure, however, is in the \emph{opposite} direction. Generating Sicilian
-(English$\rightarrow$Sicilian) reproduces whatever surface form the training data carried, and
-here that surface form is wrong. Because Corsican, Sicilian and Italian sit so close together, a
-Corsican--English model already appears to ``work'' on Sicilian, so a selection process that
-trusts that signal admits Corsican and other Romance web text as ``Sicilian''---the roughly
-one-third dialectal, partly Corsican portion noted above---and a model trained on it learns to
-emit that Corsican-tinged surface form when asked for Sicilian. Since multilingual models encode
+The seed-data failure, however, is in the \emph{opposite} direction -- retrieving
+the Sicilian translation of an English sentence.
+%% Generating Sicilian
+%% (English$\rightarrow$Sicilian)
+%% reproduces whatever surface form the training data carried.
+Romance languages share a lot of vocabulary and grammar, so when a model
+retrieves a Sicilian, Italian or Corsican translation of an English sentence,
+the translation that it selects will reflect the surface-form cues in its training data.
+Sometimes the NLLB seed data's surface form reflects the literary language in
+Sicilian dictionaries, but other times it reflects local pronunciations, which
+(we suppose) is what caused their model to frequently retrieve Corsican-language sentences
+when assembling the NLLB's Sicilian corpus.
+
+%% Because Corsican, Sicilian and Italian sit so close together, a
+%% Corsican--English model already appears to ``work'' on Sicilian, so a selection process that
+%% trusts that signal admits Corsican and other Romance web text as ``Sicilian''---the roughly
+%% one-third dialectal, partly Corsican portion noted above---and a model trained on it learns to
+%% emit that Corsican-tinged surface form when asked for Sicilian.
+Since multilingual models encode
 script and surface form over deeper linguistic structure \citep{verma2026script}, the two
 directions diverge for the same reason: an Italianate surface form retrieves the right English,
 while Corsican-looking seed data makes the model generate the wrong Sicilian. The proximity is
@@ -275,6 +375,10 @@ allows us to identify the sentences written in standard Sicilian.
 %%
 This method yielded 549,486 back-translations to simulate English-to-Sicilian
 translation and 689,840 to simulate Italian-to-Sicilian translation.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  TOKENIZATION and SUBWORD SEGMENTATION
 
 \section{Tokenization and Subword Segmentation}
 \label{sec:tokenization}
@@ -313,6 +417,10 @@ the vocabulary from 14{,}000 to 2{,}000 units and produced his largest BLEU gain
 \citep{provilkov2020bpedropout} adds subword regularisation by sampling segmentations during
 training.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  MODELS
+
 \section{Models}
 The from-scratch baseline is a Sockeye-3 \citep{hieber2017sockeye} small Transformer (3 layers,
 model size 256, 4 heads, feed-forward 1024, weight tying, dropout 0.4, joint BPE $\approx$4k;
@@ -329,6 +437,10 @@ update $W=W_0+\frac{\alpha}{r}BA$ ($r{=}32$, $\alpha{=}64$) on the attention pro
 the base in fp16 and the adapters in fp32. Training \emph{both} directions at once (scn$\to$en
 and en$\to$scn) yields a single adapter that serves both and rescues the weak reverse direction.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  EVALUATION
+
 \section{Evaluation}
 We score with sacreBLEU \citep{post2018sacrebleu}---BLEU \citep{papineni2002bleu}
 (\texttt{tok:13a}) and chrF \citep{popovic2015chrf}---on the
@@ -337,11 +449,17 @@ post-2017 orthography and a different (non-literary) domain, so it is not repres
 Arba Sicula material. The Sockeye rows are scored in tokenized space (the same space as the
 upstream system; the raw-text floor is 5.27 BLEU), while the NLLB rows are scored on raw text.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  RESULTS
+
 \section{Results}
 On the frozen held-out test set (1{,}000 literary pairs), Sicilian$\rightarrow$English results
 are reported in Table~\ref{tab:results}. The Sockeye levers stack from 5.54 to 10.85 BLEU on CPU
 alone; the pretrained NLLB-1.3B wins decisively even zero-shot (29.02), and LoRA fine-tuning
 lifts it to 31.43---above Wdowiak's published baseline (29.1) on our harder test.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \begin{table}[t]\centering
 \caption{Our models, our test set (scn$\rightarrow$en).}\label{tab:results}
@@ -362,10 +480,16 @@ NLLB-200 1.3B, LoRA \emph{bidirectional} & 31.43 & 56.94 \\
 \end{tabular}
 \end{table}
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
 In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts NLLB-1.3B
 from 9.89 (zero-shot) to 18.73 BLEU / 49.96 chrF, nearly doubling the weak direction at no cost
 to scn$\rightarrow$en and giving a usable two-way model. This is still below the published
 en$\rightarrow$scn baseline (25.1); back-translation is the next lever.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (par) Italian directions (it<->scn)
 
 \paragraph{Italian directions (it$\leftrightarrow$scn).}
 Italian is a closely related, much higher-resource Romance language, and NLLB supports
@@ -378,6 +502,8 @@ a bridge in the sense of \citet{johnson2017zeroshot} and \citet{fan2020beyond}
 for a close, high-resource neighbour on in-domain WikiMatrix text. The multilingual adapter
 costs a little on scn$\leftrightarrow$en ($30.8/17.5$ vs the dedicated $31.4/18.7$), so one can
 ship either the trilingual all-rounder or the specialised pair.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \begin{table}[t]\centering
 \caption{Trilingual model: all directions, zero-shot vs.\ the multilingual fine-tune
@@ -393,6 +519,10 @@ scn$\rightarrow$it & 42.20 / 59.04 & \textbf{43.47 / 59.79} \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (par) relation to the state of the art
 
 \paragraph{Relation to the state of the art.}
 We do \emph{not} beat the state of the art. Wdowiak's \textbf{reverse-training} system reports,
@@ -413,6 +543,10 @@ versus his $\sim$550k). The \emph{method} gap is therefore largely closed; the r
 in-domain test set---which argues for combining his corpus with our pipeline rather than
 competing.
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  CONCLUSION and FUTURE WORK
+
 \section{Conclusion and Future Work}
 We presented a reproducible, Perl-free path from Arba Sicula PDFs to a Sicilian--English NMT
 system: an automated extraction-and-alignment pipeline, the paper's tokenization and desinence
@@ -426,7 +560,19 @@ in-domain test set. This is a concrete case for combining his corpus with our pi
 Telegram bot, a FastAPI service over the NLLB adapter). All code, the data pipeline and the
 evaluation harness are released for reproducibility.
 
-\bibliographystyle{plainnat}
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  BIBLIOGRAPHY
+
+\pdfbookmark[0]{References}{sec:references}
+\hypertarget{sec:references}{}
+%%
 \bibliography{references}
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
 \end{document}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
