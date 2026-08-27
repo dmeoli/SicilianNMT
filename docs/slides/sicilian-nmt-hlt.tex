@@ -274,6 +274,46 @@
   The orthographic standard of \emph{Arba Sicula}; rules following Wdowiak's
   \emph{Tradutturi} text preprocessing. Done before any model sees the data.}
 
+\begin{frame}{Why NLLB's Sicilian is low quality}
+  \begin{columns}[t]
+    \begin{column}{0.54\textwidth}
+      \begin{itemize}
+        \item About \textbf{one third} of the ``Sicilian'' NLLB collected is local
+              \textbf{dialect}; some is actually \textbf{Corsican}, and few sentences carry a
+              valid translation.
+        \item Why? Romance languages are so close that a \textbf{Corsican$\to$English} model
+              \emph{appears} to work on Sicilian --- so mining by surface-form cues admits
+              Corsican and dialect as ``Sicilian''.
+        \item Multilingual encoders organise around \textbf{surface form}, not a shared
+              interlingua (Verma et al., 2026) --- a Corsican-looking surface form yields
+              Corsican output.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \footnotesize
+      \textbf{Our evidence (LaBSE on FLORES-200):}\\[1mm]
+      \begin{tabular}{lr}
+        scn$\to$en retrieval P@1        & \textbf{99\%} \\
+        \quad vs \emph{supported} Italian & 100\% \\
+        Sicilian's nearest language     & \textbf{Italian} \\
+        \quad (18\%, 2$\times$ the next Romance) & \\
+      \end{tabular}
+      \\[2.5mm]
+      \textbf{Alignability tracks standardness:}\\[1mm]
+      \begin{tabular}{lcc}
+                       & cosine & recovered \\
+        standard prose & 0.76   & 91\% \\
+        dialect poetry & 0.64   & 80\% \\
+      \end{tabular}
+    \end{column}
+  \end{columns}
+  \vfill
+  {\footnotesize\color{gray} Sicilian sits in LaBSE's Italian/Romance region: the same
+  proximity lets our aligner work on an officially \emph{unsupported} language, but offers no
+  protection against near-language contamination. Curating toward the literary standard is what
+  fixes it --- which motivates the next step.}
+\end{frame}
+
 \begin{frame}{Standardising the Sicilian language}
   \begin{columns}[t]
     \begin{column}{0.56\textwidth}
