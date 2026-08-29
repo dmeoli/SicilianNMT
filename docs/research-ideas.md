@@ -44,6 +44,23 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
   hyperparameter search is feasible and was on the agreed agenda.
 - **Bigger NLLB** (1.3B / 3.3B) — in progress.
 
+## Representation-analysis studies (probing)
+
+- **Bidirectional vs unidirectional training and encoder clustering** — *Eryk's idea
+  (2026-08), offered to us to "steal", credit him.* Question: does bidirectional training
+  pull translated sentence pairs closer together in the encoder than unidirectional training?
+  His proposed setup: take an ~8M It–En corpus and cut it in half; the **bidirectional** model
+  trains on the *same* 4M sentences on both the source and target sides (discarding the other
+  4M), so the encoder sees each sentence in both languages; the **unidirectional** model trains
+  one 4M half for it→en and the other 4M half for en→it, so the encoder sees each sentence only
+  once. Hypothesis: the bidirectional encoder places translated pairs closer. Also **vary depth**
+  (3 vs 6 layers) to see whether pairs converge as depth grows. Measure with SVCCA / cosine, cf.
+  Kudugunta et al. 2019 (encoder reps cluster by linguistic similarity and depend on both source
+  and target) and Verma et al. 2026 (surface form over structure). **Cheap first
+  cut for us:** our trilingual NLLB adapter is *already* bidirectionally fine-tuned, so we can
+  probe its encoder geometry (scn/en/it translated-pair distances) and compare against a
+  unidirectional-only fine-tune — half the study is set up already.
+
 ## Extraction improvements (our pipeline)
 
 - **Caption removal** — captions getting mixed into the body text was Eryk's biggest manual

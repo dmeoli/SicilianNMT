@@ -314,10 +314,12 @@ by seed data which is inconsistent with the literary standard.
 
 \subsection{Why Sicilian lives in the Romance neighbourhood}
 \label{sec:dataquality}
-A pretrained multilingual encoder needs no explicit Sicilian support to \emph{read} Sicilian
-because the multilingual representations that they learn is not a shared interlingua, where
-sentences from different languages get mapped into an abstract, universal representation of meaning.
-Instead they organise their parameter space around surface-form cues \citep{verma2026script}.
+A pretrained multilingual encoder needs no explicit Sicilian support to \emph{read} Sicilian.
+The representations it learns are not a shared interlingua that maps every language into one
+abstract, universal meaning space; instead they cluster languages by linguistic similarity
+\citep{kudugunta2019investigating} and organise around surface-form cues \citep{verma2026script}.
+For Sicilian and Italian, which are close on both counts, the two accounts agree: Sicilian lands
+in the Italian--Romance region either way.
 
 The surface form of literary Sicilian is close to Italian, so reading it works well.
 On the multi-parallel FLORES-200 devtest \citep{nllb2022}, LaBSE
