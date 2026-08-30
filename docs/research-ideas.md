@@ -66,9 +66,18 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
 - **Caption removal** — captions getting mixed into the body text was Eryk's biggest manual
   pain. Add layout-aware caption/figure detection (PyMuPDF blocks + font/position) so we
   don't need hand-cleaning.
-- **Old issues (1–18)** extract poorly (evolved orthography + captions). Try **modern OCR**
-  (Surya/Docling, or Google Lens) and a **regex normalizer** to map non-standard → Standard
-  Sicilian, then measure the BLEU effect with/without normalization.
+- **Old issues (1–18)** extract poorly (evolved orthography + captions; early issues were
+  **phototypeset**). Try **modern OCR** (Surya/Docling, or Google Lens) and a **regex
+  normalizer** to map non-standard → Standard Sicilian, then measure the BLEU effect
+  with/without normalization.
+- **Issue DATE is a quality/standardness signal** (Eryk, 2026-08). Arba Sicula's Sicilian
+  improves *steadily over time* as written norms matured: Pitrè's 1875 grammar (descriptive of
+  diatopic variation, not a style guide) → Privitera 1998 → **Kirk Bonner's *Introduction to
+  Sicilian Grammar* (2001)**, which supplied the missing rules and became a de-facto style guide
+  → 2000s Google Books digitization of 19th-c dictionaries → Cipolla's textbooks (2013, 2021).
+  So **weight/prioritise post-2001 issues** (cleaner, more standard), and reserve the OCR +
+  aggressive-normalization path for the older, lower-quality issues. Worth an ablation: does
+  restricting training data to newer issues, or weighting by issue year, raise BLEU?
 - **Don't discard unaligned text** — Eryk's trick: text that can't be sentence-aligned still
   goes into a monolingual pool for back-translation.
 - We avoid poetry too (hard to align); keep that, but the glossary/nomenclature pages in old
