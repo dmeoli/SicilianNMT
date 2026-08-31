@@ -78,6 +78,13 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
   So **weight/prioritise post-2001 issues** (cleaner, more standard), and reserve the OCR +
   aggressive-normalization path for the older, lower-quality issues. Worth an ablation: does
   restricting training data to newer issues, or weighting by issue year, raise BLEU?
+  - **Refinement (Eryk, 2026-09):** go finer than year and **weight Prof. Cipolla's texts**
+    more heavily. His stylistic variation (even between *Learn Sicilian* 1 (2013) and 2 (2021))
+    is narrower than the *combined* variation of all Arba Sicula contributors, so a
+    Cipolla-heavy training mix should be more internally consistent. **Open problem:**
+    identifying which AS articles Cipolla wrote or translated — there is no clean byline
+    metadata, so this needs a detector (TOC "di/by" parsing where present, plus a stylometric
+    or authorship classifier for the rest). Harder than it looks; a good sub-project.
 - **Don't discard unaligned text** — Eryk's trick: text that can't be sentence-aligned still
   goes into a monolingual pool for back-translation.
 - We avoid poetry too (hard to align); keep that, but the glossary/nomenclature pages in old
