@@ -30,6 +30,8 @@ extract-text/WikiMatrix.it-scn.txt.scn
 data/external/
 data/processed/
 data/dataset/
+# PRIVATE: contains Eryk's non-shareable spreadsheet data
+data/finetune/
 __pycache__/
 data/baseline*/
 
