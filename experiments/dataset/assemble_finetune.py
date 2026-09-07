@@ -82,6 +82,11 @@ def main() -> None:
         add_pairs(scn_it, read_lines(base.with_suffix(".scn")), read_lines(it_file),
                   "ours:napizia-magazine")
 
+    # --- our Arba Sicula PDF extraction (scn-en; issues Eryk lacks, e.g. AS01-18, AS21) ---
+    for corp in sorted((REPO / "data/processed").glob("arbasicula*/corpus.scn")):
+        add_pairs(scn_en, read_lines(corp), read_lines(corp.with_suffix(".en")),
+                  f"ours:{corp.parent.name}")
+
     # --- validation leakage guard: never let a train scn appear in valid ---
     valid_scn = {v[0] for v in valid}
 
