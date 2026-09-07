@@ -22,15 +22,25 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from collections import Counter
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 MAG = REPO / "data/processed/napizia_magazine"
+sys.path.insert(0, str(REPO / "experiments/dataset"))  # for normalize_scn
+
+_NRM = None  # set from --normalize; applied to the Sicilian side only
 
 
 def norm(s) -> str:
     return re.sub(r"\s+", " ", str(s)).strip()
+
+
+def nscn(s: str) -> str:
+    """Whitespace-clean, then std/full-normalise the SICILIAN side if --normalize is set."""
+    s = norm(s)
+    return _NRM(s) if (_NRM and s) else s
 
 
 def read_lines(p: Path) -> list[str]:
@@ -38,9 +48,9 @@ def read_lines(p: Path) -> list[str]:
 
 
 def add_pairs(bucket: list[tuple[str, str, str]], src, tgt, provenance: str) -> None:
-    """Append cleaned (src, tgt, provenance) pairs, skipping empties and identical sides."""
+    """Append cleaned (scn, tgt, provenance) pairs; the scn side (src) is normalised."""
     for a, b in zip(src, tgt):
-        a, b = norm(a), norm(b)
+        a, b = nscn(a), norm(b)
         if a and b and a != b:
             bucket.append((a, b, provenance))
 
@@ -50,9 +60,16 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ods", type=Path, required=True, help="Eryk's private spreadsheet (.ods)")
     ap.add_argument("--out", type=Path, default=REPO / "data/finetune")
+    ap.add_argument("--normalize", choices=["none", "std", "full"], default="std",
+                    help="orthographic normalisation applied to the Sicilian side")
     args = ap.parse_args()
     if not args.ods.exists():
         raise SystemExit(f"spreadsheet not found: {args.ods}")
+
+    global _NRM
+    if args.normalize != "none":
+        from normalize_scn import normalize
+        _NRM = lambda s: normalize(s, args.normalize)  # noqa: E731
 
     import pandas as pd
 
@@ -70,9 +87,9 @@ def main() -> None:
     e_tri = sheet("scn-ita-eng")
     add_pairs(scn_en, e_tri[0], e_tri[2], "eryk:scn-ita-eng")
     add_pairs(scn_it, e_tri[0], e_tri[1], "eryk:scn-ita-eng")
-    mono = [norm(x) for x in sheet("monolingual")[0] if norm(x)]
+    mono = [nscn(x) for x in sheet("monolingual")[0] if norm(x)]
     val = sheet("validation")
-    valid = [(norm(a), norm(b), norm(c)) for a, b, c in zip(val[0], val[1], val[2]) if norm(a)]
+    valid = [(nscn(a), norm(b), norm(c)) for a, b, c in zip(val[0], val[1], val[2]) if norm(a)]
 
     # --- our Napizia magazine ---
     add_pairs(scn_en, read_lines(MAG / "magazine.scn"), read_lines(MAG / "magazine.en"),
@@ -122,6 +139,7 @@ def main() -> None:
     (args.out / "valid.en").write_text("\n".join(v[2] for v in valid) + "\n", encoding="utf-8")
 
     manifest = {
+        "normalize": args.normalize,
         "scn_en_pairs": len(scn_en), "scn_it_pairs": len(scn_it),
         "mono_scn_lines": len(mono), "valid_lines": len(valid),
         "scn_en_provenance": dict(prov_en), "scn_it_provenance": dict(prov_it),
