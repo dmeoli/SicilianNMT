@@ -11,24 +11,24 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
 - **Eryk's curated sets (HF / his sites):** `Good-Sicilian-from-WikiMatrix` (514 it-scn,
   hand-edited), the best of `Good-Sicilian-in-NLLB` (we use a slice), and **scrapes of**
   the Napizia **Dictionary**, the Napizia **Magazine**, and the **Young Sicilian Manifesto**.
-- **Textbook / trilingual homework exercises** — Cipolla's *Mparamu lu sicilianu* and
+- **Textbook / trilingual homework exercises**, Cipolla's *Mparamu lu sicilianu* and
   Bonner's *Grammar*. These are **trilingual** (scn/en/it), so they also feed the Italian
   bridge. Eryk reports these "few-shot each grammatical element" and noticeably help.
 - **Dieli's translations of Pitrè's *Folk Tales*** (folklore prose).
 - **Marco Scalabrino's** Sicilian translations of American songs; **David Massaro's**
   Sicilian Bible (Eryk was gathering these).
-- **More from the Legas bookstore** — ask Gaetano Cipolla; many Legas books are bilingual.
+- **More from the Legas bookstore**, ask Gaetano Cipolla; many Legas books are bilingual.
 - **WikiMatrix en-scn** (we only extracted it-scn) and the rest of **NLLB** via
   back-translation (treat as monolingual → translate → score → keep best).
 
 ## Modelling / training techniques to try
 
-- **Linguistic input features (source/target factors)** — Sennrich's "Linguistic Input
+- **Linguistic input features (source/target factors)**, Sennrich's "Linguistic Input
   Features" (aclanthology W16-2209): concatenate lemmas + POS tags onto each token. We have
   `vocab/lemma_dict_scn.json`; POS/lemmas also come from the Dieli dictionary and
   Wikidizionario. Sockeye supports `--source-factors`/`--target-factors`; for NLLB we'd
   prepend factor tags. **Untried, and it's literally one of the paper's research questions.**
-- **Theoretic (desinence-biased) subword splitting** — done (lever B, +1.7 BLEU). Quantify
+- **Theoretic (desinence-biased) subword splitting**, done (lever B, +1.7 BLEU). Quantify
   its contribution as an ablation.
 - **Reverse-training strategy** (Eryk's best): design the fine-tune set first, then build
   pre-training data backward (forward-translate synthetic → pre-train on internet text →
@@ -38,15 +38,15 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
   "bridge". We have 11k it-scn (WikiMatrix) to seed this.
 - **Back-translation for pre-training** (Eryk offered to help): identify good Sicilian in
   the rest of NLLB and back-translate it.
-- **Newer Sockeye / SSRU decoder** (arXiv 2207.05851 §4.2) — better speed/accuracy than the
+- **Newer Sockeye / SSRU decoder** (arXiv 2207.05851 §4.2), better speed/accuracy than the
   2017 Sockeye; relevant if we keep a Sockeye baseline.
-- **Grid search + k-fold CV** (Ray on Colab) — the model is small; systematic
+- **Grid search + k-fold CV** (Ray on Colab), the model is small; systematic
   hyperparameter search is feasible and was on the agreed agenda.
-- **Bigger NLLB** (1.3B / 3.3B) — in progress.
+- **Bigger NLLB** (1.3B / 3.3B), in progress.
 
 ## Representation-analysis studies (probing)
 
-- **Bidirectional vs unidirectional training and encoder clustering** — *Eryk's idea
+- **Bidirectional vs unidirectional training and encoder clustering**, *Eryk's idea
   (2026-08), offered to us to "steal", credit him.* Question: does bidirectional training
   pull translated sentence pairs closer together in the encoder than unidirectional training?
   His proposed setup: take an ~8M It–En corpus and cut it in half; the **bidirectional** model
@@ -59,11 +59,11 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
   and target) and Verma et al. 2026 (surface form over structure). **Cheap first
   cut for us:** our trilingual NLLB adapter is *already* bidirectionally fine-tuned, so we can
   probe its encoder geometry (scn/en/it translated-pair distances) and compare against a
-  unidirectional-only fine-tune — half the study is set up already.
+  unidirectional-only fine-tune, half the study is set up already.
 
 ## Extraction improvements (our pipeline)
 
-- **Caption removal** — captions getting mixed into the body text was Eryk's biggest manual
+- **Caption removal**, captions getting mixed into the body text was Eryk's biggest manual
   pain. Add layout-aware caption/figure detection (PyMuPDF blocks + font/position) so we
   don't need hand-cleaning.
 - **Old issues (1–18)** extract poorly (evolved orthography + captions; early issues were
@@ -82,10 +82,10 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
     more heavily. His stylistic variation (even between *Learn Sicilian* 1 (2013) and 2 (2021))
     is narrower than the *combined* variation of all Arba Sicula contributors, so a
     Cipolla-heavy training mix should be more internally consistent. **Open problem:**
-    identifying which AS articles Cipolla wrote or translated — there is no clean byline
+    identifying which AS articles Cipolla wrote or translated, there is no clean byline
     metadata, so this needs a detector (TOC "di/by" parsing where present, plus a stylometric
     or authorship classifier for the rest). Harder than it looks; a good sub-project.
-- **Don't discard unaligned text** — Eryk's trick: text that can't be sentence-aligned still
+- **Don't discard unaligned text**, Eryk's trick: text that can't be sentence-aligned still
   goes into a monolingual pool for back-translation.
 - We avoid poetry too (hard to align); keep that, but the glossary/nomenclature pages in old
   issues are bilingual term lists → a `term:gloss` parser would harvest dictionary-style data.
@@ -93,15 +93,15 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
 ## The paper (framing)
 
 The agreed research question: **what makes the most efficient use of low-resource data?**
-A clean ablation — pretrained model (NLLB) vs from-scratch, ± theoretic subwords,
-± homework exercises, ± linguistic features, ± back-translation — on one held-out literary
+A clean ablation, pretrained model (NLLB) vs from-scratch, ± theoretic subwords,
+± homework exercises, ± linguistic features, ± back-translation, on one held-out literary
 test set, with a fully public, automatically-built dataset. That's the contribution.
 
 ## People / leads
 
-- **Gaetano Cipolla** (Arba Sicula / Legas) — gave data permission; can point to more
+- **Gaetano Cipolla** (Arba Sicula / Legas), gave data permission; can point to more
   bilingual Legas materials. Acknowledge Arba Sicula + Legas in any output.
-- **Donato's NLP advisor (Pisa)** — happy to advise.
+- **Donato's NLP advisor (Pisa)**, happy to advise.
 - Note from Eryk: a Google contact once wanted to put Sicilian in Google Translate and
-  fine-tune a multilingual model, but never followed up — Sicilian still isn't in Google
+  fine-tune a multilingual model, but never followed up, Sicilian still isn't in Google
   Translate. (Gap worth filling.)

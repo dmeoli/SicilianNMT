@@ -1,11 +1,11 @@
 # docs
 
-- **`paper/sicilian-nmt.tex`** — method write-up (article). Skeleton with our results so far
+- **`paper/sicilian-nmt.tex`**, method write-up (article). Skeleton with our results so far
   and `\TODO{}`/`\num{}` placeholders to fill once the 22k, BPE-dropout and NLLB runs finish.
-- **`slides/sicilian-nmt-slides.tex`** — Beamer presentation (same structure, shorter).
-- `paper/references.bib` — shared bibliography (Wdowiak's + modern methods).
-- `low-resource-nmt-methods.md` — survey and ranked experiment plan.
-- `sicilian-standardization.md`, `sicilian-contractions.md` — Standard-Sicilian references.
+- **`slides/sicilian-nmt-slides.tex`**, Beamer presentation (same structure, shorter).
+- `paper/references.bib`, shared bibliography (Wdowiak's + modern methods).
+- `low-resource-nmt-methods.md`, survey and ranked experiment plan.
+- `sicilian-standardization.md`, `sicilian-contractions.md`, Standard-Sicilian references.
 
 Build:
 

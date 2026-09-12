@@ -5,13 +5,13 @@ than training from scratch. Sicilian = `scn_Latn`, English = `eng_Latn`, Italian
 
 ## Code
 
-- **`nllb_pipeline.py`** — the reusable engine: `load_base`, `attach_lora`, `build_dataset`,
+- **`nllb_pipeline.py`**, the reusable engine: `load_base`, `attach_lora`, `build_dataset`,
   `finetune`, `translate`, `score`. Everything else (the notebook, any script) calls these.
 
 ## How to run it
 
-The whole pipeline — data → preprocessing → fine-tune → evaluate, plus the optional levers
-(Italian bridge, back-translation, normalization ablation) — is one narrated notebook at the
+The whole pipeline, data → preprocessing → fine-tune → evaluate, plus the optional levers
+(Italian bridge, back-translation, normalization ablation), is one narrated notebook at the
 repo root: **[`sicilian_nmt.ipynb`](../../sicilian_nmt.ipynb)** (Colab badge in the top-level README).
 It imports `nllb_pipeline` and reads the prepared data from Drive.
 
@@ -33,5 +33,5 @@ Models: `facebook/nllb-200-distilled-600M` (fast, free T4) → `...-1.3B` (our d
 
 NLLB's own Sicilian training used a post-2017 orthography that differs from the Arba Sicula
 literary standard our test set uses. Zero-shot NLLB may be penalised on BLEU/chrF for
-orthographic mismatch even when meaning is right — fine-tuning on our `train` data helps a lot.
+orthographic mismatch even when meaning is right, fine-tuning on our `train` data helps a lot.
 We also adopt light Standard-Sicilian normalization (`../dataset/normalize_scn.py`).

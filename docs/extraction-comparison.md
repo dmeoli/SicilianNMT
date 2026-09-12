@@ -22,7 +22,7 @@ pipeline did **not** already produce, deduped on normalized Sicilian:
 **+862 Perl-unique pairs** → Arba Sicula corpus 9.3k → 10.2k.
 
 After the unified re-assembly that is **+840 train pairs (+3.7%)** on a 22k train already
-dominated by NLLB (16k). So the enrichment is **marginal** — not worth a dedicated ~6 h CPU
+dominated by NLLB (16k). So the enrichment is **marginal**, not worth a dedicated ~6 h CPU
 retrain to measure in isolation, but it is kept in `data/dataset` and benefits future
 training (NLLB fine-tune, BPE-dropout, etc.).
 

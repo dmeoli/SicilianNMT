@@ -49,7 +49,7 @@ python telegram_bot.py
 
 ## Notes
 
-- NLLB-1.3B runs on CPU (a few seconds per sentence — fine for light traffic) or a small GPU.
+- NLLB-1.3B runs on CPU (a few seconds per sentence, fine for light traffic) or a small GPU.
 - The adapter is what the Colab notebook saves to Drive (`nllb-lora-bidir-1.3B`);
   `translator.py` merges it into the base weights at load for faster inference.
 - **WhatsApp** would need Meta's official WhatsApp Business Cloud API (verified Business
