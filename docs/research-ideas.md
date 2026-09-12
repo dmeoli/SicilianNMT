@@ -43,6 +43,15 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
 - **Grid search + k-fold CV** (Ray on Colab), the model is small; systematic
   hyperparameter search is feasible and was on the agreed agenda.
 - **Bigger NLLB** (1.3B / 3.3B), in progress.
+- **Multilingual anti-forgetting rehearsal** (Eryk's "sin of LoRA" idea, 2026-09, credit him).
+  LoRA-adapting NLLB on only scn/it/en degrades the pairs it no longer sees (we measured it-en
+  dropping ~7 BLEU, i.e. catastrophic forgetting). Mitigation: mix a large general multilingual
+  parallel corpus into the adaptation set as a rehearsal signal, so the model keeps its
+  "multilingual soul". Sources: the Bible in n*(n-1) directions (the ultimate parallel corpus),
+  plus Wikipedia, Farkas' Books, and similar. Scale he suggests: ~1M each of scn-en, scn-it and
+  it-en, doubled for the reverse directions (6M), plus 1-2M random-direction pairs, so ~7-8M in
+  all (needs the GPU). It also gives a clean before/after measure of how much other-language
+  quality we retain, tied to the `labse_why_sicilian` / §7.5 other-languages eval.
 
 ## Representation-analysis studies (probing)
 
