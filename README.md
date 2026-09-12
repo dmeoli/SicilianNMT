@@ -2,8 +2,8 @@
 
 [![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/sicilian_nmt.ipynb)
 
-**[`sicilian_nmt.ipynb`](sicilian_nmt.ipynb)** runs the whole model pipeline end-to-end — data →
-Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate — narrated step by
+**[`sicilian_nmt.ipynb`](sicilian_nmt.ipynb)** runs the whole model pipeline end-to-end (data →
+Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate), narrated step by
 step, calling the implementations in `experiments/*.py`.
 
 A fork of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
@@ -40,16 +40,16 @@ training. See `experiments/baseline/README.md`.
 
 ## Data pipeline (all CPU)
 
-1. **Extract** parallel text from Arba Sicula PDFs — `experiments/extraction/build_all.py`
+1. **Extract** parallel text from Arba Sicula PDFs, with `experiments/extraction/build_all.py`
    (PyMuPDF + LaBSE). Recovers **~14k** sentence pairs from 44 issues, fully automated;
    thresholds tuned against Eryk Wdowiak's hand-aligned AS41-42 gold (`tune_vs_gold.py`).
-2. **Add** the author's two public Napizia datasets — both included:
+2. **Add** the author's two public Napizia datasets, both included:
    [`Good-Sicilian-in-NLLB`](https://huggingface.co/datasets/Napizia/Good-Sicilian-in-NLLB)
    (the scored NLLB en–scn subset, further filtered here for quality and Corsican
    contamination) and
    [`Good-Sicilian-from-WikiMatrix`](https://huggingface.co/datasets/Napizia/Good-Sicilian-from-WikiMatrix)
    (curated it–scn), plus WikiMatrix it–scn.
-3. **Assemble** a unified, deduped, split dataset — `experiments/dataset/assemble.py`:
+3. **Assemble** a unified, deduped, split dataset, with `experiments/dataset/assemble.py`:
    **~29k scn–en** (train 27.4k, + a frozen 1k valid / 1k test held out from Arba Sicula =
    literary standard, not FLORES) + 11.4k it–scn.
 
@@ -73,13 +73,13 @@ training. See `experiments/baseline/README.md`.
 
 Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
 The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.02
-(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.43 BLEU** — above
-Wdowiak's published *baseline* (Sc→En 29.1) on our harder held-out literary test set, **but
-well below his reverse-training state of the art** (see below).
+(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.43 BLEU**, above
+Wdowiak's published *baseline* (Sc→En 29.1) on our harder held-out literary test set, though
+well below his reverse-training state of the art (see below).
 
 **en→scn** (the reverse direction) on the same test set: NLLB-1.3B zero-shot 9.89 →
-**bidirectional LoRA 18.73 BLEU / 49.96 chrF** — the bidirectional fine-tune nearly doubles
-the weak direction at no cost to scn→en, and yields a usable two-way model. Still below the
+**bidirectional LoRA 18.73 BLEU / 49.96 chrF**, the bidirectional fine-tune nearly doubling
+the weak direction at no cost to scn→en, and yielding a usable two-way model. Still below the
 paper's en→scn baseline (25.1); back-translation is the next lever.
 
 **Italian (trilingual model).** One multilingual LoRA adapter fine-tuned on four directions
@@ -111,10 +111,10 @@ The SOTA is Wdowiak's **reverse-training** system, on his own in-domain test set
 ⚠️ **Not a head-to-head** (different test sets), but the gap is too large to be that alone:
 we only clear his *baseline* on Sc→En, and trail on every other direction. His reverse-training
 builds a **custom pretrained model from tens of millions of pairs** (forward- and
-back-translation, three stages) before fine-tuning on hand-curated *Arba Sicula* — infeasible
+back-translation, three stages) before fine-tuning on hand-curated *Arba Sicula*, infeasible
 to reproduce on one GPU. But **NLLB-200 already provides that pretraining**, so our run is the
 analogue of his *stage-3 fine-tune*. The plan: apply the feasible parts of his recipe on top of
-NLLB (back-translation, multilingual) to isolate **method vs data** — if, with the method
+NLLB (back-translation, multilingual) to isolate **method vs data**; if, with the method
 matched, our automatic corpus still trails his curated one, the residual is the **data**, which
 argues for combining his corpus with our pipeline rather than competing.
 
