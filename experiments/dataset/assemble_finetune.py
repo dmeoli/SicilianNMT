@@ -12,11 +12,12 @@ Sources
   - Eryk ODS sheets: scn-eng [scn,en], scn-ita [scn,it], scn-ita-eng [scn,it,en],
     monolingual [scn], validation [scn,it,en].
   - Ours: data/processed/napizia_magazine (scn/en, and scn/it where present).
-  - TODO (not yet local): our Arba Sicula PDF extraction for the issues Eryk lacks
-    (AS43-46, AS01-18, AS21) via build_all.py -> add with --extra-scn-en once produced.
+  - Ours: data/processed/napizia_manifesto (scn/en, Young Sicilian Manifesto).
+  - Ours: data/processed/arbasicula*/corpus.{scn,en}, our Arba Sicula PDF extraction for
+    the issues Eryk lacks (AS01-18, AS21, AS43-46) via build_all.py.
 
     python experiments/dataset/assemble_finetune.py \
-        --ods ~/Downloads/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
+        --ods ~/Downloads/eryk/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
 """
 from __future__ import annotations
 import argparse
@@ -98,6 +99,11 @@ def main() -> None:
         base = it_file.with_suffix("")
         add_pairs(scn_it, read_lines(base.with_suffix(".scn")), read_lines(it_file),
                   "ours:napizia-magazine")
+
+    # --- our Young Sicilian Manifesto scrape ---
+    man = REPO / "data/processed/napizia_manifesto"
+    add_pairs(scn_en, read_lines(man / "manifesto.scn"), read_lines(man / "manifesto.en"),
+              "ours:napizia-manifesto")
 
     # --- our Arba Sicula PDF extraction (scn-en; issues Eryk lacks, e.g. AS01-18, AS21) ---
     for corp in sorted((REPO / "data/processed").glob("arbasicula*/corpus.scn")):

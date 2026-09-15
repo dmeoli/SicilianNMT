@@ -17,16 +17,38 @@ Modern, CPU-only replacement for the legacy PDF extraction pipeline
 ## `extract_pages.py`
 
 ```
-python extract_pages.py extract-text/as-issues/as30.pdf --out out/as30
+python extract_pages.py extract-text/as-issues/as46.pdf --out out/as46
 ```
-Writes `sc.txt`, `en.txt`, `pairs.tsv` (candidate facing SC/EN page pairs).
+Writes `sc.txt`, `en.txt`, `pairs.tsv` (label-only guess of the facing SC/EN pages).
+Pages are reported with their **printed** numbers (`60/61`), read from the page
+furniture, next to the 0-based pdf index: the two differ by an offset that depends on
+the issue (as46: pdf index 59 = printed page 60) and, in the phototypeset issues, even
+changes within one issue.
 
-## Next stage (not here yet)
+## `build_issue.py` / `build_all.py`, pages to sentence pairs
 
-Cross-lingual **sentence-embedding alignment** (LaBSE / SONAR, `scn_Latn` is
-supported, + vecalign) to (1) confirm which candidate page pairs are real mutual
-translations and (2) align at the sentence level. Benchmarked against the
-`extract-text/AS27-31_aligned_set01.csv` gold set vs the legacy hunalign output.
+```
+python build_issue.py extract-text/as-issues/as46.pdf --out data/processed/as46
+python align_sentences.py extract-text/as-issues/as46.pdf 60 61     # one spread, printed pages
+```
+
+1. **Facing pages.** Every SC page is a candidate with both adjacent EN pages; LaBSE
+   page similarity picks the facing one and each page enters one spread only. The older
+   "SC page followed by EN page" rule slipped by one page wherever a page was mislabelled
+   or the language order was swapped (as42 pp.100-119, as29 pp.106-119, as46 pp.118/119:
+   wrong pairs at LaBSE 0.23-0.60, true spreads at 0.61-0.93, reported by E. Wdowiak,
+   2026-09). The even-left/odd-right rule is not used as a filter because some early
+   issues (as08_1, as09_1) face odd-left.
+2. **Blocks, not pages.** Consecutive confirmed spreads are aligned as one block. Each
+   page is still segmented on its own (segmenting the whole block at once fuses
+   unpunctuated verse into sentences spanning pages), then a sentence visibly cut by the
+   page break (no closing punctuation, continuation in lowercase) is mended. The DP is
+   restricted to facing pages +-1, so it cannot match text of two different articles and
+   stays linear in the block length. End-of-line hyphenation (soft hyphens, `-` +
+   newline) is undone.
+3. `pairs.tsv` lists the confirmed spreads (printed pages, pdf indices, page similarity).
+
+The scripts also run on old PyMuPDF (`getText` / `pageCount`).
 
 ## Web scrapers (Napizia sources, collaboration with E. Wdowiak, 2026-08)
 
@@ -123,9 +145,19 @@ prose), closing poetry's gap to prose by k=3. Caveat: recall here = clearance of
 threshold; part of the gain is mechanical (fewer, longer, more distinctive units). Precision
 is plausibly up too (longer segments match less spuriously) but not directly measured here.
 
-## TODO (need a live inspection pass first)
+### `scrape_manifesto.py`
+
+```
+python scrape_manifesto.py --out data/processed/napizia_manifesto
+```
+Eryk Wdowiak's Young Sicilian Manifesto (`wdowiak.me/archive/sicilian/`, twin pages
+`giuvini-sicilianu.shtml` / `young-sicilian.shtml`). Paragraphs correspond 1:1; the
+bilingual verse couplets appear on both pages in opposite language order and are
+re-oriented by their English function words, the shared menu is dropped. 23 pairs
+(19 prose paragraphs, 3 couplets, the Buttitta epigraph).
+
+## TODO
 
 - **Napizia Dictionary** (`dizziunariu.napizia.com`), example sentences from poetry /
   proverbs / prose. Search-based, no word list; the raw Dieli vocab we already have in
   `vocab/`. Lower priority.
-- **Young Sicilian Manifesto**, locate the page and its structure, then scrape.
