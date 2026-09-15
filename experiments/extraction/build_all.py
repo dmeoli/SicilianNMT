@@ -3,7 +3,8 @@
 
 Loads LaBSE once, processes every as-issues/*.pdf (skipping volumes that error),
 dedups exact pairs across issues, and writes one combined parallel corpus plus a
-per-issue summary.
+per-issue summary. Each finished issue is checkpointed under <out>/issues/, so a run
+killed halfway (e.g. out of memory) resumes from the missing issues.
 
     python experiments/extraction/build_all.py \
         --issues extract-text/as-issues --out data/processed/arbasicula
@@ -32,20 +33,33 @@ def main() -> None:
 
     pdfs = sorted(args.issues.glob("*.pdf"))
     print(f"{len(pdfs)} issues found in {args.issues}", flush=True)
-    model = SentenceTransformer("sentence-transformers/LaBSE")
+    ckpt = args.out / "issues"
+    ckpt.mkdir(parents=True, exist_ok=True)
+    model = None
     scn_stop = load_scn_stopwords()
 
     seen: set[tuple[str, str]] = set()
     rows: list[tuple[str, str, str]] = []  # (issue, scn, en)
     summary: list[tuple[str, int, int, int, int]] = []
     for pdf in pdfs:
-        try:
-            scn, en, n_cand, conf = process_issue(
-                pdf, model, scn_stop, args.min_page_sim, args.min_sent_sim)
-        except Exception as exc:  # noqa: BLE001 - keep batch going
-            print(f"  {pdf.name}: ERROR {type(exc).__name__}: {exc}", flush=True)
-            summary.append((pdf.stem, -1, -1, 0, 0))
-            continue
+        done = ckpt / f"{pdf.stem}.tsv"
+        if done.exists():
+            lines = done.read_text(encoding="utf-8").splitlines()
+            n_cand, conf = map(int, lines[0].split("\t"))
+            rows_i = [ln.split("\t") for ln in lines[1:]]
+            scn, en = [r[0] for r in rows_i], [r[1] for r in rows_i]
+        else:
+            if model is None:
+                model = SentenceTransformer("sentence-transformers/LaBSE")
+            try:
+                scn, en, n_cand, conf = process_issue(
+                    pdf, model, scn_stop, args.min_page_sim, args.min_sent_sim)
+            except Exception as exc:  # noqa: BLE001 - keep batch going
+                print(f"  {pdf.name}: ERROR {type(exc).__name__}: {exc}", flush=True)
+                summary.append((pdf.stem, -1, -1, 0, 0))
+                continue
+            done.write_text(f"{n_cand}\t{conf}\n" +
+                            "".join(f"{s}\t{e}\n" for s, e in zip(scn, en)), encoding="utf-8")
         kept = 0
         for s, e in zip(scn, en):
             key = (s, e)
@@ -58,7 +72,6 @@ def main() -> None:
         print(f"  {pdf.name}: cand {n_cand} -> conf {conf} -> {len(scn)} pairs "
               f"({kept} new after dedup)", flush=True)
 
-    args.out.mkdir(parents=True, exist_ok=True)
     with open(args.out / "corpus.tsv", "w", encoding="utf-8") as f:
         f.write("issue\tsicilian\tenglish\n")
         for issue, s, e in rows:
