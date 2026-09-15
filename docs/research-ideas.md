@@ -52,6 +52,14 @@ We currently use: auto-extracted Arba Sicula (44 PDFs) + a filtered slice of
   it-en, doubled for the reverse directions (6M), plus 1-2M random-direction pairs, so ~7-8M in
   all (needs the GPU). It also gives a clean before/after measure of how much other-language
   quality we retain, tied to the `labse_why_sicilian` / §7.5 other-languages eval.
+- **Forward-translation pre-training as a contingency** (Eryk, 2026-09-13, credit him). If
+  the second stage on the NLLB back-translations (notebook §7.8) does not help, pre-train on
+  forward-translations instead: a small teacher (his Sockeye se37a) writes the synthetic
+  Sicilian target side for a large student, i.e. distillation in reverse. Both synthetic
+  sources give non-standard Sicilian (the teacher's errors vs the NLLB web text), so the
+  research question becomes which of the two provides the better pre-training for a model
+  that is then fine-tuned on Arba Sicula; §7.8 with the two second stages swapped, same
+  stage 3 and test set, answers it.
 
 ## Representation-analysis studies (probing)
 
