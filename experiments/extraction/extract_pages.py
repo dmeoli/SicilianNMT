@@ -14,7 +14,12 @@ Usage:
     python extract_pages.py path/to/as30.pdf --out out_dir
     python extract_pages.py path/to/as30.pdf --report-only
 
-Sentence-level alignment (LaBSE/SONAR + vecalign) is the next stage, not here.
+Page numbers: pairs are reported with the PRINTED page numbers (as30 p42/p43),
+read from each page's running furniture, and the pdf index is kept alongside. The
+two differ by an issue-dependent offset (as46: pdf index 59 = printed page 60), and
+in the older phototypeset issues the offset even changes within an issue.
+
+Sentence-level alignment (LaBSE + DP) is the next stage, see build_issue.py.
 """
 from __future__ import annotations
 
@@ -35,6 +40,17 @@ ENG_STOPWORDS = set(
 WORD_RE = re.compile(r"[a-zA-Zàèéìòùâêîôûäëïöü'‘’ʼ]+")
 # Page furniture to drop: running header and bare page numbers.
 HEADER_RE = re.compile(r"^\s*(arba sicula\b.*|\d{1,3})\s*$", re.IGNORECASE)
+PAGENUM_RE = re.compile(r"^\s*(\d{1,3})\s*$")
+
+
+def page_text(page) -> str:
+    """Plain text of a page; `getText` is the pre-1.18 PyMuPDF spelling."""
+    get = getattr(page, "get_text", None) or page.getText
+    return get("text")
+
+
+def page_count(doc) -> int:
+    return doc.page_count if hasattr(doc, "page_count") else doc.pageCount
 
 
 def load_scn_stopwords(path: Path = SCN_STOPWORDS_PATH) -> set[str]:
@@ -66,23 +82,85 @@ def classify_document(pdf_path: Path, scn: set[str]) -> list[tuple[int, str, str
     """Return [(page_index, label, clean_text), ...] for every page."""
     doc = fitz.open(pdf_path)
     out = []
-    for i in range(doc.page_count):
-        clean = strip_furniture(doc[i].get_text("text"))
+    for i in range(page_count(doc)):
+        clean = strip_furniture(page_text(doc[i]))
         out.append((i, classify(clean, scn, ENG_STOPWORDS), clean))
     doc.close()
     return out
 
 
-def parallel_pairs(pages: list[tuple[int, str, str]]) -> list[tuple[int, int]]:
-    """Facing-page heuristic: an SC page immediately followed by an EN page.
+def printed_page_numbers(pdf_path: Path, window: int = 2) -> list[int | None]:
+    """Printed page number of every pdf page (None where it cannot be read).
 
-    NOTE: facing-page adjacency is necessary but not sufficient — the next stage
-    must confirm the two pages are mutual translations via cross-lingual
-    sentence embeddings before trusting a pair.
+    A bare number among the first/last 3 lines is a candidate; it is accepted only
+    if a neighbouring page (within `window`) gives the same pdf-index offset, which
+    rejects stray numbers in the body text. Pages without a readable number inherit
+    the offset of the nearest accepted page within `window`.
+    """
+    doc = fitz.open(pdf_path)
+    n = page_count(doc)
+    cand: list[set[int]] = []
+    for i in range(n):
+        lines = [ln for ln in page_text(doc[i]).splitlines() if ln.strip()]
+        cand.append({int(m.group(1)) - i for ln in lines[:3] + lines[-3:]
+                     if (m := PAGENUM_RE.match(ln))})
+    doc.close()
+    offset: list[int | None] = [None] * n
+    for i in range(n):
+        near = set().union(*(cand[k] for k in range(max(0, i - window),
+                                                   min(n, i + window + 1)) if k != i))
+        both = cand[i] & near
+        if len(both) == 1:
+            offset[i] = both.pop()
+    filled = list(offset)
+    for i in range(n):
+        if filled[i] is None:
+            for d in range(1, window + 1):
+                for k in (i - d, i + d):
+                    if 0 <= k < n and offset[k] is not None and filled[i] is None:
+                        filled[i] = offset[k]
+    return [None if o is None else i + o for i, o in enumerate(filled)]
+
+
+def candidate_pairs(pages: list[tuple[int, str, str]]) -> list[tuple[int, int]]:
+    """Every (SC page, EN page) that are adjacent in the pdf, on either side.
+
+    The paper copy puts the two versions on facing pages, but which neighbour is
+    the facing one cannot be read off the labels: a misclassified page, or a stretch
+    where the language order is swapped, turns the next-page rule into an off-by-one
+    (as46: pdf pages 119/120 paired instead of 118/119). build_issue.py resolves
+    each SC page to its best neighbour with LaBSE.
     """
     label = {i: lab for i, lab, _ in pages}
-    return [(i, i + 1) for i, lab, _ in pages
-            if lab == "SC" and label.get(i + 1) == "EN"]
+    return [(i, j) for i, lab, _ in pages if lab == "SC"
+            for j in (i - 1, i + 1) if label.get(j) == "EN"]
+
+
+def parallel_pairs(pages: list[tuple[int, str, str]],
+                   printed: list[int | None] | None = None) -> list[tuple[int, int]]:
+    """Label-only guess of the facing pairs (no embeddings), for quick reports.
+
+    Where the printed number of the SC page is known, its facing page is the other
+    half of the spread (even page on the left, odd on the right); otherwise the
+    next page. NOTE: the early issues do not always follow the even-left rule, so
+    the pipeline itself uses candidate_pairs + LaBSE instead of this guess.
+    """
+    label = {i: lab for i, lab, _ in pages}
+    out = []
+    for i, lab, _ in pages:
+        if lab != "SC":
+            continue
+        j = i + 1
+        if printed is not None and printed[i] is not None and printed[i] % 2:
+            j = i - 1
+        if label.get(j) == "EN":
+            out.append((i, j))
+    return out
+
+
+def page_label(printed: list[int | None], i: int) -> str:
+    """Printed page number as text, falling back to the pdf index (#59)."""
+    return str(printed[i]) if printed[i] is not None else f"#{i}"
 
 
 def _fmt_ranges(nums: list[int]) -> str:
@@ -108,12 +186,14 @@ def main() -> None:
     pages = classify_document(args.pdf, scn)
     sc = [i for i, lab, _ in pages if lab == "SC"]
     en = [i for i, lab, _ in pages if lab == "EN"]
-    pairs = parallel_pairs(pages)
+    printed = printed_page_numbers(args.pdf)
+    pairs = parallel_pairs(pages, printed)
 
     print(f"{args.pdf.name}: {len(pages)} pages | SC={len(sc)} EN={len(en)} "
           f"OTHER={len(pages) - len(sc) - len(en)} | candidate pairs={len(pairs)}")
-    print("  SC pages :", _fmt_ranges(sc))
-    print("  pairs    :", ", ".join(f"{a}/{b}" for a, b in pairs))
+    print("  SC pages (pdf index):", _fmt_ranges(sc))
+    print("  pairs (printed pages):",
+          ", ".join(f"{page_label(printed, a)}/{page_label(printed, b)}" for a, b in pairs))
 
     if args.out and not args.report_only:
         args.out.mkdir(parents=True, exist_ok=True)
@@ -123,7 +203,9 @@ def main() -> None:
         (args.out / "en.txt").write_text(
             "\n".join(text[b] for _, b in pairs), encoding="utf-8")
         (args.out / "pairs.tsv").write_text(
-            "\n".join(f"{a}\t{b}" for a, b in pairs), encoding="utf-8")
+            "scn_page\ten_page\tscn_pdf_index\ten_pdf_index\n" +
+            "".join(f"{page_label(printed, a)}\t{page_label(printed, b)}\t{a}\t{b}\n"
+                    for a, b in pairs), encoding="utf-8")
         print(f"  wrote sc.txt, en.txt, pairs.tsv to {args.out}/")
 
 
