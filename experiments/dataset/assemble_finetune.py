@@ -13,6 +13,7 @@ Sources
     monolingual [scn], validation [scn,it,en].
   - Ours: data/processed/napizia_magazine (scn/en, and scn/it where present).
   - Ours: data/processed/napizia_manifesto (scn/en, Young Sicilian Manifesto).
+  - Ours: data/processed/napizia_site (scn/en, the main Napizia pages Eryk listed).
   - Ours: data/processed/arbasicula*/corpus.{scn,en}, our Arba Sicula PDF extraction for
     the issues Eryk lacks (AS01-18, AS21, AS43-46) via build_all.py.
 
@@ -104,6 +105,11 @@ def main() -> None:
     man = REPO / "data/processed/napizia_manifesto"
     add_pairs(scn_en, read_lines(man / "manifesto.scn"), read_lines(man / "manifesto.en"),
               "ours:napizia-manifesto")
+
+    # --- our main-Napizia-site scrape ---
+    site = REPO / "data/processed/napizia_site"
+    add_pairs(scn_en, read_lines(site / "napizia.scn"), read_lines(site / "napizia.en"),
+              "ours:napizia-site")
 
     # --- our Arba Sicula PDF extraction (scn-en; issues Eryk lacks, e.g. AS01-18, AS21) ---
     for corp in sorted((REPO / "data/processed").glob("arbasicula*/corpus.scn")):

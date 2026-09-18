@@ -156,6 +156,17 @@ bilingual verse couplets appear on both pages in opposite language order and are
 re-oriented by their English function words, the shared menu is dropped. 23 pairs
 (19 prose paragraphs, 3 couplets, the Buttitta epigraph).
 
+### `scrape_napizia.py`
+
+```
+python scrape_napizia.py --out data/processed/napizia_site
+```
+The 9 twin Sicilian/English pages of the main site, from Eryk Wdowiak's own list (email,
+2026-09-18). Same pairing as the manifesto; pairs whose two sides differ too much in length
+are dropped, since that is how a positional pairing shows it has slipped. 154 pairs, most of
+them from `introduction` (57) and `sicilian-translator` (43); the poets and bibliography
+pages are mostly lists of names, so they yield few.
+
 ## TODO
 
 - **Napizia Dictionary** (`dizziunariu.napizia.com`), example sentences from poetry /

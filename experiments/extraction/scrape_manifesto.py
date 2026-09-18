@@ -31,15 +31,19 @@ def english_ratio(text: str) -> float:
     return sum(t in ENGLISH for t in toks) / len(toks)
 
 
-def orient(x: str, y: str, margin: float = 0.1, min_words: int = 6) -> tuple[str, str] | None:
+def orient(x: str, y: str, margin: float = 0.1, min_words: int = 6,
+           max_ratio: float = 2.5) -> tuple[str, str] | None:
     """Return (scn, en) if one of the two is clearly the English one, else None.
 
     Only the English side is tested: short Sicilian verses often contain none of our
     Sicilian stopwords, but the English line of a translated pair always has some.
+    Wildly different lengths mean the positional pairing has slipped (one page has a
+    paragraph the other lacks), so those pairs are dropped rather than guessed.
     """
     if _DASH_RE.match(x) or _DASH_RE.match(y) or \
-            min(len(WORD_RE.findall(x)), len(WORD_RE.findall(y))) < min_words:
-        return None           # attributions and site-menu entries
+            min(len(WORD_RE.findall(x)), len(WORD_RE.findall(y))) < min_words or \
+            not 1 / max_ratio <= len(x) / len(y) <= max_ratio:
+        return None           # attributions, site-menu entries, slipped pairs
     ex, ey = english_ratio(x), english_ratio(y)
     if ey - ex >= margin:
         return x, y
