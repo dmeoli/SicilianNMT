@@ -31,13 +31,16 @@ from align_sentences import page_sentences, block_sentences, spread_band, align
 
 def process_issue(pdf: Path, model, scn_stop: set[str],
                   min_page_sim: float = 0.50, min_sent_sim: float = 0.40,
-                  report: list | None = None):
+                  report: list | None = None, provenance: list | None = None):
     """Return (out_scn, out_en, n_candidates, n_confirmed) for one issue PDF.
 
     If `report` is a list, one (scn_page, en_page, scn_index, en_index, page_sim)
-    row per confirmed spread is appended to it (pages as printed numbers).
+    row per confirmed spread is appended to it (pages as printed numbers). If
+    `provenance` is a list, one (scn_page, en_page, sentence_sim) row per aligned
+    sentence pair is appended, so a pair can be traced back to the printed page.
     """
     pages = classify_document(pdf, scn_stop)
+    printed = printed_page_numbers(pdf)
     candidates = candidate_pairs(pages)
     doc = fitz.open(pdf)
     vec: dict[str, np.ndarray] = {}
@@ -72,7 +75,6 @@ def process_issue(pdf: Path, model, scn_stop: set[str],
             spreads.append((a, b, page_sim))
     spreads.sort()
     if report is not None:
-        printed = printed_page_numbers(pdf)
         report.extend((page_label(printed, a), page_label(printed, b), a, b, ps)
                       for a, b, ps in spreads)
 
@@ -99,6 +101,9 @@ def process_issue(pdf: Path, model, scn_stop: set[str],
                 continue
             out_scn.append(" ".join(scn[si:sj]))
             out_en.append(" ".join(en[ei:ej]))
+            if provenance is not None:
+                a, b = block[scn_owner[si]][0], block[en_owner[ei]][1]
+                provenance.append((page_label(printed, a), page_label(printed, b), score))
     doc.close()
     return out_scn, out_en, len(candidates), len(spreads)
 

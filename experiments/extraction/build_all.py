@@ -39,7 +39,7 @@ def main() -> None:
     scn_stop = load_scn_stopwords()
 
     seen: set[tuple[str, str]] = set()
-    rows: list[tuple[str, str, str]] = []  # (issue, scn, en)
+    rows: list[tuple] = []  # (issue, scn_page, en_page, sim, scn, en)
     summary: list[tuple[str, int, int, int, int]] = []
     for pdf in pdfs:
         done = ckpt / f"{pdf.stem}.tsv"
@@ -47,39 +47,48 @@ def main() -> None:
             lines = done.read_text(encoding="utf-8").splitlines()
             n_cand, conf = map(int, lines[0].split("\t"))
             rows_i = [ln.split("\t") for ln in lines[1:]]
-            scn, en = [r[0] for r in rows_i], [r[1] for r in rows_i]
+            if rows_i and len(rows_i[0]) == 2:      # checkpoint without page provenance
+                prov = [("?", "?", 0.0) for _ in rows_i]
+                scn, en = [r[0] for r in rows_i], [r[1] for r in rows_i]
+            else:
+                prov = [(r[0], r[1], float(r[2])) for r in rows_i]
+                scn, en = [r[3] for r in rows_i], [r[4] for r in rows_i]
         else:
             if model is None:
                 model = SentenceTransformer("sentence-transformers/LaBSE")
+            prov = []
             try:
                 scn, en, n_cand, conf = process_issue(
-                    pdf, model, scn_stop, args.min_page_sim, args.min_sent_sim)
+                    pdf, model, scn_stop, args.min_page_sim, args.min_sent_sim,
+                    provenance=prov)
             except Exception as exc:  # noqa: BLE001 - keep batch going
                 print(f"  {pdf.name}: ERROR {type(exc).__name__}: {exc}", flush=True)
                 summary.append((pdf.stem, -1, -1, 0, 0))
                 continue
             done.write_text(f"{n_cand}\t{conf}\n" +
-                            "".join(f"{s}\t{e}\n" for s, e in zip(scn, en)), encoding="utf-8")
+                            "".join(f"{sp}\t{ep}\t{si:.3f}\t{s}\t{e}\n"
+                                    for (sp, ep, si), s, e in zip(prov, scn, en)),
+                            encoding="utf-8")
         kept = 0
-        for s, e in zip(scn, en):
+        for (sp, ep, si), s, e in zip(prov, scn, en):
             key = (s, e)
             if key in seen:
                 continue
             seen.add(key)
-            rows.append((pdf.stem, s, e))
+            rows.append((pdf.stem, sp, ep, si, s, e))
             kept += 1
         summary.append((pdf.stem, n_cand, conf, len(scn), kept))
         print(f"  {pdf.name}: cand {n_cand} -> conf {conf} -> {len(scn)} pairs "
               f"({kept} new after dedup)", flush=True)
 
     with open(args.out / "corpus.tsv", "w", encoding="utf-8") as f:
-        f.write("issue\tsicilian\tenglish\n")
-        for issue, s, e in rows:
-            f.write(f"{issue}\t{s}\t{e}\n")
+        f.write("issue\tscn_page\ten_page\tsimilarity\tsicilian\tenglish\n")
+        for issue, sp, ep, si, s, e in rows:
+            f.write(f"{issue}\t{sp}\t{ep}\t{si:.3f}\t{s}\t{e}\n")
     (args.out / "corpus.scn").write_text(
-        "\n".join(s for _, s, _ in rows) + "\n", encoding="utf-8")
+        "\n".join(r[4] for r in rows) + "\n", encoding="utf-8")
     (args.out / "corpus.en").write_text(
-        "\n".join(e for _, _, e in rows) + "\n", encoding="utf-8")
+        "\n".join(r[5] for r in rows) + "\n", encoding="utf-8")
 
     total_raw = sum(s[3] for s in summary if s[3] > 0)
     print("\n==== SUMMARY ====")

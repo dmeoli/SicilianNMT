@@ -62,6 +62,9 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ods", type=Path, required=True, help="Eryk's private spreadsheet (.ods)")
     ap.add_argument("--out", type=Path, default=REPO / "data/finetune")
+    ap.add_argument("--test-scn", type=Path,
+                    help="frozen test set (Sicilian side); its lines are kept out of train. "
+                         "It lives on Drive, e.g. SicilianNMT-colab/data/test.scn")
     ap.add_argument("--normalize", choices=["none", "std", "full"], default="std",
                     help="orthographic normalisation applied to the Sicilian side")
     args = ap.parse_args()
@@ -116,14 +119,22 @@ def main() -> None:
         add_pairs(scn_en, read_lines(corp), read_lines(corp.with_suffix(".en")),
                   f"ours:{corp.parent.name}")
 
-    # --- validation leakage guard: never let a train scn appear in valid ---
+    # --- leakage guard: never let a train scn appear in valid, nor in the frozen test ---
     valid_scn = {v[0] for v in valid}
+    test_scn: set[str] = set()
+    if args.test_scn:
+        raw = read_lines(args.test_scn)
+        test_scn = {x for x in raw if x} | {nscn(x) for x in raw if x}
+        print(f"test lines held out : {len(test_scn)} forms from {args.test_scn}")
 
     def dedup(pairs):
         seen, out, prov = set(), [], Counter()
         for a, b, p in pairs:
             if a in valid_scn:
                 prov["dropped:in-valid"] += 1
+                continue
+            if a in test_scn:
+                prov["dropped:in-test"] += 1
                 continue
             k = (a, b)
             if k in seen:
