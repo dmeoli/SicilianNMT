@@ -2,6 +2,7 @@
 """Run the modern extraction+alignment pipeline over ALL Arba Sicula issues.
 
 Loads LaBSE once, processes every as-issues/*.pdf (skipping volumes that error),
+cleans the pairs (clean_pairs.py, skipped with --no-clean),
 dedups exact pairs across issues, and writes one combined parallel corpus plus a
 per-issue summary. Each finished issue is checkpointed under <out>/issues/, so a run
 killed halfway (e.g. out of memory) resumes from the missing issues.
@@ -12,11 +13,13 @@ killed halfway (e.g. out of memory) resumes from the missing issues.
 from __future__ import annotations
 import argparse
 import sys
+from collections import Counter
 from pathlib import Path
 
 from sentence_transformers import SentenceTransformer
 
 from build_issue import process_issue
+from clean_pairs import clean_pairs
 from extract_pages import load_scn_stopwords
 
 REPO = Path(__file__).resolve().parents[2]
@@ -29,6 +32,8 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=REPO / "data/processed/arbasicula")
     ap.add_argument("--min-page-sim", type=float, default=0.50)
     ap.add_argument("--min-sent-sim", type=float, default=0.40)
+    ap.add_argument("--no-clean", action="store_true",
+                    help="keep the raw aligner output (skip clean_pairs.py)")
     args = ap.parse_args()
 
     pdfs = sorted(args.issues.glob("*.pdf"))
@@ -40,7 +45,8 @@ def main() -> None:
 
     seen: set[tuple[str, str]] = set()
     rows: list[tuple] = []  # (issue, scn_page, en_page, sim, scn, en)
-    summary: list[tuple[str, int, int, int, int]] = []
+    summary: list[tuple[str, int, int, int, int, int]] = []
+    cleaning: Counter = Counter()
     for pdf in pdfs:
         done = ckpt / f"{pdf.stem}.tsv"
         if done.exists():
@@ -63,23 +69,27 @@ def main() -> None:
                     provenance=prov)
             except Exception as exc:  # noqa: BLE001 - keep batch going
                 print(f"  {pdf.name}: ERROR {type(exc).__name__}: {exc}", flush=True)
-                summary.append((pdf.stem, -1, -1, 0, 0))
+                summary.append((pdf.stem, -1, -1, 0, 0, 0))
                 continue
             done.write_text(f"{n_cand}\t{conf}\n" +
                             "".join(f"{sp}\t{ep}\t{si:.3f}\t{s}\t{e}\n"
                                     for (sp, ep, si), s, e in zip(prov, scn, en)),
                             encoding="utf-8")
+        pairs = [(*p, s, e) for p, s, e in zip(prov, scn, en)]
+        if not args.no_clean:
+            pairs, why = clean_pairs(pairs)
+            cleaning += why
         kept = 0
-        for (sp, ep, si), s, e in zip(prov, scn, en):
+        for sp, ep, si, s, e in pairs:
             key = (s, e)
             if key in seen:
                 continue
             seen.add(key)
             rows.append((pdf.stem, sp, ep, si, s, e))
             kept += 1
-        summary.append((pdf.stem, n_cand, conf, len(scn), kept))
+        summary.append((pdf.stem, n_cand, conf, len(scn), len(pairs), kept))
         print(f"  {pdf.name}: cand {n_cand} -> conf {conf} -> {len(scn)} pairs "
-              f"({kept} new after dedup)", flush=True)
+              f"-> {len(pairs)} clean ({kept} new after dedup)", flush=True)
 
     with open(args.out / "corpus.tsv", "w", encoding="utf-8") as f:
         f.write("issue\tscn_page\ten_page\tsimilarity\tsicilian\tenglish\n")
@@ -92,11 +102,15 @@ def main() -> None:
 
     total_raw = sum(s[3] for s in summary if s[3] > 0)
     print("\n==== SUMMARY ====")
-    print(f"{'issue':10} {'cand':>5} {'conf':>5} {'pairs':>6} {'new':>6}")
-    for issue, nc, conf, pr, kept in summary:
+    print(f"{'issue':10} {'cand':>5} {'conf':>5} {'pairs':>6} {'clean':>6} {'new':>6}")
+    for issue, nc, conf, pr, cl, kept in summary:
         tag = "ERR" if nc < 0 else ""
-        print(f"{issue:10} {nc:>5} {conf:>5} {pr:>6} {kept:>6} {tag}")
-    print(f"\nTOTAL raw pairs: {total_raw:,} | after cross-issue dedup: {len(rows):,}")
+        print(f"{issue:10} {nc:>5} {conf:>5} {pr:>6} {cl:>6} {kept:>6} {tag}")
+    total_clean = sum(s[4] for s in summary if s[4] > 0)
+    print(f"\nTOTAL raw pairs: {total_raw:,} | clean: {total_clean:,} "
+          f"| after cross-issue dedup: {len(rows):,}")
+    if cleaning:
+        print("cleaning:", dict(sorted(cleaning.items())))
     print(f"wrote corpus.tsv / corpus.scn / corpus.en to {args.out}/")
 
 

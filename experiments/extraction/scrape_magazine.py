@@ -38,7 +38,8 @@ BLOCK_CLASSES = {"navbar", "dropdown", "dropdown-content", "message",
                  "socialvanish", "socialappear", "socialicons", "footer"}
 
 # Paragraphs that are boilerplate even inside the content column.
-_JUNK_RE = re.compile(r"^\s*$|^copyright\b|^-->", re.IGNORECASE)
+_JUNK_RE = re.compile(r"^\s*$|^copyright\b|^-->"
+                      r"|^translated into english by\b", re.IGNORECASE)  # translator credit, English only (quo-vadis)
 # Heading text that marks the end of the translated body (translator notes follow).
 _NOTES_RE = re.compile(r"^\s*(noti|notes|note)\s*$", re.IGNORECASE)
 

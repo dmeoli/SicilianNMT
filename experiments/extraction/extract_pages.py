@@ -43,10 +43,57 @@ HEADER_RE = re.compile(r"^\s*(arba sicula\b.*|\d{1,3})\s*$", re.IGNORECASE)
 PAGENUM_RE = re.compile(r"^\s*(\d{1,3})\s*$")
 
 
-def page_text(page) -> str:
-    """Plain text of a page; `getText` is the pre-1.18 PyMuPDF spelling."""
+def _glyph_lines(page, drop_phantom: bool) -> tuple[list[str], int]:
+    """Text lines rebuilt from the glyphs, and the number of zero-advance spaces."""
     get = getattr(page, "get_text", None) or page.getText
-    return get("text")
+    lines, phantom = [], 0
+    for block in get("rawdict")["blocks"]:
+        for line in block.get("lines", []):
+            chars = [c for span in line["spans"] for c in span["chars"]]
+            out = []
+            for c, nxt in zip(chars, chars[1:] + [None]):
+                if c["c"] == " " and nxt is not None and \
+                        abs(nxt["bbox"][0] - c["bbox"][0]) < 0.3:
+                    phantom += 1
+                    if drop_phantom:
+                        continue
+                out.append(c["c"])
+            lines.append("".join(out))
+    return lines, phantom
+
+
+_PHANTOM_DOCS: dict[str, bool] = {}
+
+
+def _has_phantom_spaces(doc) -> bool:
+    """True if at least 30% of the pages carry 10 or more zero-advance spaces.
+
+    That is a property of the typesetting (AS22-23: 104 pages each); a scanned issue
+    has a few such spaces by OCR accident, on at most 4 pages, mostly in captions and
+    tables of contents, where dropping them would glue real words together.
+    """
+    key = doc.name
+    if key not in _PHANTOM_DOCS:
+        n = page_count(doc)
+        hit = sum(_glyph_lines(doc[i], False)[1] >= 10 for i in range(n))
+        _PHANTOM_DOCS[key] = hit >= 0.3 * n
+    return _PHANTOM_DOCS[key]
+
+
+def page_text(page) -> str:
+    """Plain text of a page; `getText` is the pre-1.18 PyMuPDF spelling.
+
+    Some typesetting (AS22-23) marks every hyphenation point with a space glyph of
+    zero advance, which plain extraction turns into split words ("Bel lini",
+    "cen tu ries"). In such documents the text is rebuilt from the glyphs, dropping
+    every space whose next glyph starts at the same point, and the hyphens left
+    inside a line ("civili- zation") are joined.
+    """
+    get = getattr(page, "get_text", None) or page.getText
+    if not _has_phantom_spaces(page.parent):
+        return get("text")
+    lines, _ = _glyph_lines(page, True)
+    return "\n".join(re.sub(r"([a-z])- (?=[a-z])", r"\1", ln) for ln in lines) + "\n"
 
 
 def page_count(doc) -> int:
