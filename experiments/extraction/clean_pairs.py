@@ -7,7 +7,7 @@ The filters follow Eryk's review of the full extraction (September 2026):
   * residue stripped from the text: the InDesign slug of AS43
     ("ArbaSicula Mast43.indd 9 8/5/2022 10:29:41 PM") and the "Return to the TOC"
     link of the digitised issues; a pair left empty is dropped;
-  * length: the longer side has more than twice the words of the shorter one
+  * length: the longer side has more than 1.6 times the words of the shorter one
     (a partial alignment, one side covering only part of the other), counted
     only when the longer side has at least 5 words;
   * table of contents: dot or bullet leaders of 6 or more ("......", "••••••");
@@ -35,7 +35,7 @@ WORD_RE = re.compile(r"[^\W\d_]+(?:['’][^\W\d_]+)*")
 DICTS = (Path("/usr/share/dict/american-english"), Path("/usr/share/dict/british-english"),
          Path("/usr/share/dict/words"))
 
-MAX_RATIO = 2.0
+MAX_RATIO = 1.6
 MIN_WORDS_FOR_RATIO = 5
 MAX_EN_OOV = 0.25
 MIN_EN_WORDS_FOR_OOV = 4

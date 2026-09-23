@@ -22,6 +22,7 @@ Sources
 """
 from __future__ import annotations
 import argparse
+import csv
 import json
 import re
 import sys
@@ -45,6 +46,23 @@ def nscn(s: str) -> str:
     return _NRM(s) if (_NRM and s) else s
 
 
+SCANNED_VOLS = set(range(1, 19)) | {21}   # PDFs that are scans of the paper copies
+
+
+def read_as_tsv(path: Path, min_vol: int, include_scans: bool) -> dict[str, list]:
+    """(scn, en) pairs of our Arba Sicula extraction, by issue, volumes filtered."""
+    out: dict[str, list] = {}
+    with open(path, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f, delimiter="\t", quoting=csv.QUOTE_NONE):
+            vol = int(row["issue"][2:4])
+            if vol in SCANNED_VOLS and not include_scans:
+                continue
+            if vol < min_vol and vol not in SCANNED_VOLS:
+                continue
+            out.setdefault(row["issue"], []).append((row["sicilian"], row["english"]))
+    return out
+
+
 def read_lines(p: Path) -> list[str]:
     return p.read_text(encoding="utf-8").splitlines() if p.exists() else []
 
@@ -62,6 +80,12 @@ def main() -> None:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ods", type=Path, required=True, help="Eryk's private spreadsheet (.ods)")
     ap.add_argument("--out", type=Path, default=REPO / "data/finetune")
+    ap.add_argument("--as-tsv", type=Path, default=REPO / "data/processed/as_full_gift/corpus.tsv",
+                    help="our full Arba Sicula extraction (issue, pages, similarity, scn, en)")
+    ap.add_argument("--as-min-vol", type=int, default=19,
+                    help="first Arba Sicula volume to take from --as-tsv")
+    ap.add_argument("--as-include-scans", action="store_true",
+                    help="also take the scanned issues (AS01-18, AS21), whose OCR has no accents")
     ap.add_argument("--test-scn", type=Path,
                     help="frozen test set (Sicilian side); its lines are kept out of train. "
                          "It lives on Drive, e.g. SicilianNMT-colab/data/test.scn")
@@ -114,17 +138,26 @@ def main() -> None:
     add_pairs(scn_en, read_lines(site / "napizia.scn"), read_lines(site / "napizia.en"),
               "ours:napizia-site")
 
-    # --- our Arba Sicula PDF extraction (scn-en; issues Eryk lacks, e.g. AS01-18, AS21) ---
-    for corp in sorted((REPO / "data/processed").glob("arbasicula*/corpus.scn")):
-        add_pairs(scn_en, read_lines(corp), read_lines(corp.with_suffix(".en")),
-                  f"ours:{corp.parent.name}")
+    # --- our Arba Sicula PDF extraction (scn-en) ---
+    # Eryk's hand-aligned sheets and our alignment of the same issue are complements,
+    # not alternatives (his cover 10-20% of the pairs of an issue), so every issue goes
+    # in and the exact repeats are deduped below. AS01-18 and AS21 are left out by
+    # default: those PDFs are scans of the paper copies, whose OCR carries no accent at
+    # all over the vowels, while AS19 onward come from the original computer files.
+    as_rows = read_as_tsv(args.as_tsv, args.as_min_vol, args.as_include_scans)
+    for issue, pairs in sorted(as_rows.items()):
+        add_pairs(scn_en, [a for a, _ in pairs], [b for _, b in pairs], f"ours:{issue}")
 
     # --- leakage guard: never let a train scn appear in valid, nor in the frozen test ---
     valid_scn = {v[0] for v in valid}
     test_scn: set[str] = set()
+    test_inside: tuple[str, ...] = ()
     if args.test_scn:
         raw = read_lines(args.test_scn)
         test_scn = {x for x in raw if x} | {nscn(x) for x in raw if x}
+        # a test sentence can also sit inside a longer training pair (a different
+        # sentence split of the same page), which an exact match would not catch
+        test_inside = tuple(sorted({x for x in test_scn if len(x.split()) >= 6}))
         print(f"test lines held out : {len(test_scn)} forms from {args.test_scn}")
 
     def dedup(pairs):
@@ -135,6 +168,9 @@ def main() -> None:
                 continue
             if a in test_scn:
                 prov["dropped:in-test"] += 1
+                continue
+            if any(t in a for t in test_inside):
+                prov["dropped:contains-test"] += 1
                 continue
             k = (a, b)
             if k in seen:
