@@ -1,31 +1,15 @@
 \documentclass[11pt,a4paper]{article}
-\usepackage[a4paper,margin=2cm]{geometry}
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-
-%% support for extra text symbols
-%% set font to TeX Gyre Pagella (clone of Palatino)
-\usepackage{textcomp}
-\usepackage{tgpagella}
-
-\usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{amsmath}
-
-%% \usepackage{xcolor}
+\usepackage[T1]{fontenc} \usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb} \usepackage{textcomp}
+\usepackage{booktabs} \usepackage{array} \usepackage{geometry}
+\usepackage{placeins} \usepackage{graphicx} \usepackage{xcolor}
+\geometry{margin=2.6cm}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\usepackage{natbib}
-%% \bibliographystyle{abbrvnat}
+\usepackage[numbers,sort&compress]{natbib}
 \bibliographystyle{plainnat}
-%% \bibliographystyle{unsrtnat}
-%% 
-%%  %%  author-year style
-\bibpunct{(}{)}{;}{a}{,}{,}
-%%  %%  numerical style
-%%  \bibpunct{[}{]}{,}{s}{,}{,}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -39,14 +23,12 @@
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \usepackage[breaklinks]{hyperref}
-%% \usepackage{hyperref}
 \hypersetup{
   %% bookmarks,
   %% bookmarksopen,
   colorlinks=true,
   linkcolor=blue,
   citecolor=blue,
-  %% filecolor=black,
   urlcolor=blue,
   bookmarksnumbered=false,
   pdftitle = {Climbing the Ladder: Automating Data Pipelines and Reproducing Baselines in Low-Resource Settings},
@@ -54,6 +36,7 @@
   pdfsubject = {low-resource neural machine translation},
   pdfkeywords = {language models, low-resource NMT, Sicilian language},
 }
+\emergencystretch=2em
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -61,139 +44,215 @@
 \newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO:} #1]}}
 
 \title{Climbing the Ladder:\\
-  Automating Data Pipelines and Reproducing Baselines\\
-  in Low-Resource Settings}
+       Automating Data Pipelines and Reproducing Baselines\\
+       in Low-Resource Settings}
+\author{Donato Meoli\\
+        Dipartimento di Informatica, Universit{\`a} di Pisa\\
+        Largo B. Pontecorvo 3, 56127 Pisa -- Italy\\
+        {\tt donato.meoli@outlook.com}\\[3ex]
+        %
+        Eryk Wdowiak\\
+        Arba Sicula\\
+        {\tt eryk@wdowiak.me}
+        }
 
-\author{
-  Donato Meoli \\ \small Università di Pisa, Dipartimento di Informatica
-  \\ \small \texttt{donato.meoli@outlook.com}
-  \and
-  Eryk Wdowiak \\ \small Arba Sicula
-  \\ \small \texttt{eryk@wdowiak.me}
-}
 \date{\today}
-
-%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
-%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
-
-%%  TITLE and ABSTRACT
 
 \begin{document}
 \maketitle
 
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  TITLE and ABSTRACT
+
 \begin{abstract}
-Sicilian is a low-resource Romance language that the massively multilingual systems now
-covering it learned from noisy, non-standardised web text, so that what it lacks is no longer
-coverage but quality; in order to obtain better translations we redevelop the small neural
-machine translation (NMT) system that \citet{wdowiak2022loresnmt} customized for Sicilian. We
-rebuild the parallel-corpus pipeline on sentence-embedding extraction and alignment (PyMuPDF and
-LaBSE \citep{feng2022labse}), we assemble a reproducible, deduplicated Sicilian--English dataset
-with a held-out \emph{literary} test set (not FLORES), and we port the paper's tokenization and
-desinence-biasing recipe to a Perl-free stack. We evaluate both from-scratch Sockeye baselines
-and the pretrained NLLB-200 model \citep{nllb2022} adapted with LoRA \citep{hu2021lora}: on our
-harder held-out test, Sicilian$\rightarrow$English rises from a 5.27 BLEU floor to 31.43 with a
-bidirectionally fine-tuned NLLB-1.3B, above Wdowiak's published baseline (29.1), while the
-reverse direction nearly doubles (9.89$\rightarrow$18.73). We further include Italian as a
-closely related, higher-resource bridge language (\texttt{ita\_Latn}) that NLLB supports
-natively for it$\leftrightarrow$scn, and which we evaluate and fine-tune on a frozen WikiMatrix
-it--scn split; the full pipeline, dataset assembly and evaluation are reproducible.
+The massively multilingual translation systems that now include Sicilian
+learned it from noisy, non-standardised web text.
+%%
+To obtain better translation quality, we redevelop
+the small neural machine translation (NMT) system that
+\citet{wdowiak2022loresnmt} customized for Sicilian.
+%%
+We rebuild on maintained software the extraction of the parallel text from the PDFs of the
+bilingual journal \emph{Arba Sicula}, whose sentences are aligned by a language-agnostic sentence
+encoder with thresholds tuned against an existing hand alignment and then filtered for the typical errors of automatic alignment. Furthermore, the tokenization and the desinence-biased subword segmentation of the original system are ported to a Perl-free implementation, and all the
+results are measured on a frozen test set drawn from the journal. We compare small Transformers
+trained from scratch with the pretrained NLLB model adapted by low-rank fine-tuning, in both
+directions and with Italian as a closely related bridge language, and we adapt to the pretrained
+model the reverse-training recipe of the original system, i.e., a stage on forward-scored
+back-translations of the web Sicilian followed by a stage on the curated literary text. The
+pretrained model is by far the better of the two, and the staged training improves the
+translation into Sicilian much more than the translation from it. Yet, both directions remain well below the results that the original recipe obtains on its test set, and a multilingual adapter degrades the directions on which it was not trained, which limits its use as a general multilingual model.
 \end{abstract}
+
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  INTRODUCTION
 
 \section{Introduction}
-Languages without an army and navy often lack a standard orthography, so that, absent settled
-spelling rules and conventions, their written texts exhibit great variability, at times even
-within a single local dialect, which in turn inhibits the ability of conventional metrics to
-assess model performance \citep{aepli2023benchmark}. Even a language like Sicilian, for which
-published dictionaries have presented a consistent orthography for several hundred years
-\citep{pasqualino1785,mortillaro1876,nicotra1883,traina1868}, can exhibit an orthographic
-diversity that, once incorporated into a training dataset, prevents a model from learning to
-generate consistent text.
+Languages without an army and navy often lack a standard orthography.
+Without specific spelling rules and conventions, written texts in these languages
+often exhibit great variability (sometimes even within a local dialect),
+which inhibits the ability of conventional metrics to assess model performance
+\citep{aepli2023benchmark}.
+%%
+But even languages like Sicilian -- where published dictionaries have presented
+a consistent orthography for several hundred years
+\citep{pasqualino1785,mortillaro1876,nicotra1883,traina1868} --
+can exhibit extreme orthographic diversity which
+(when incorporated into a training dataset)
+prevents a model from learning how to generate consistent text.
 
-During the 13\textsuperscript{th} century the Sicilian School of Poets at the court of Emperor
-Frederick~II created the first literary standard in Italy, and their poetry inspired Dante to
-write in his native Florentine, which later became today's Italian; following in their
-footsteps, poets such as Antonio Veneziano (1543--1593), Giovanni Meli (1740--1815), Domenico
-Tempio (1750--1821), Ignazio Buttitta (1899--1997) and Salvatore Camilleri (1921--2021)
-continued the literary tradition, writing in a fairly consistent manner. Writing, however, is
-not speaking: Giuseppe Pitrè (1841--1916) developed a parallel popular tradition that recorded
-the common people in their own words and in the sound of their own words.
+During the 13\textsuperscript{th} century,
+the Sicilian School of Poets at the court of Emperor Frederick~II
+created the first literary standard in Italy.  Their poetry
+inspired Dante to write in his native Florentine, which later
+became today's Italian language.
+%%
+Following in their footsteps, poets like
+Antonio Veneziano (1543-1593),
+Giovanni Meli (1740-1815),
+Domenico Tempio (1750-1821),
+Ignazio Buttitta (1899-1997) and
+Salvatore Camilleri (1921-2021)
+continued the Sicilian literary tradition,
+writing in a fairly consistent manner.
+%%
+But writing is different from speaking, so
+%% in the late 19\textsuperscript{th} century,
+Giuseppe Pitrè (1841-1916)
+developed a popular tradition which
+recorded the common people
+%% as they spoke -- both
+in their own words and in the sound of their own words.
 
-One can hear echoes of the popular tradition in the daily speech of millions of people in
-Sicily, Calabria and Puglia, as well as in diaspora communities abroad, and echoes of the
-literary tradition in books, journals and pages of the internet; the publicly available
-Sicilian text, however, exhibits an orthographic diversity that once prevented practitioners
-from assembling datasets of parallel text and, for a time, kept Sicilian out of every major
-translation service. Today Sicilian is included in massively multilingual models such as
-NLLB-200 \citep{nllb2022}, but the coverage is of low quality, since the Sicilian training text
-was mined from non-standardised web sources and the model has, in effect, learned a
-non-standard orthography (Section~\ref{sec:standardization}); the barrier for Sicilian has thus
-shifted from absence to quality.
+One can hear echoes of the popular tradition in the daily speech
+of millions of people in Sicily, Calabria and Puglia,
+as well as in diaspora communities abroad.
+And one can find echoes of the literary tradition in books,
+journals and pages of the internet.
+%% because the Sicilian language has an 800-year literary tradition.
+%%
+Nonetheless, the publicly available Sicilian language text
+often exhibits extreme orthographic diversity which
+once prevented practitioners from developing
+datasets of Sicilian-language parallel text and once
+caused Sicilian to be absent from every major translation service.
 
-High-quality material does exist, above all in the bilingual literary journal \emph{Arba Sicula}
-(published since 1979), which \citet{wdowiak2022loresnmt} used to build the first Sicilian neural
-machine translation (NMT) system; that work showed that a fairly good translation model can be
-trained in a low-resource setting, at the cost of a labour-intensive process in which the
-sentences were aligned by hand with a recipe tailored to the low-resource, morphologically rich
-case. The present work rebuilds that effort with maintained, mostly CPU-only tooling, and seeks
-better quality through modern pretrained models.
+Sicilian is now covered by massively multilingual models such as NLLB-200 \citep{nllb2022};
+however, its training text was mined from non-standard web sources, and the model has in effect
+learned a non-standard orthography (cf.\ section~\ref{sec:standardization}). Hence, the problem for Sicilian has moved from the absence of a model to the quality of the data on which it is
+trained.
+
+High-quality material exists, especially in the bilingual literary journal \emph{Arba Sicula}
+(published since 1979), which \citet{wdowiak2022loresnmt} used to create
+%% \emph{Tradutturi Sicilianu},
+the first Sicilian neural machine translation (NMT) system.
+His work demonstrated that it's possible to develop a fairly good translation model
+in low-resource settings, but it was a labor-intensive task.
+He aligned sentences by hand using a recipe tailored to the
+low-resource, morphologically rich setting.
+
+This work rebuilds that effort with maintained,
+mostly CPU-only tooling and seeks to obtain better quality
+with modern pretrained models.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-%%  (par) contributions
+%%  (par) literature
 
-\paragraph{Contributions.}
-\begin{itemize}
-  \item An automated extraction and alignment pipeline for the \emph{Arba Sicula} PDFs (PyMuPDF
-        and LaBSE \citep{feng2022labse}), replacing the legacy pdflatex+hunalign flow, with
-        thresholds tuned against Wdowiak's hand-aligned gold.
-  \item A reproducible, deduplicated, provenance-tracked dataset with a held-out literary test
-        set (not FLORES), and a BLEU/chrF evaluation harness.
-  \item The paper's ``lever B'' recipe (Napizia tokenizer + desinence-biased subwords) ported
-        to a Perl-free pipeline, and a linguistic-feature lever (lemma source factors).
-  \item NLLB-200 zero-shot and LoRA fine-tuning that beats the published baseline on our harder
-        test set, with a bidirectional adapter that also rescues the reverse direction.
-\end{itemize}
+That system \citep{wdowiak2021recipe,wdowiak2022loresnmt} followed the low-resource
+recipe of \citet{sennrich2019loresnmt}, i.e., a small and heavily regularized Transformer
+\citep{vaswani2017attention} with a small subword vocabulary \citep{sennrich2016subword}, and biased the segmentation toward the desinences of Sicilian grammar; its later reverse-training strategy \citep{wdowiakreverse} builds a pretrained model of Sicilian in stages from synthetic and web text before the fine-tuning on the literary one. Parallel text is usually
+aligned automatically with dictionary-based tools such as hunalign or, more recently, with
+multilingual sentence encoders such as LaBSE \citep{feng2022labse} and LASER3
+\citep{heffernan2022laser3}, which were used to mine WikiMatrix \citep{schwenk2021wikimatrix} and
+the Sicilian data of NLLB. Vecalign \citep{thompson2019vecalign} combines such embeddings with a
+dynamic program, and collections such as OPUS \citep{tiedemann2012} gather the resulting corpora.
+Pretrained multilingual models can be adapted to a specific pair at a small cost by low-rank
+adapters \citep{hu2021lora}, and allow one to exploit closely related high-resource languages as
+a bridge \citep{johnson2017zeroshot,arivazhagan2019massively,fan2020beyond,zhang2020improving};
+also, back-translation of monolingual text \citep{sennrich2015backtrans} is the standard way of
+adding in-domain synthetic data. The reader is referred to \citet{koehnknowles2017} for a
+discussion of why low-resource translation remains difficult.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  (par) contribution
+
+In particular, we extract the parallel text of the journal automatically, with a LaBSE-based
+aligner whose thresholds are tuned against the hand alignment of the second author and whose
+output is filtered for the errors that his review of it brought to light; the aligned text and
+his hand-aligned sheets are then used together, since the latter cover only a fraction of the
+pairs of each issue. Furthermore, we port to Python the tokenization and the desinence-biased segmentation of the original system, and add a lemma source factor \citep{sennrich2016linguistic} to the from-scratch baseline. Finally, we fine-tune NLLB-200 with LoRA in both directions and
+with Italian as a bridge, and we replace the custom pretraining of the reverse-training recipe
+with the pretraining of NLLB, keeping its second stage (forward-scored back-translations of the
+web Sicilian) and its last one (the curated literary text). We remark that the published results
+of the original system were measured on a different test set, and that the comparison with them
+is therefore indirect (cf.\ section~\ref{sec:sota}).
+
+The structure of the paper is as follows. Section~\ref{sec:background} recalls the models on
+which all our systems are based. Section~\ref{sec:pipeline} describes the extraction, the
+alignment and the cleaning of the parallel text and the assembly of the datasets, while
+section~\ref{sec:standardization} discusses the orthography of the Sicilian data and the reason
+why a multilingual encoder can align it at all. Tokenization and subword segmentation are the
+subject of section~\ref{sec:tokenization}, the models and the staged training of
+section~\ref{sec:models}, and the evaluation protocol of section~\ref{sec:evaluation}; the
+results are reported in section~\ref{sec:results}, and section~\ref{sec:conclusion} concludes.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  BACKGROUND
 
 \section{Background}
-NMT models translation as a conditional language model, in which an encoder reads the source
-$x=(x_1,\dots,x_n)$ and a decoder factorises the target from left to right,
-$p_\theta(y\mid x)=\prod_{t} p_\theta(y_t\mid y_{<t},x)$, the model being trained by maximising
-the log-likelihood of a parallel corpus and decoded with beam search; the dominant
-parameterisation is the Transformer \citep{vaswani2017attention}, which replaces recurrence with
-scaled dot-product attention, $\mathrm{Attention}(Q,K,V)=\mathrm{softmax}(QK^{\top}/\sqrt{d_k})V$,
-run in parallel heads.
+\label{sec:background}
+We now recall the model on which all our systems are based. NMT treats translation as a
+conditional language model: an encoder reads the source sentence $x=(x_1,\dots,x_n)$, and a
+decoder factorizes the probability of the target sentence $y$ from left to right as
+\[
+  p_\theta(y\mid x)=\prod_{t} p_\theta(y_t\mid y_{<t},x) \; ,
+\]
+where the parameters $\theta$ are trained by maximizing the log-likelihood of a parallel corpus,
+and the translation is obtained by beam search. Its standard parameterization is the Transformer
+\citep{vaswani2017attention}, which replaces recurrence with the scaled dot-product attention
+$\mathrm{Attention}(Q,K,V)=\mathrm{softmax}(QK^{\top}/\sqrt{d_k})V$ (where $Q$, $K$ and $V$ are
+the query, key and value matrices, and $d_k$ is the dimension of the keys), computed in several
+parallel heads.
 
-With little data the default Transformer overfits, so the low-resource recipe of
-\citet{sennrich2019loresnmt} prescribes a smaller, heavily regularised model, with high dropout
-\citep{srivastava2014dropout} and small subword vocabularies; subword segmentation by byte-pair
-encoding \citep{sennrich2016subword} gives an open vocabulary and shares statistics across word
-forms, which is essential for a morphologically rich language. Further gains come from linguistic
-input features \citep{sennrich2016linguistic}, from back-translation of monolingual data
-\citep{sennrich2015backtrans}, and from multilingual training with a target-language token
-\citep{johnson2017zeroshot} that enables bridging through related high-resource languages
-\citep{fan2020beyond, arivazhagan2019massively}; low-resource MT remains hard for exactly these
-reasons \citep{koehnknowles2017}.
+With little data the default Transformer overfits, and hence the low-resource recipe of
+\citet{sennrich2019loresnmt} prescribes a smaller model with high dropout
+\citep{srivastava2014dropout} and a small subword vocabulary. Byte-Pair Encoding (BPE)
+\citep{sennrich2016subword} gives an open vocabulary and shares statistics across the forms of a
+word, which is especially useful for a morphologically rich language such as Sicilian. Further
+improvements usually come from deeper models, when the data allow them
+\citep{micelibarone2017deep}, and from linguistic input features \citep{sennrich2016linguistic},
+which we use in section~\ref{sec:models}.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  DATA PIPELINE
 
 \section{Data Pipeline}
+\label{sec:pipeline}
 \subsection{Extraction from PDFs}
-We extract clean text from the Arba Sicula issue PDFs with PyMuPDF (no pdflatex round-trip).
-Each page is assigned a language from its share of Sicilian stop-words and diacritics; the
-journal sets Sicilian and English on facing pages, giving a natural even/odd prior, so we form
-facing candidate pairs. Pages are segmented into sentences with \texttt{pysbd} (per language),
-filtering ``furniture'' (all-caps headers, page numbers, captions). The procedure recovers
-parallel pages the manual selection had skipped.
+We read the text layer of the \emph{Arba Sicula} PDFs with PyMuPDF, which avoids the pdflatex
+round trip of the original pipeline. However, the quality of this layer depends on the issue. In fact, the PDFs of the issues up to AS18, and of AS21, are scans of the paper copies whose OCR text carries no
+accent over the vowels; from AS19 (1998) onward they were produced from the original computer
+files. This date also marks (most likely) an improvement of the Sicilian itself, since 1998 is the year of Privitera's \emph{Beginner's Sicilian} \citep{privitera1998}, the first Sicilian grammar published after the one of \citet{pitre1875}, which was followed by the more comprehensive grammar of \citet{bonner2001}; hence,
+the scanned issues are kept out of the training data (they are used only for the complete
+extraction of the archive mentioned below). Some of the born-digital issues (e.g., AS22 and AS23)
+contain spaces of zero width inside the words, which we detect from the glyph positions and
+remove before the text is read.
+
+Each page is assigned a language according to its share of Sicilian and English stop-words, and
+pages with too few tokens are left out. Since the journal usually sets Sicilian and English on
+facing pages, each Sicilian page is compared with the English page on either side, and the
+pairs are chosen greedily by decreasing LaBSE similarity (cf.\ section~\ref{sec:alignment}),
+each page being used at most once; this corrects the pairings that a fixed left/right rule gets
+wrong wherever a page is mislabelled or the order of the two languages is swapped. Pages are then segmented into sentences with \texttt{pysbd} (with the Italian rules for Sicilian), after
+the running headers and page numbers have been removed; fragments with fewer than two words or
+mostly in capitals are dropped, and the words hyphenated at the end of a line are rejoined.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -201,51 +260,94 @@ parallel pages the manual selection had skipped.
 
 \subsection{Sentence alignment}
 \label{sec:alignment}
-We embed every sentence with LaBSE \citep{feng2022labse}, a language-agnostic dual encoder, and
-build the cosine-similarity matrix $S_{ij}=\langle u_i,v_j\rangle/(\lVert u_i\rVert\lVert
-v_j\rVert)$. A facing pair is confirmed only if its mean best-match similarity exceeds
-$\tau_{\text{page}}$; sentences are then aligned by a monotonic dynamic program over $S$
-allowing $1$--$1$, $1$--$2$ and $2$--$1$ moves with a null penalty, in the spirit of Vecalign
-\citep{thompson2019vecalign} but without a bilingual dictionary or hunalign. The thresholds
-$(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$ were tuned against Wdowiak's hand-aligned
-gold (issues AS41--42); the pipeline recovers 14{,}245 sentence pairs from 44 issues, comparable
-to his manual alignment, and the \emph{unaligned} English is retained as an in-domain monolingual
-pool for back-translation.
+We embed each sentence with LaBSE \citep{feng2022labse}, a language-agnostic dual encoder, and
+build the cosine-similarity matrix
+\[
+  S_{ij}=\frac{\langle u_i,v_j\rangle}{\lVert u_i\rVert\,\lVert v_j\rVert} \; ,
+\]
+where $u_i$ and $v_j$ are the embeddings of the $i$-th Sicilian and of the $j$-th English
+sentence. For a pair of pages, the similarity is the larger of the mean row maximum and the mean
+column maximum of $S$, and the pair is kept if it is at least $\tau_{\text{page}}$ (with at least
+two sentences on each page). Consecutive spreads are then chained into blocks, so that a sentence
+cut by a page break is mended when it has no closing punctuation and the next page starts in
+lowercase. Within a block, the sentences are aligned by a monotonic dynamic program over $S$
+with moves $1$--$1$, $1$--$2$ and $2$--$1$, whose gain is the mean cosine of the sentences
+involved, and moves $1$--$0$ and $0$--$1$, which cost a penalty of $0.5$; the program is banded
+to the facing page and its neighbors (and falls back to the unbanded one if the band admits no
+path). An aligned span is kept if its mean cosine is at least $\tau_{\text{sent}}$. This is in
+the spirit of Vecalign \citep{thompson2019vecalign}, but requires neither a bilingual dictionary
+nor hunalign.
+
+Both thresholds were chosen on a grid (0.50, 0.55, 0.58 and 0.62 for $\tau_{\text{page}}$, 0.35,
+0.40, 0.45 and 0.50 for $\tau_{\text{sent}}$) against the hand alignment of the second author
+for the issues AS41 and AS42, which gave $(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$.
+On that gold the aligner reproduces 678 pairs exactly (recall 0.53, precision 0.57); these
+figures are somewhat pessimistic, since a pair that is correct but segmented differently from the
+hand alignment counts as an error, and since the hand alignment favored, by its author's account, the pairs that were easier to align. Each pair records the printed Sicilian and English
+page and its LaBSE similarity, which allows one to check it against the printed issue.
 
 %%  TO DO (??):  go back and collect the unaligned Sicilian for back-translation
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-%%  (sub) additional sources
+%%  (sub) cleaning
 
-\subsection{Additional sources}
-We add the author's curated ``Good-Sicilian-in-NLLB'' set (LASER3-mined sentences
-\citep{heffernan2022laser3, nllb2022} rescored and filtered for quality and for Corsican
-contamination), a small curated ``Good-Sicilian-from-WikiMatrix'' set, and the WikiMatrix
-it--scn subset \citep{schwenk2021wikimatrix} as an auxiliary Italian bridge.
-
-%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
-
-%%  (sub) unified dataset
-
-\subsection{Unified dataset}
-Sources are cleaned, deduplicated across one another, and split deterministically.
-Then a 1{,}000/1{,}000 valid/test split is \emph{frozen} once, held out from Arba Sicula
-(which provides the high-quality literary standard that FLORES does not),
-so that every later result stays comparable (Table~\ref{tab:data}).
+\subsection{Cleaning}
+\label{sec:cleaning}
+A review of the aligned text by the second author showed that the errors of the aligner are
+easy to recognize, and we filter them as follows. First, the residue of the page layout is removed from the sentences (the InDesign slug of AS43 and the ``Return to the TOC'' links). Then, a pair is dropped if (i) the longer side has more than 1.6 times the words of the shorter one (when it has
+at least five words), (ii) it contains a table-of-contents leader, (iii) it contains two or more
+characters typical of OCR noise, or (iv) more than 25\% of its lowercase English words are not
+in an English dictionary. Note that the bound in (i) was first 2.0; the pairs between 1.6 and 2.0 have a
+mean LaBSE similarity of 0.59, against 0.73 for those below 1.6, which in our view justifies the tighter bound. After cleaning and deduplication, the whole digital archive of the journal gives 15{,}465
+pairs.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]\centering
-\caption{Unified dataset.}\label{tab:data}
-\begin{tabular}{lrl}
+%%  (sub) datasets
+
+\subsection{Datasets}
+\label{sec:datasets}
+Two training sets are used (Table~\ref{tab:data}). Our first set, on which the from-scratch models and the first NLLB experiments were trained, joins our first extraction of 44 issues
+(14{,}245 pairs, before the cleaning of section~\ref{sec:cleaning}) with the
+``Good-Sicilian-in-NLLB'' set curated by the second author, i.e., sentences mined with LASER3
+\citep{heffernan2022laser3,nllb2022} that were rescored and filtered for quality and for Corsican
+contamination. Its it--scn part is the WikiMatrix subset \citep{schwenk2021wikimatrix}, with a
+small curated ``Good-Sicilian-from-WikiMatrix'' set.
+
+Our second set, used by the staged training of section~\ref{sec:staged}, replaces the web text
+with curated sources. These are (i) the hand-aligned sheets of the second author, i.e., Dieli's
+translation of Pitr\`e's fables and 23 issues of the journal (scn--en), Cipolla's translations
+of Meli (scn--it), and the trilingual exercises of the grammars of Bonner and Cipolla, (ii) our
+alignment of all the born-digital issues, since the sheets cover only 10 to 20\% of the pairs of
+an issue and the two sources are therefore complementary, and (iii) the parallel pages of the
+Napizia magazine, of the Napizia site and of the Young Sicilian Manifesto, from which one text
+under copyright was excluded. Furthermore, the sheets provide 14{,}360 monolingual Sicilian sentences
+(Cipolla's 2021 textbook) and a validation set of 121 trilingual lines. Its Sicilian side is normalized as in section~\ref{sec:tokenization}, and the exact repeats are removed.
+
+A validation and a test set of 1{,}000 pairs each were drawn once at random from our first extraction of \emph{Arba Sicula}, which provides the literary standard that FLORES does not, among the pairs with 3 to 80 words per side and a length ratio between 1/3 and 3, and then frozen; hence, all the results of section~\ref{sec:results} are computed on the same test set. Of the two validation sets, the one of 1{,}000 pairs is used with the web set, and the 121 lines of the sheets with the curated one.
+Each training set is then guarded against it: a pair is removed if its Sicilian side is a test
+or validation sentence (in raw or normalized form), or contains a test sentence of six or more
+words. This guard removed 794 pairs from the second set (778 because of the test set and 16 because of the validation set), some of them from the hand-aligned sheets, which cover the same issues as the test set; without it, the results of the staged training would have been inflated.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+\begin{table}[t]
+\caption{Datasets (number of sentence pairs). ``Web'' is the first training set of
+section~\ref{sec:datasets}, ``curated'' the second one; the test set is shared.}
+\label{tab:data}
+\centering
+\begin{tabular}{llrl}
 \toprule
-split & pairs & source \\
+set & direction & pairs & sources \\
 \midrule
-train & 27{,}386 & Arba Sicula + NLLB \\
-valid & 1{,}000 & Arba Sicula \\
-test  & 1{,}000 & Arba Sicula (literary) \\
-it--scn (aux) & 11{,}389 & WikiMatrix \\
+web     & scn--en & 27{,}386 & Arba Sicula (13{,}538) + Good-Sicilian-in-NLLB (15{,}848) \\
+        & it--scn & 9{,}389  & WikiMatrix \\
+curated & scn--en & 30{,}980 & hand-aligned sheets, Arba Sicula, Napizia \\
+        & scn--it & 10{,}427 & hand-aligned sheets, Napizia \\
+        & scn (mono) & 14{,}360 & Cipolla's textbook \\
+test    & scn--en & 1{,}000 & Arba Sicula \\
+        & it--scn & 1{,}000 & WikiMatrix \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -258,13 +360,25 @@ it--scn (aux) & 11{,}389 & WikiMatrix \\
 \section{Standardization}
 \label{sec:standardization}
 %%
-Although Sicilian does not have a single official orthography, a common literary standard has
-existed for several hundred years and provides a rough consistency, which we can refine because
-the majority of the Sicilian sentences in the NLLB dataset were written in that standard.
-Roughly one-third of the sentences the NLLB team collected were nonetheless written in local
-dialect, some of them in Corsican, and very few of the pairs carried a valid translation; we
-suspect that these problems trace back to seed data that is itself inconsistent with the literary
-standard.
+Although Sicilian does not have a single official orthography,
+a common literary standard has existed for several hundred years
+and provides a rough consistency, which we can refine
+because the majority of the Sicilian sentences
+in the NLLB dataset were written in that standard.
+
+Nonetheless,
+%% because schools in Sicily have never taught
+%% Sicilian language and literature to Sicilian students,
+%% many Sicilians remain unaware of the standard presented
+%% in 19\textsuperscript{th}-century Sicilian dictionaries.
+%% Consequently,
+approximately one-third of the Sicilian sentences
+that the NLLB team collected were written in local dialect.
+Some of the sentences were written in Corsican.
+And very few of the Sicilian sentences in the NLLB dataset
+were paired with a valid translation.
+We suspect that these data quality issues were caused
+by seed data which is inconsistent with the literary standard.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -280,15 +394,14 @@ For Sicilian and Italian, which are close on both counts, the two accounts agree
 in the Italian--Romance region either way.
 
 The surface form of literary Sicilian is close to Italian, so reading it works well.
-On the multi-parallel FLORES-200 devtest \citep{nllb2022}, LaBSE
-\citep{feng2022labse} retrieves the correct English translation of a Sicilian sentence
-99\% of the time (precision@1, Sicilian$\rightarrow$English), one point behind \emph{supported}
-Italian (100\%); and, discounting English (LaBSE's pivot, to which everything is close), each
-Sicilian sentence's nearest neighbour is overwhelmingly Italian (18\%, twice the
-next Romance language). In lexicon and spelling Sicilian is close enough to Italian that the
-model treats it almost as a variety of Italian.
+Retrieval on the multi-parallel FLORES-200 devtest \citep{nllb2022} confirms it: LaBSE
+retrieves the correct English translation of a Sicilian sentence in 99\% of the cases
+(precision@1), one point below Italian (100\%), which it supports officially. Furthermore, if one
+discounts English (the pivot of LaBSE, to which all languages are close), the nearest
+translation of a Sicilian sentence is Italian in 18\% of the cases, more than twice as often as
+French (8\%), the next Romance language.
 
-The seed-data failure, however, is in the \emph{opposite} direction, namely the retrieval of
+The seed-data failure, however, is in the \emph{opposite} direction -- retrieving
 the Sicilian translation of an English sentence.
 %% Generating Sicilian
 %% (English$\rightarrow$Sicilian)
@@ -306,32 +419,38 @@ when assembling the NLLB's Sicilian corpus.
 %% trusts that signal admits Corsican and other Romance web text as ``Sicilian''---the roughly
 %% one-third dialectal, partly Corsican portion noted above---and a model trained on it learns to
 %% emit that Corsican-tinged surface form when asked for Sicilian.
-Since multilingual models encode
-script and surface form over deeper linguistic structure \citep{verma2026script}, the two
-directions diverge for the same reason: an Italianate surface form retrieves the right English,
-while Corsican-looking seed data makes the model generate the wrong Sicilian. The proximity is
-thus double-edged: it is exactly what lets our own LaBSE-based aligner (Section~\ref{sec:alignment})
-operate on an officially unsupported language, but it offers no protection against near-language
-contamination when a corpus is assembled by transfer alone.
+Since multilingual models encode script and surface form more than deeper linguistic structure
+\citep{verma2026script}, the two directions behave differently for the same reason: an
+Italianate surface form retrieves the right English sentence, whereas seed data that look like
+Corsican lead the model to generate the wrong Sicilian. Hence, the proximity to Italian cuts both
+ways. It allows our LaBSE-based aligner (cf.\ section~\ref{sec:alignment}) to work on a language
+that LaBSE does not officially support; however, it gives no protection against contamination by
+neighboring languages when a corpus is assembled by transfer only.
 
-Alignability, in turn, tracks \emph{standardness}: scoring the LaBSE cosine of Wdowiak's
-hand-aligned gold pairs per text, standard literary prose (Cipolla's \emph{Don Chisciotti})
-aligns at cosine 0.76, with 91\% of its pairs clearing our production threshold, whereas dialect
-poetry aligns at only 0.64 (80\% recovered). The non-standard material is thus at once the larger
-source of noise in the collected data and the harder to recover, so that curating toward the
-literary standard improves quality on both counts; rolling short verses into longer lines
-recovers much of the poetry gap (mean cosine $0.65\!\to\!0.76$, recovery $84\%\!\to\!99\%$ when
-merging up to three verses), a cheap corrective for the poetic register.
+How easily a text is aligned depends, in turn, on how standard it is. We computed, text by text,
+the LaBSE cosine of the hand-aligned gold pairs of AS41 and AS42: standard literary prose
+(Cipolla's \emph{Don Chisciotti}) has a mean cosine of 0.76, with 91\% of its pairs above
+$\tau_{\text{sent}}$, while dialect poetry has a mean of 0.64, with 80\% of its pairs above it.
+Hence, the non-standard material is both the larger source of noise in the collected data and
+the harder to recover, and curating the data toward the literary standard should improve quality
+on both counts. For poetry, the second author suggested merging short consecutive verses into
+longer units before scoring. We simulated it on the poetry pairs of the gold: merging up to three
+verses raises the mean cosine by about 0.11 and the share above the threshold by 15 points (to
+99\%), although part of this gain is mechanical, since the merged units are fewer, longer and
+more distinctive. This corrective is not yet part of the production aligner.
 
 %% \citep{nllb2022}
 
-A translation model needs sentences written in the Sicilian literary language together with
-their translations, so we back-translated all of the Sicilian sentences into English and Italian
-and then scored each resulting pair on the task of translation into Sicilian; since a sentence
-written in standard Sicilian scores better than one written in local dialect, this forward
-scoring of the back-translations lets us identify the sentences written in the standard. The
-procedure yielded 549{,}486 back-translations that simulate English-to-Sicilian translation and
-689{,}840 that simulate Italian-to-Sicilian translation.
+For a translation model, we need sentences written in the Sicilian
+literary language and we need translations of those sentences.
+So we back-translated all of the Sicilian sentences into English and Italian,
+then we scored the resulting pair on the task of translation into Sicilian.
+Because a sentence written in standard Sicilian will score better
+than a sentence written in local dialect, forward-scoring the back-translations
+allows us to identify the sentences written in standard Sicilian.
+%%
+This method yielded 549,486 back-translations to simulate English-to-Sicilian
+translation and 689,840 to simulate Italian-to-Sicilian translation.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -340,176 +459,304 @@ procedure yielded 549{,}486 back-translations that simulate English-to-Sicilian 
 \section{Tokenization and Subword Segmentation}
 \label{sec:tokenization}
 %%
-Because the majority of the Sicilian sentences in the NLLB dataset were written in a common
-literary standard, we can refine them for consistency. We first normalise the text toward the
-standard established by Cipolla and augmented by Wdowiak for MT clarity, i.e.\ strict L on the
-articles (\emph{lu/la/li}), h on \emph{aviri} (\emph{haiu, havi, hannu}), CI for \c ci
-(\emph{\c ciuri$\to$ciuri}) and R retained before a clitic (\emph{farlu}); our
-\texttt{normalize\_scn.py} applies the documented spelling rules (e.g.\ \emph{cchi\`u$\to$chi\`u},
-\emph{io/iu/eu$\to$jo}, \emph{non$\to$nun}) at a ``std'' level, and additionally uncontracts and
-ASCII-folds at a ``full'' level. Since NLLB's own tokenizer was trained on un-normalised web
-Sicilian, whether this normalisation helps the pretrained model is an empirical question, and we
-ablate it (scn$\rightarrow$en, identical English references): raw 30.60, std 30.98, full 30.98
-BLEU (chrF 56.31 / 56.63 / 56.50). The light ``std'' standardisation gives a small consistent
-gain (and the best chrF), whereas the aggressive ``full'' preprocessing does not improve over it,
-which is consistent with a pretrained tokenizer that expects un-normalised input; orthographic
-normalisation is thus only a minor lever for NLLB ($\sim$+0.4 BLEU), so we adopt std by default
-and conclude that the larger residual relative to the state of the art is data curation, not
-spelling.
+Because the majority of the Sicilian sentences in the NLLB dataset were
+written in a common literary standard, we can refine them for consistency.
+%%
+We first normalize the text toward
+the standard established by Cipolla and augmented by Wdowiak for MT clarity, i.e., strict L on
+the articles (\emph{lu/la/li}), h on \emph{aviri} (\emph{haiu, havi, hannu}), CI for \c ci
+(\emph{\c ciuri$\to$ciuri}) and R retained before a clitic (\emph{farlu}). Our normalizer applies
+the documented spelling rules (e.g., \emph{cchi\`u$\to$chi\`u}, \emph{io/iu/eu$\to$jo},
+\emph{non$\to$nun}) at a ``std'' level, and further uncontracts and ASCII-folds the text at a
+``full'' level. Since the tokenizer of NLLB was trained on un-normalized web Sicilian, it is not
+obvious that normalization helps the pretrained model; hence, it was measured on
+scn$\rightarrow$en, with the same English references for the three variants. BLEU is 30.60 on raw
+text, 30.98 with ``std'' and 30.98 with ``full'' (chrF 56.31, 56.63 and 56.50, respectively).
+Thus, the light ``std'' normalization gives a small but consistent improvement (and the best
+chrF), while the ``full'' one gives nothing more, which is consistent with a pretrained tokenizer
+that expects un-normalized input. We therefore adopt ``std'' for all the later experiments.
 
-We re-implement the Napizia tokenizer in pure Python (verified identical to the original Perl):
-it ASCII-folds accents and uncontracts Sicilian (e.g.\ \^o$\to$\emph{a lu}, d\^u$\to$\emph{di lu}),
-which cuts sparsity. ``Lever B'' then biases the joint scn--en BPE \citep{sennrich2016subword}
-toward the textbook desinences catalogued in the resources Wdowiak assembled to standardise
-Sicilian (Dieli's \emph{Sicilian Vocabulary}, Cipolla's \emph{Mparamu lu sicilianu}
-\citep{cipolla2013}, Bonner's grammar \citep{bonner2001} and the \emph{Chi\`u d\^a Palora}
-dictionary), so that morphological endings survive as units; for instance Wdowiak's
-\emph{Carinisi are dogs!} segments to \texttt{car@@ in@@ isi are dogs !}. This cut the vocabulary
-from 14{,}000 to 2{,}000 units and produced his largest BLEU gains, and BPE-dropout
-\citep{provilkov2020bpedropout} adds subword regularisation by sampling segmentations during
-training.
+For the from-scratch models, the Napizia tokenizer was reimplemented in Python (its output
+coincides with that of the original Perl code): it ASCII-folds the accents and uncontracts the
+Sicilian forms (e.g., \^o$\to$\emph{a lu}, d\^u$\to$\emph{di lu}), which reduces sparsity. Then,
+the joint scn--en BPE \citep{sennrich2016subword} is biased toward the textbook desinences
+catalogued in the resources that Wdowiak assembled to standardize Sicilian (Dieli's
+\emph{Sicilian Vocabulary}, Cipolla's \emph{Mparamu lu sicilianu} \citep{cipolla2013}, Bonner's
+grammar \citep{bonner2001} and the \emph{Chi\`u d\^a Palora} dictionary), which are appended to
+the Sicilian side when the merges are learned. This keeps the morphological endings as units; for
+instance, Wdowiak's sentence \emph{Carinisi are dogs!} is segmented as
+\texttt{car@@ in@@ isi are dogs !}. In his experiments this reduced the vocabulary from 14{,}000
+to 2{,}000 units and gave the largest improvement in BLEU. We call this combination of tokenizer
+and biased segmentation ``lever B'' in the following.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  MODELS
 
 \section{Models}
-The from-scratch baseline is a Sockeye-3 \citep{hieber2017sockeye} small Transformer (3 layers,
-model size 256, 4 heads, feed-forward 1024, weight tying, dropout 0.4, joint BPE $\approx$4k;
-$\sim$6.6M parameters), trained on CPU. On top of it we stack lever B (tokenization +
-desinences), more parallel text, and ``lever D'' linguistic input features
-\citep{sennrich2016linguistic}: a lemma source factor summed into the source embedding,
-$e_j=E_{\text{word}}(w_j)+E_{\text{lemma}}(\ell_j)$, whose small ($\sim$900) vocabulary
-generalises across inflected forms.
+\label{sec:models}
+\subsection{From-scratch baseline}
+The from-scratch baseline is a small Transformer trained on CPU with Sockeye-3
+\citep{hieber2017sockeye}: 3 layers, model size 256, 4 attention heads, feed-forward size 1024,
+a vocabulary shared by the two languages and a joint BPE of 4000 merges, i.e., about 6.6M
+parameters. Dropout is 0.4 on the embeddings and 0.2 elsewhere, with label smoothing 0.1, and the model is trained with Adam (learning rate $2\cdot 10^{-4}$, batches of 1024 words) for at most 30
+epochs, with early stopping after 8 checkpoints without improvement. On top of it we add, in this
+order, lever B, more parallel text and a linguistic input feature (``lever D''). The latter is a
+lemma source factor \citep{sennrich2016linguistic} summed into the source embedding as
+\[
+  e_j=E_{\text{word}}(w_j)+E_{\text{lemma}}(\ell_j) \; ,
+\]
+where $w_j$ is the $j$-th source word and $\ell_j$ its lemma; the lemma vocabulary is small
+(about 900 entries), and therefore generalizes across the inflected forms of a word.
 
-The pretrained model is NLLB-200 \citep{nllb2022}, a massively multilingual encoder--decoder
-that supports Sicilian (\texttt{scn\_Latn}) and is steered by forcing the first decoder token.
-We adapt the 1.3B variant with LoRA \citep{hu2021lora}: freezing $W_0$ and learning a low-rank
-update $W=W_0+\frac{\alpha}{r}BA$ ($r{=}32$, $\alpha{=}64$) on the attention projections, with
-the base in fp16 and the adapters in fp32. Training \emph{both} directions at once (scn$\to$en
-and en$\to$scn) yields a single adapter that serves both and rescues the weak reverse direction.
+\subsection{Pretrained model}
+Our pretrained model is NLLB-200 \citep{nllb2022}, a massively multilingual encoder--decoder that
+supports Sicilian (\texttt{scn\_Latn}) and selects the target language through the first token
+forced on the decoder. We adapt its 1.3B variant with LoRA \citep{hu2021lora}: the pretrained
+weights $W_0$ of the query, key, value and output projections of the attention are frozen, and a
+low-rank update is learned, which gives $W=W_0+\frac{\alpha}{r}BA$ with $r{=}32$, $\alpha{=}64$
+and dropout 0.05 on the adapter (about 18.9M trainable parameters, i.e., 1.4\% of the model). As usual, the base model is kept in fp16 and the adapters in fp32; training uses a learning rate of
+$2\cdot 10^{-4}$ and sentences of at most 128 tokens, and decoding uses beam search with 5 beams.
+One adapter is trained on both directions at once (scn$\to$en and en$\to$scn), and one on four (scn$\leftrightarrow$en and it$\leftrightarrow$scn). For the back-translation experiment of section~\ref{sec:results}, we translate into Sicilian with the bidirectional adapter the 7{,}592 English sentences left unaligned by the first extraction, keep the 7{,}498 synthetic pairs whose length ratio is between 0.5 and 2 and whose Sicilian side is new, and train on them and on the web set a further adapter for scn$\to$en, for one epoch.
+
+\subsection{Staged training}
+\label{sec:staged}
+The reverse-training recipe of the second author builds a custom pretrained model in stages: a
+bidirectional Italian--English model trained on ParaCrawl, then the same model trained further
+on Sicilian forward-translations of that text, then a stage on back-translations of the NLLB
+Sicilian and finally the fine-tuning on \emph{Arba Sicula}. Since NLLB-200 already provides a
+multilingual pretraining, we keep only the last two stages, which require data that he prepared for this work (distinct from the back-translations of his earlier experiments mentioned in section~\ref{sec:standardization}). Starting from the monolingual Sicilian of NLLB (1{,}057{,}469 sentences), he
+back-translated it into English and Italian with his models, and scored each synthetic pair by the negative log-probability that its real side is a translation of the synthetic one (the lower, the better); since his models were trained on the literary standard, a standard Sicilian sentence usually obtains a lower score than a dialectal one. He did the same with the English side of the NLLB data (translated into Sicilian), with 941{,}391 Italian sentences of WikiMatrix (translated into Sicilian) and with the monolingual Sicilian of his sheets. Our second stage takes, for each of these
+files, the 100{,}000 pairs with the lowest score among those that pass a few filters: no unknown
+token, at least five words on each side, a source that is neither equal to nor a near-copy of the
+target (similarity below 0.9), no overlap with the test set, and a Sicilian side that does not
+end its words in -o more often than in -u (an inexpensive test against Italian passing as Sicilian, which tends to obtain the lowest scores). Together, the six lists cover the directions
+scn$\to$en, en$\to$scn, it$\to$scn and scn$\to$it, and 100{,}000 natural it--en pairs of
+WikiMatrix are added in both directions; the adapter is trained on them for one epoch. Finally, the third stage continues the same adapter on the curated set of section~\ref{sec:datasets} in the four
+directions scn$\leftrightarrow$en and scn$\leftrightarrow$it, for two epochs.
+
+Furthermore, the second author proposed not to discard the pairs with the worst scores, which contain
+the dialectal, Italian and Corsican text that the second stage filters out, but to spend them in a first, coarse stage, which spreads the output probabilities across the dialects and leaves broad peaks roughly in the right places, and to let the later stages sharpen them. This curriculum prepends to the two stages above one epoch on the
+200{,}000 worst-scoring pairs of each file (with at least three words on each side and no filter
+on the endings), and is otherwise identical to them, so that the two runs can be compared.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  EVALUATION
 
 \section{Evaluation}
-We score with sacreBLEU \citep{post2018sacrebleu}, i.e.\ BLEU \citep{papineni2002bleu}
-(\texttt{tok:13a}) and chrF \citep{popovic2015chrf}, on the frozen literary test set rather than
-on the NLLB/FLORES set, since the FLORES Sicilian uses the post-2017 orthography and a different,
-non-literary domain and is thus not representative of the Arba Sicula material; the Sockeye rows
-are scored in tokenized space (the same space as the upstream system, the raw-text floor being
-5.27 BLEU), while the NLLB rows are scored on raw text.
+\label{sec:evaluation}
+We score the systems with sacreBLEU \citep{post2018sacrebleu}, i.e., with BLEU
+\citep{papineni2002bleu} (tokenization \texttt{13a}) and chrF \citep{popovic2015chrf}, on the
+frozen literary test set of section~\ref{sec:datasets}. We do not use the FLORES test set of NLLB
+for scn--en, since its Sicilian follows the orthography introduced after 2017 and comes from a
+different, non-literary domain, and is therefore not representative of the \emph{Arba Sicula}
+material; FLORES-200 devtest is used only for it$\leftrightarrow$en, which our test sets do not
+cover. Sockeye systems are scored in tokenized space, as the upstream system was, whereas NLLB systems are scored on raw text, with the Sicilian side normalized as in training for
+the staged runs; the two groups of rows of Table~\ref{tab:results} are thus not strictly
+comparable (on raw text, the floor obtained by copying the source is 5.27 BLEU). Training was
+done on an 8-core CPU for the Sockeye models and on a single Colab GPU for the NLLB adapters. We
+report no running times, since only the quality of the translation is of concern here.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  RESULTS
 
 \section{Results}
-On the frozen held-out test set (1{,}000 literary pairs), the Sicilian$\rightarrow$English
-results are reported in Table~\ref{tab:results}: the Sockeye levers stack from 5.54 to 10.85 BLEU
-on CPU alone, whereas the pretrained NLLB-1.3B wins decisively even zero-shot (29.02), and LoRA
-fine-tuning lifts it to 31.43, above Wdowiak's published baseline (29.1) on our harder test.
+\label{sec:results}
+Table~\ref{tab:results} reports the results on the frozen test set of 1{,}000 literary pairs. In
+the table, ``floor'' is the score of the untranslated source, each row beginning with ``+'' adds
+one component to the row above it, ``raw'' means that NLLB receives the Sicilian text without
+normalization, and a dash marks a direction on which the model was not trained or evaluated. Note that the Sockeye baseline barely exceeds the floor
+(5.54 against 5.27 BLEU), and that the three levers raise it only to 10.85. NLLB-1.3B, on the
+other hand, is much better even zero-shot (29.02 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.21, while en$\to$scn improves from 9.89 to 19.03. Adding the 7{,}498 back-translated
+pairs gives 31.66 on scn$\to$en; this small improvement is consistent with the size of the
+in-domain monolingual pool, which is two orders of magnitude smaller than the back-translations
+used by the staged training.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]\centering
-\caption{Our models, our test set (scn$\rightarrow$en).}\label{tab:results}
-\begin{tabular}{lrr}
+\begin{table}[t]
+\caption{Results on our test set (BLEU / chrF). The upper rows are trained on the web set, the
+staged rows on the back-translations and on the curated set (cf.\ section~\ref{sec:staged}).}
+\label{tab:results}
+\centering
+\begin{tabular}{lcc}
 \toprule
-model & BLEU & chrF \\
+model & scn$\rightarrow$en & en$\rightarrow$scn \\
 \midrule
-floor (copy source) & 5.27 & 25.40 \\
-Sockeye baseline & 5.54 & 28.28 \\
-\;+ lever B (tok.\ + desinences) & 7.24 & 29.52 \\
-\;+ more data & 9.79 & 33.82 \\
-\;+ lever D (lemma source factors) & 10.85 & 35.22 \\
-NLLB-200 1.3B, zero-shot (raw) & 29.02 & 55.23 \\
-NLLB-200 1.3B, LoRA fine-tuned, scn$\rightarrow$en only & 31.16 & 56.79 \\
-NLLB-200 1.3B, LoRA \emph{bidirectional} & 31.43 & 56.94 \\
-\;+ back-translation (7.5k synthetic) & \textbf{31.60} & \textbf{57.21} \\
+floor (copy source) & 5.27 / 25.40 & -- \\
+Sockeye baseline & 5.54 / 28.28 & -- \\
+\;+ lever B (tok.\ + desinences) & 7.24 / 29.52 & -- \\
+\;+ more data & 9.79 / 33.82 & -- \\
+\;+ lever D (lemma source factors) & 10.85 / 35.22 & -- \\
+\midrule
+NLLB-200 1.3B, zero-shot (raw) & 29.02 / 55.23 & 9.89 / 41.12 \\
+LoRA, bidirectional & 31.21 / 56.77 & 19.03 / 49.91 \\
+\;+ back-translation (7{,}498 pairs) & 31.66 / 57.25 & -- \\
+\midrule
+staged (back-translations, then curated) & 32.40 / 58.19 & 21.72 / 52.79 \\
+curriculum (coarse stage first) & \TODO{} & \TODO{} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-In the reverse direction (en$\rightarrow$scn), the same bidirectional adapter lifts NLLB-1.3B
-from 9.89 (zero-shot) to 18.73 BLEU / 49.96 chrF, nearly doubling the weak direction at no cost
-to scn$\rightarrow$en and giving a usable two-way model. This is still below the published
-en$\rightarrow$scn baseline (25.1); back-translation is the next lever.
+Staged training gives the best results in both directions, with 32.40 BLEU on scn$\to$en
+and 21.72 on en$\to$scn; the gain over the bidirectional adapter is 1.19 BLEU on scn$\to$en
+and 2.69 on en$\to$scn, which may be due to the back-translations having been selected for the quality of their Sicilian, i.e., of the target side of en$\to$scn. We remark that this
+comparison mixes two changes, since the staged run replaces the web set with the curated one as
+well as adding the back-translations; we have not trained the curated set alone.
+\TODO{curriculum: compare with the staged run, both directions, and say whether the coarse stage
+helps.}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  (par) Italian directions (it<->scn)
 
-\paragraph{Italian directions (it$\leftrightarrow$scn).}
-Italian is a closely related, much higher-resource Romance language, and NLLB supports
-it$\leftrightarrow$scn natively; we hold out a frozen 1{,}000-pair it--scn test split from the
-WikiMatrix data, evaluate NLLB-1.3B zero-shot, and then fine-tune all four directions jointly
-(scn$\leftrightarrow$en and it$\leftrightarrow$scn) into a single multilingual adapter, a bridge
-in the sense of \citet{johnson2017zeroshot} and \citet{fan2020beyond} (Table~\ref{tab:italian}).
-Italian is by far the easiest pair, as one would expect for a close, high-resource neighbour on
-in-domain WikiMatrix text: scn$\rightarrow$it reaches 43.5 BLEU and it$\rightarrow$scn climbs
-from 17.6 to 27.0. The multilingual adapter costs a little on scn$\leftrightarrow$en
-($30.8/17.5$ against the dedicated $31.4/18.7$), so that one can ship either the trilingual
-all-rounder or the specialised pair.
+\paragraph{Italian directions.}
+Italian is closely related to Sicilian and has much more data, and NLLB supports
+it$\leftrightarrow$scn natively. On the web set, we hold out a frozen it--scn test set of 1{,}000
+pairs from the WikiMatrix data, evaluate NLLB-1.3B zero-shot, and then fine-tune the four
+directions (scn$\leftrightarrow$en and it$\leftrightarrow$scn) jointly into one multilingual
+adapter, which uses Italian as a bridge in the sense of \citet{johnson2017zeroshot} and
+\citet{fan2020beyond}. Table~\ref{tab:italian} reports the results as BLEU / chrF. As one would
+expect for a close, high-resource neighbor on in-domain WikiMatrix text, the Italian pairs are by
+far the ``easiest'': scn$\rightarrow$it reaches 43.70 BLEU, and it$\rightarrow$scn improves from
+17.61 to 27.48. However, the multilingual adapter loses somewhat on scn$\leftrightarrow$en (30.97
+and 17.85 BLEU, against 31.21 and 19.03 for the bidirectional adapter of
+Table~\ref{tab:results}); hence, on the web set the Italian bridge brings no improvement to the
+English directions.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]\centering
-\caption{Trilingual model: all directions, zero-shot vs.\ the multilingual fine-tune
-(BLEU / chrF, frozen test sets).}\label{tab:italian}
+\begin{table}[t]
+\caption{Trilingual adapter on the web set, zero-shot and after fine-tuning (BLEU / chrF). The
+scn--en rows use our test set, the it--scn rows the WikiMatrix one, and the it--en rows the
+FLORES-200 devtest, on which the adapter was not trained.}
+\label{tab:italian}
+\centering
 \begin{tabular}{lcc}
 \toprule
 direction & zero-shot & multilingual FT \\
 \midrule
-scn$\rightarrow$en & 29.02 / 55.23 & 30.75 / 56.57 \\
-en$\rightarrow$scn & 9.89 / 41.12 & 17.49 / 48.78 \\
-it$\rightarrow$scn & 17.61 / 44.77 & \textbf{26.97 / 51.69} \\
-scn$\rightarrow$it & 42.20 / 59.04 & \textbf{43.47 / 59.79} \\
+scn$\rightarrow$en & 29.02 / 55.23 & 30.97 / 56.63 \\
+en$\rightarrow$scn & 9.89 / 41.12 & 17.85 / 48.82 \\
+it$\rightarrow$scn & 17.61 / 44.77 & 27.48 / 51.66 \\
+scn$\rightarrow$it & 42.20 / 59.04 & 43.70 / 59.89 \\
+it$\rightarrow$en & 34.40 / 62.61 & 27.18 / 57.94 \\
+en$\rightarrow$it & 29.43 / 58.63 & 28.76 / 58.06 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+\paragraph{Forgetting of the untrained directions.}
+Since the adapter is trained only on the directions that involve Sicilian, one may ask what happens to the others. On FLORES-200, the trilingual adapter lowers it$\to$en from 34.40 to 27.18
+BLEU and en$\to$it from 29.43 to 28.76 (Table~\ref{tab:italian}), i.e., it forgets a direction
+on which the base model was good and on which it was never trained. This is the transfer from
+high- to low-resource languages described by \citet{johnson2017zeroshot}, and it limits the use
+of the adapter as a general multilingual model; the translation between Sicilian and the other
+languages of NLLB (e.g., Spanish, French or Portuguese) is probably affected as well, although we
+have not measured it.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  (par) relation to the state of the art
 
 \paragraph{Relation to the state of the art.}
-We do not beat the state of the art. On his own in-domain, hand-selected test set Wdowiak's
-reverse-training system reports En$\rightarrow$Sc/Sc$\rightarrow$En BLEU of 45.1/48.6 and
-It$\rightarrow$Sc/Sc$\rightarrow$It of 61.4/62.9, well ahead of our 18.7/31.6 and 27.0/43.5 on
-every direction (his earlier marks were 25.1/29.1 for the baseline and 35.0/36.8 augmented).
-These numbers are not a head-to-head, since the test sets differ, but the gap is too large to be
-explained by that alone: on Sc$\rightarrow$en we only clear his baseline (31.6 against 29.1), on
-a harder test, and we trail elsewhere. His reverse-training, we remark, builds a custom
-pretrained model from tens of millions of pairs (forward-translation, then back-translation, in
-three stages) before fine-tuning on \emph{Arba Sicula}, a pipeline infeasible to reproduce on a
-single GPU; NLLB-200, however, already provides that massive multilingual pretraining, so that
-our fine-tune is the analogue of his stage 3. We applied the feasible parts of his recipe on top
-of NLLB and each adds little, i.e.\ the multilingual Italian bridge, orthographic normalisation
-($+0.4$ BLEU) and back-translation ($+0.17$, capped by our 7.6k in-domain monolingual pool
-against his $\sim$550k); the method gap is therefore largely closed, and the residual is data,
-namely his hand-curated, standardised corpus, far more back-translation, and an in-domain test
-set, which argues for combining his corpus with our pipeline rather than competing with it.
+\label{sec:sota}
+Our results remain below the best published ones, as Table~\ref{tab:sota} shows direction by
+direction. Its first three columns are the results of the second author: the baseline and the
+larger many-to-many model of \citet{wdowiak2022loresnmt} (the latter trained with
+back-translations and, for the Italian directions, with the trilingual textbook exercises), and
+the third stage of his reverse-training system \citep{wdowiakreverse}, all measured on his test
+set, which was drawn by hand from the issues AS38 and AS39 of the journal. The other columns are
+ours: NLLB-1.3B zero-shot, the adapter trained on the web set (the bidirectional one for
+scn$\leftrightarrow$en, the trilingual one for the other directions), and the two staged runs of
+section~\ref{sec:staged}, which were evaluated on scn$\leftrightarrow$en only. Our scn--en rows
+use our frozen test set, the it--scn rows the WikiMatrix one and the it--en rows the FLORES-200
+devtest, and a dash marks a direction that was not reported. Since the two test sets come from similar material but differ, this is not a direct comparison;
+yet, the gap is too large to be due to the test set only, since we exceed his baseline on
+scn$\rightarrow$en (32.40 against 29.1) and remain below it on en$\rightarrow$scn (21.72
+against 25.1). Also, the shape of the results differs. His model learned Sicilian by adapting an
+Italian--English one, and its scores fall into three nearly equal groups (from English, into
+English and between Romance languages); ours are uneven, with en$\rightarrow$scn the weakest
+and scn$\rightarrow$it the strongest, which is consistent with a model that learned Sicilian as
+one of 200 languages. Furthermore, the parts of his recipe that could be applied on top of NLLB give
+less than one might expect: orthographic normalization adds about 0.4 BLEU, the Italian bridge
+slightly lowers scn$\leftrightarrow$en, and the staged training on his back-translations and on the curated set adds 1.19 BLEU on scn$\to$en and 2.69 on en$\to$scn. The first stage of his recipe, i.e., the adaptation of an
+Italian--English model to Sicilian, is the part that we have not reproduced, and it may account
+for much of the remaining gap.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+\begin{table}[t]
+\caption{Published results of the second author against ours (BLEU). His results are on his
+test set, ours on the test sets of section~\ref{sec:evaluation}; hence, the comparison is
+indirect (cf.\ section~\ref{sec:sota}).}
+\label{tab:sota}
+\centering
+\small
+\begin{tabular}{lccccccc}
+\toprule
+ & \multicolumn{3}{c}{Wdowiak} & \multicolumn{4}{c}{ours (NLLB-200 1.3B)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8}
+direction & baseline & many-to-many & reverse & zero-shot & web & staged & curriculum \\
+\midrule
+en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 9.89  & 19.03 & 21.72 & \TODO{} \\
+scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 29.02 & 31.21 & 32.40 & \TODO{} \\
+it$\rightarrow$scn & --   & 36.5 & 61.4 & 17.61 & 27.48 & --    & -- \\
+scn$\rightarrow$it & --   & 30.9 & 62.9 & 42.20 & 43.70 & --    & -- \\
+it$\rightarrow$en  & --   & --   & 48.2 & 34.40 & 27.18 & --    & -- \\
+en$\rightarrow$it  & --   & --   & 46.7 & 29.43 & 28.76 & --    & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  CONCLUSION and FUTURE WORK
 
 \section{Conclusion and Future Work}
-We have presented a reproducible, Perl-free path from Arba Sicula PDFs to a Sicilian--English
-NMT system, comprising an automated extraction-and-alignment pipeline, the paper's tokenization
-and desinence recipe with an added linguistic-feature lever, and NLLB-200 adapted with LoRA. On
-our harder literary test set the best model reaches 31.6 BLEU (scn$\rightarrow$en), above the
-published baseline but well below Wdowiak's reverse-training state of the art; having applied the
-feasible parts of his recipe on top of NLLB (multilingual Italian bridging, orthographic
-normalisation and back-translation), each for only a small gain, we conclude that the residual is
-data, namely his hand-curated corpus, far more back-translation, and an in-domain test set, which
-makes a concrete case for combining his corpus with our pipeline. We also release the serving
-code (a local web app and a Telegram bot, a FastAPI service over the NLLB adapter); all code, the
-data pipeline and the evaluation harness are released for reproducibility.
+\label{sec:conclusion}
+We have rebuilt, on maintained software and without Perl, the path from the PDFs of \emph{Arba
+Sicula} to a Sicilian--English NMT system, i.e., the extraction, alignment and cleaning of the
+parallel text, the tokenization and desinence-biased segmentation of the original system with
+an added lemma source factor, and the adaptation of NLLB-200 with LoRA, trained in stages on the
+back-translations of the second author and on the curated literary text. On our test set the
+best model reaches 32.40 BLEU on scn$\rightarrow$en and 21.72 on en$\rightarrow$scn, above the
+published baseline of the original system in the first direction but well below the
+reverse-training results in both. \TODO{update with the curriculum run.}
+
+Several extensions are open. In particular, the aligner could merge the short verses of poetry, as simulated in
+section~\ref{sec:dataquality}, and could collect the Sicilian left unaligned as well as the
+English, which would enlarge the in-domain pool for back-translation. Also, the training data could be weighted by quality, e.g., favoring the issues published after 1998 or the texts written or
+translated by Cipolla, whose style varies less than that of the whole journal (the hard part
+being to identify them, since the issues carry no such metadata). If the back-translations of
+the web Sicilian turn out to be of little use, forward-translations produced by a small model
+trained on the literary text are an alternative for the pretraining stage. Furthermore, the forgetting of the untrained directions could be limited by mixing into the adaptation a large multi-parallel corpus
+(e.g., Bible translations in many directions), at the price of a much longer training. It would
+also be interesting to compare the encoder representations of translated sentences under
+bidirectional and unidirectional training, and at different depths, as suggested by the second
+author, and to measure how much the textbook exercises contribute. Finally, the same pipeline
+may be applied to varieties close to Sicilian, such as Calabrese and Salentino, whose written
+texts show the same orthographic diversity.
+
+Our code for the pipeline and the evaluation is publicly available, together with a small
+serving application (a web interface and a Telegram bot, both built on a FastAPI service over
+the NLLB adapter); the text of the journal is under copyright, and the hand-aligned sheets are
+not public, so the datasets are not released.
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+%%  ACKNOWLEDGMENTS
+
+\section*{Acknowledgments}
+We thank Gaetano Cipolla, Arba Sicula and Legas for granting permission to use the digital
+archive of \emph{Arba Sicula}, and for 47 years of work on the journal.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
