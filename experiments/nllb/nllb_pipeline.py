@@ -44,12 +44,22 @@ def load_base(model_id: str = DEFAULT_MODEL, adapter: str | None = None):
     return model.to(device).eval(), tok
 
 
-def attach_lora(model, r: int = 32, alpha: int = 64, dropout: float = 0.05):
-    """Wrap with a LoRA adapter on the attention projections; keep adapter params in fp32."""
-    from peft import LoraConfig, get_peft_model
-    ft = get_peft_model(model, LoraConfig(
-        r=r, lora_alpha=alpha, lora_dropout=dropout, bias="none",
-        target_modules=["q_proj", "k_proj", "v_proj", "out_proj"], task_type="SEQ_2_SEQ_LM"))
+ATTN = ("q_proj", "k_proj", "v_proj", "out_proj")
+ATTN_FFN = ATTN + ("fc1", "fc2")
+
+
+def attach_lora(model, r: int = 32, alpha: int = 64, dropout: float = 0.05,
+                targets=ATTN, adapter: str | None = None):
+    """Wrap with a LoRA adapter (on the attention projections by default; ATTN_FFN adds the
+    feed-forward layers), or reopen a saved `adapter` for further training. The adapter
+    parameters are kept in fp32."""
+    from peft import LoraConfig, PeftModel, get_peft_model
+    if adapter:
+        ft = PeftModel.from_pretrained(model, adapter, is_trainable=True)
+    else:
+        ft = get_peft_model(model, LoraConfig(
+            r=r, lora_alpha=alpha, lora_dropout=dropout, bias="none",
+            target_modules=list(targets), task_type="SEQ_2_SEQ_LM"))
     for p in ft.parameters():
         if p.requires_grad:
             p.data = p.data.float()
@@ -72,18 +82,26 @@ def build_dataset(tok, directions, max_len: int = 128, seed: int = 13):
 
 
 def finetune(ft, tok, dataset, out_dir: str, epochs: int = 2, lr: float = 2e-4,
-             batch_size: int = 4, grad_accum: int = 4):
-    """LoRA fine-tune (fp16, gradient checkpointing). Saves the adapter to out_dir."""
+             batch_size: int = 4, grad_accum: int = 4, save: str = "no", save_steps: int = 2000):
+    """LoRA fine-tune (fp16, gradient checkpointing). Saves the adapter to out_dir.
+
+    save="steps" writes a checkpoint every `save_steps` steps (the last two are kept) and
+    save="epoch" one per epoch (all kept, for choosing the epoch on validation); in both
+    cases a run cut short (e.g. a Colab disconnection) resumes from its last checkpoint."""
     from transformers import DataCollatorForSeq2Seq, Seq2SeqTrainer, Seq2SeqTrainingArguments
+    from transformers.trainer_utils import get_last_checkpoint
     _free()
+    trainer_dir = f"{out_dir}-trainer"
     args = Seq2SeqTrainingArguments(
-        output_dir=f"{out_dir}-trainer", num_train_epochs=epochs,
+        output_dir=trainer_dir, num_train_epochs=epochs,
         per_device_train_batch_size=batch_size, gradient_accumulation_steps=grad_accum,
         gradient_checkpointing=True, gradient_checkpointing_kwargs={"use_reentrant": False},
         learning_rate=lr, fp16=torch.cuda.is_available(), logging_steps=100,
-        save_strategy="no", report_to=[])
+        save_strategy=save, save_steps=save_steps,
+        save_total_limit=2 if save == "steps" else None, report_to=[])
+    last = get_last_checkpoint(trainer_dir) if save != "no" and os.path.isdir(trainer_dir) else None
     Seq2SeqTrainer(model=ft, args=args, train_dataset=dataset,
-                   data_collator=DataCollatorForSeq2Seq(tok, model=ft)).train()
+                   data_collator=DataCollatorForSeq2Seq(tok, model=ft)).train(resume_from_checkpoint=last)
     ft.save_pretrained(out_dir)
     ft.eval()
     ft.config.use_cache = True

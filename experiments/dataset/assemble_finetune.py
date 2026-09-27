@@ -14,8 +14,11 @@ Sources
   - Ours: data/processed/napizia_magazine (scn/en, and scn/it where present).
   - Ours: data/processed/napizia_manifesto (scn/en, Young Sicilian Manifesto).
   - Ours: data/processed/napizia_site (scn/en, the main Napizia pages Eryk listed).
-  - Ours: data/processed/arbasicula*/corpus.{scn,en}, our Arba Sicula PDF extraction for
-    the issues Eryk lacks (AS01-18, AS21, AS43-46) via build_all.py.
+  - Ours: data/processed/as_full_gift/corpus.tsv, our extraction of the whole Arba Sicula
+    archive (build_all.py), taken for every born-digital issue (--as-min-vol, default 19):
+    Eryk's sheets cover 10-20% of an issue, so the two are complements and the dedup drops
+    the repeats. The scans AS01-18 and AS21 carry no accents and stay out unless
+    --as-include-scans is given.
 
     python experiments/dataset/assemble_finetune.py \
         --ods ~/Downloads/eryk/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods

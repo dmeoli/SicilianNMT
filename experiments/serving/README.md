@@ -11,7 +11,7 @@ static/          the local web front-end (Sicilian blue+gold), calls /translate
 telegram_bot.py  Telegram bot (BotFather token); in-process or via the API
 ```
 
-`src`/`tgt` are `scn` or `en`.
+`src`/`tgt` are `scn`, `en` or `it`.
 
 ## Run
 
