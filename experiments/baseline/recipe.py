@@ -21,6 +21,7 @@ subwords and scoring run in the notebook's Python.
 from __future__ import annotations
 import json
 import os
+import shutil
 import subprocess
 import sys
 
@@ -51,8 +52,13 @@ def _write(p, lines):
     open(p, 'w', encoding='utf-8').write('\n'.join(lines) + '\n')
 
 
-def _sh(*cmd, **kw):
-    print('$', ' '.join(cmd)[:160]); subprocess.run(cmd, check=True, **kw)
+def _sh(*cmd):
+    """Run a command; on failure show the tail of its output, which Colab would not print."""
+    print('$', ' '.join(cmd)[:160])
+    p = subprocess.run(cmd, capture_output=True, text=True)
+    if p.returncode:
+        print('\n'.join((p.stdout + p.stderr).splitlines()[-60:]))
+        raise RuntimeError(f'{os.path.basename(cmd[0])} failed with exit status {p.returncode}')
 
 
 def prepare(name, root):
@@ -101,6 +107,8 @@ def run(name, root, src, tgt, sockeye_bin):
         _sh(sk('sockeye-prepare-data'), '--source', f'{w}/train.bpe.{src}', '--target', f'{w}/train.bpe.{tgt}',
             '--max-seq-len', '200', '--output', prep)
     if not os.path.exists(f'{model}/params.best'):
+        if os.path.isdir(model) and not os.path.isdir(f'{model}/training_state'):
+            shutil.rmtree(model)       # a failed start, not a resumable run: Sockeye would refuse it
         _sh(sk('sockeye-train'), '--prepared-data', prep, '--output', model,
             '--validation-source', f'{w}/valid.bpe.{src}', '--validation-target', f'{w}/valid.bpe.{tgt}',
             *TRAIN_ARGS)
