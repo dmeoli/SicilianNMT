@@ -81,6 +81,52 @@ def load_scored(path, src, tgt, k, ban, minw=5, copy=0.9):
     return ([r[1] for r in kept], [r[2] for r in kept], src, tgt)
 
 
+DIRS6 = [('en', 'scn'), ('scn', 'en'), ('it', 'scn'), ('scn', 'it'), ('it', 'en'), ('en', 'it')]
+_TOKDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'tokenization')
+
+
+def tokenized_bleu(hyp, ref, lang):
+    """BLEU in the space of the Napizia tokenizer (accents folded, contractions undone), where
+    E. Wdowiak scored his models; Italian goes through the English tokenizer."""
+    import sys
+    from sacrebleu.metrics import BLEU
+    if _TOKDIR not in sys.path:
+        sys.path.append(_TOKDIR)
+    from sicilian_tok import tokenize
+    tk = 'sc' if lang == 'scn' else 'en'
+    return round(BLEU(tokenize='none', force=True).corpus_score(
+        [tokenize(x, tk) for x in hyp], [[tokenize(x, tk) for x in ref]]).score, 2)
+
+
+def clean_lines(eryk, paths):
+    """Indices of the lines of E. Wdowiak's test that appear in none of the given training files
+    (in any tab-separated column, raw or std-normalized); lines under 3 words are ignored."""
+    lines = {}
+    for i in range(len(eryk['scn'])):
+        for x in (eryk['scn'][i], normalize(eryk['scn'][i], 'std'), eryk['en'][i], eryk['it'][i]):
+            if len(x.split()) >= 3:
+                lines.setdefault(x.strip(), set()).add(i)
+    dirty = set()
+    for p in paths:
+        for line in open(p, encoding='utf-8'):
+            for c in line.rstrip('\n').split('\t'):
+                dirty |= lines.get(_TAG.sub('', c).strip(), set())
+    return [i for i in range(len(eryk['scn'])) if i not in dirty]
+
+
+def eryk_scores(model, tok, eryk, keep=None, dec_len=160, beams=5):
+    """Raw and tokenized-space BLEU on E. Wdowiak's test in the six directions (restricted to
+    the line indices in `keep`, if given)."""
+    idx = range(len(eryk['scn'])) if keep is None else keep
+    sets = {l: [eryk[l][i] for i in idx] for l in ('scn', 'en', 'it')}
+    sets['scn'] = [normalize(x, 'std') for x in sets['scn']]
+    out = {}
+    for s, t in DIRS6:
+        hyp = translate(model, tok, sets[s], s, t, max_len=dec_len, beams=beams)
+        out[f'{s}->{t}'] = {'raw': score(hyp, sets[t])[0], 'tokenized': tokenized_bleu(hyp, sets[t], t)}
+    return out
+
+
 def _scores(model, tok, sets, dec_len=160, beams=5):
     return {f'{s}->{t}': score(translate(model, tok, sets[s], s, t, max_len=dec_len, beams=beams), sets[t])
             for s, t in [('scn', 'en'), ('en', 'scn')]}
@@ -96,8 +142,13 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
     bt, ft_dir = f'{out}/eryk', f'{out}/finetune'
     test = {'scn': [normalize(x, 'std') for x in read(f'{data}/test.scn')], 'en': read(f'{data}/test.en')}
     valid = {'scn': [normalize(x, 'std') for x in read(f'{data}/valid.scn')], 'en': read(f'{data}/valid.en')}
+    # E. Wdowiak's hand-selected test (AS38-39, trilingual, the 121 lines of his `validation`
+    # sheet) is held out too, so that the models can be compared with his on his own test
+    eryk = {l: read(f'{ft_dir}/valid.{l}') for l in ('scn', 'en', 'it')}
     ban = (set(test['scn']) | set(read(f'{data}/test.scn')) | set(test['en'])
-           | set(valid['scn']) | set(read(f'{data}/valid.scn')) | set(valid['en']))
+           | set(valid['scn']) | set(read(f'{data}/valid.scn')) | set(valid['en'])
+           | set(eryk['scn']) | {normalize(x, 'std') for x in eryk['scn']}
+           | set(eryk['en']) | set(eryk['it']))
     s2_dir, s3_dir = f'{out}/nllb-lora-{name}-stage2', f'{out}/nllb-lora-{name}'
 
     # stage 2: back-translations + natural it-en (skipped if its adapter is already saved)
@@ -117,7 +168,7 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
     tr = {'scn': read(f'{ft_dir}/train.scn-en.scn'), 'en': read(f'{ft_dir}/train.scn-en.en')}
     ti = {'scn': read(f'{ft_dir}/train.scn-it.scn'), 'it': read(f'{ft_dir}/train.scn-it.it')}
     se = [(s, e) for s, e in zip(tr['scn'], tr['en']) if s not in ban and e not in ban]
-    si = [(s, i) for s, i in zip(ti['scn'], ti['it']) if s not in ban]
+    si = [(s, i) for s, i in zip(ti['scn'], ti['it']) if s not in ban and i not in ban]
     ds3 = build_dataset(tok, [([s for s, _ in se], [e for _, e in se], 'scn', 'en'),
                               ([e for _, e in se], [s for s, _ in se], 'en', 'scn'),
                               ([s for s, _ in si], [i for _, i in si], 'scn', 'it'),
@@ -141,6 +192,8 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
                           stage2_epochs=stage2_epochs, stage3_epochs=stage3_epochs, model=model_id,
                           max_len=max_len, dec_len=dec_len, beams=beams),
            'valid_curve': curve, 'epoch': best[2], 'test': _scores(m, tok, test, dec_len, beams)}
+    res['eryk_test'] = eryk_scores(m, tok, eryk, dec_len=dec_len, beams=beams)
     print(f'{name}: epoch {best[2]} chosen on validation, test {res["test"]}')
+    print(f'{name}: on the test of E. Wdowiak {res["eryk_test"]}')
     json.dump(res, open(res_path, 'w'), indent=2)
     return res
