@@ -6,7 +6,9 @@ His configuration (dataset/sockeye_n30_sw3000 in the history of his repository):
 tokenization (accents folded, contractions undone), separate subword vocabularies per language
 with 3000 merges, the Sicilian one learned with the Dieli and Chiu da Palora inflections
 appended once each, and a Transformer with 3 layers, model size 256, 4 heads, feed-forward
-1024, dropout 0.5 on the embeddings and 0.25 elsewhere, label smoothing 0.1, Adam with learning
+1024, the target embeddings tied to the output layer (the default of his Sockeye 1, and the only
+tying compatible with separate vocabularies), dropout 0.5 on the embeddings and 0.25 elsewhere,
+label smoothing 0.1, Adam with learning
 rate 1.5e-4, batches of 20 sentences, at most 20 epochs, early stopping after 4 checkpoints
 without improvement, a checkpoint every 725 updates. Two deliberate differences: he stopped on
 his test set, we stop on 500 lines of our validation set, and he started each model from the
@@ -40,6 +42,7 @@ TRAIN_ARGS = ['--batch-size', '20', '--batch-type', 'sentence',
               '--transformer-feed-forward-num-hidden', '1024',
               '--embed-dropout', '0.5', '--transformer-dropout-attention', '0.25',
               '--transformer-dropout-act', '0.25', '--transformer-dropout-prepost', '0.25',
+              '--weight-tying-type', 'trg_softmax',
               '--label-smoothing', '0.1', '--optimizer', 'adam',
               '--initial-learning-rate', '0.00015', '--seed', '13']
 
