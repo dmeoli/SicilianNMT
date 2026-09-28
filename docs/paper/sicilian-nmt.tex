@@ -81,8 +81,7 @@ trained from scratch with the pretrained NLLB model adapted by low-rank fine-tun
 directions and with Italian as a closely related bridge language, and we adapt to the pretrained
 model the reverse-training recipe of the original system, i.e., a stage on forward-scored
 back-translations of the web Sicilian followed by a stage on the curated literary text. The
-pretrained model is by far the better of the two, and the staged training improves the
-translation into Sicilian much more than the translation from it. Yet, both directions remain well below the results that the original recipe obtains on its test set, and a multilingual adapter degrades the directions on which it was not trained, which limits its use as a general multilingual model.
+pretrained model is by far the better of the two, and the staged training improves the translation into Sicilian more than the translation from it. Yet, both directions remain well below the results that the original recipe obtains on its test set, and a multilingual adapter degrades the directions on which it was not trained, which limits its use as a general multilingual model.
 \end{abstract}
 
 
@@ -596,20 +595,24 @@ LoRA, bidirectional & 31.21 / 56.77 & 19.03 / 49.91 \\
 \;+ back-translation (7{,}498 pairs) & 31.66 / 57.25 & -- \\
 \midrule
 staged (back-translations, then curated) & 32.40 / 58.19 & 21.72 / 52.79 \\
-curriculum (coarse stage first) & \TODO{} & \TODO{} \\
+curriculum (coarse stage first) & 33.01 / 58.62 & 21.78 / 52.94 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-Staged training gives the best results in both directions, with 32.40 BLEU on scn$\to$en
+Staged training improves both directions, with 32.40 BLEU on scn$\to$en
 and 21.72 on en$\to$scn; the gain over the bidirectional adapter is 1.19 BLEU on scn$\to$en
 and 2.69 on en$\to$scn, which may be due to the back-translations having been selected for the quality of their Sicilian, i.e., of the target side of en$\to$scn. We remark that this
 comparison mixes two changes, since the staged run replaces the web set with the curated one as
 well as adding the back-translations; we have not trained the curated set alone.
-\TODO{curriculum: compare with the staged run, both directions, and say whether the coarse stage
-helps.}
+Prepending the coarse stage of section~\ref{sec:staged} raises scn$\to$en to 33.01 BLEU (58.62 chrF), 0.61 more than the
+staged run, while en$\to$scn is essentially unchanged (21.78 against 21.72). Repeated runs of the
+bidirectional adapter differ by up to about 0.2 BLEU on scn$\to$en and 0.5 on en$\to$scn, and
+therefore the first difference is probably real and the second is within the noise. Of course,
+the curriculum also trains for one more epoch on about 826{,}000 pairs, and hence we cannot tell
+whether its benefit comes from the dialectal text itself or from the longer training.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -680,7 +683,7 @@ section~\ref{sec:staged}, which were evaluated on scn$\leftrightarrow$en only. O
 use our frozen test set, the it--scn rows the WikiMatrix one and the it--en rows the FLORES-200
 devtest, and a dash marks a direction that was not reported. Since the two test sets come from similar material but differ, this is not a direct comparison;
 yet, the gap is too large to be due to the test set only, since we exceed his baseline on
-scn$\rightarrow$en (32.40 against 29.1) and remain below it on en$\rightarrow$scn (21.72
+scn$\rightarrow$en (33.01 against 29.1) and remain below it on en$\rightarrow$scn (21.78
 against 25.1). Also, the shape of the results differs. His model learned Sicilian by adapting an
 Italian--English one, and its scores fall into three nearly equal groups (from English, into
 English and between Romance languages); ours are uneven, with en$\rightarrow$scn the weakest
@@ -706,8 +709,8 @@ indirect (cf.\ section~\ref{sec:sota}).}
 \cmidrule(lr){2-4} \cmidrule(lr){5-8}
 direction & baseline & many-to-many & reverse & zero-shot & web & staged & curriculum \\
 \midrule
-en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 9.89  & 19.03 & 21.72 & \TODO{} \\
-scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 29.02 & 31.21 & 32.40 & \TODO{} \\
+en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 9.89  & 19.03 & 21.72 & 21.78 \\
+scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 29.02 & 31.21 & 32.40 & 33.01 \\
 it$\rightarrow$scn & --   & 36.5 & 61.4 & 17.61 & 27.48 & --    & -- \\
 scn$\rightarrow$it & --   & 30.9 & 62.9 & 42.20 & 43.70 & --    & -- \\
 it$\rightarrow$en  & --   & --   & 48.2 & 34.40 & 27.18 & --    & -- \\
@@ -727,9 +730,11 @@ Sicula} to a Sicilian--English NMT system, i.e., the extraction, alignment and c
 parallel text, the tokenization and desinence-biased segmentation of the original system with
 an added lemma source factor, and the adaptation of NLLB-200 with LoRA, trained in stages on the
 back-translations of the second author and on the curated literary text. On our test set the
-best model reaches 32.40 BLEU on scn$\rightarrow$en and 21.72 on en$\rightarrow$scn, above the
-published baseline of the original system in the first direction but well below the
-reverse-training results in both. \TODO{update with the curriculum run.}
+best model, i.e., the curriculum proposed by the second author, reaches 33.01 BLEU on
+scn$\rightarrow$en and 21.78 on en$\rightarrow$scn, above the published baseline of the original
+system in the first direction but below it in the second, and well below the reverse-training
+results in both; its coarse stage on the badly scored back-translations helps the translation
+from Sicilian, but not the one into it.
 
 Several extensions are open. In particular, the aligner could merge the short verses of poetry, as simulated in
 section~\ref{sec:dataquality}, and could collect the Sicilian left unaligned as well as the
