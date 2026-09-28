@@ -32,6 +32,7 @@ data/processed/
 data/dataset/
 # PRIVATE: contains Eryk's non-shareable spreadsheet data
 data/finetune/
+data/recipe/
 __pycache__/
 data/baseline*/
 
