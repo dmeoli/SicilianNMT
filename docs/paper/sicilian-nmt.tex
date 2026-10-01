@@ -752,6 +752,58 @@ en$\rightarrow$it  & --   & --   & 46.7 & 47.31 / 45.89 & 49.27 / 48.69 & 49.14 
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
+%%  (par) reproduction of the original baseline
+
+\paragraph{Reproduction of the original baseline.}
+In order to separate the effect of the model from that of the data, we have also retrained the
+2022 baseline of the second author with his configuration, as recorded in his repository. This
+uses Napizia tokenization, separate BPE vocabularies of 3{,}000 merges per language (the Sicilian one
+learned with the inflections of the Dieli and Chiu da Palora vocabularies appended), and a
+Transformer with 3 layers, model size 256, 4 heads and feed-forward size 1{,}024, whose target
+embeddings are tied to the output layer. Dropout is 0.5 on the embeddings and 0.25 elsewhere,
+with label smoothing 0.1, and the model is trained with Adam (learning rate $1.5\cdot 10^{-4}$,
+batches of 20 sentences) for at most 20 epochs, with Sockeye 3 instead of his Sockeye 1. We
+train it on three sets, i.e., (A) his hand-aligned sheets, (B) our automatic alignment of the
+born-digital issues with the textbook exercises, and (C) both, deduplicated, each guarded against
+his test set and against the validation lines, and we score it on his test set in the tokenized
+space, as in Table~\ref{tab:sota}; Table~\ref{tab:recipe} reports the results.
+
+On his data, the reproduction remains well below the published scores (15.97 against 25.1
+BLEU on en$\rightarrow$scn, and 16.65 against 29.1 on scn$\rightarrow$en). Two differences of
+protocol may account for at least part of the gap: he started each model from a previously
+trained one rather than from scratch, and he stopped the training on the test set,
+whereas we stop on 500 lines of our validation set. Also, none of our six runs converged within
+the 20 epochs (the validation score was still improving when the cap was reached), which suggests
+that a longer training, such as the one implied by his warm start, would raise them. Our
+alignment (B) gives 2.8 to 3.5 BLEU less than his sheets, which is consistent with its
+smaller size and with the absence of Dieli's translations of Pitr\`e; however, the two together
+(C) give 22.45 and 20.69 BLEU, i.e., 6.5 and 4.0 more than A, and therefore the
+automatic alignment contributes pairs that the hand alignment does not contain. Of course, all
+these scores remain far below those of the NLLB adapters on the same lines (Table~\ref{tab:sota}).
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
+\begin{table}[t]
+\caption{The 2022 baseline of the second author retrained from scratch with his configuration,
+on three training sets, and scored on his test set in his tokenized space (BLEU). The first row
+is the published score of \citet{wdowiak2022loresnmt}, obtained with a warm start and with the
+training stopped on the test set.}
+\label{tab:recipe}
+\centering
+\begin{tabular}{lrcc}
+\toprule
+training set & pairs & en$\rightarrow$scn & scn$\rightarrow$en \\
+\midrule
+published (his sheets) & -- & 25.1 & 29.1 \\
+A (his sheets) & 20{,}220 & 15.97 & 16.65 \\
+B (our alignment) & 18{,}503 & 13.20 & 13.14 \\
+C (both) & 31{,}730 & 22.45 & 20.69 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
+
 %%  CONCLUSION and FUTURE WORK
 
 \section{Conclusion and Future Work}
@@ -768,7 +820,9 @@ of the second author and in his tokenized space, the staged model reaches 45.07 
 Sicilian and 56.43 from it (on the lines absent from its training data), i.e., the level of his
 reverse-training system in the first direction and 7.8 BLEU above it in the second. Hence, the
 low score into Sicilian on our test set is probably due to the test set and to the metric more
-than to the model.
+than to the model. Retrained from scratch with his configuration, the original baseline does not reach its
+published scores on his data, while our alignment added to his sheets raises it by 4.0 to 6.5
+BLEU.
 
 Several extensions are open. In particular, the aligner could merge the short verses of poetry, as simulated in
 section~\ref{sec:dataquality}, and could collect the Sicilian left unaligned as well as the
