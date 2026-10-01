@@ -25,7 +25,7 @@ sys.path.insert(0, str(REPO / "experiments/nllb"))
 from nllb_pipeline import load_base, score  # reuse loader + sacreBLEU scorer
 
 FLORES = REPO / "data/external/flores/flores200_dataset/devtest"
-ADAPTER = Path("/home/david/Insync/donato.meoli.95@gmail.com/Google Drive/"
+ADAPTER = Path("/home/david/GDrive/"
                "SicilianNMT-colab/nllb-lora-multi-1.3B")
 CODE = {"scn": "scn_Latn", "es": "spa_Latn", "fr": "fra_Latn", "pt": "por_Latn",
         "en": "eng_Latn", "it": "ita_Latn"}
