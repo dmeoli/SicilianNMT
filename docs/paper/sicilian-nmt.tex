@@ -81,7 +81,7 @@ trained from scratch with the pretrained NLLB model adapted by low-rank fine-tun
 directions and with Italian as a closely related bridge language, and we adapt to the pretrained
 model the reverse-training recipe of the original system, i.e., a stage on forward-scored
 back-translations of the web Sicilian followed by a stage on the curated literary text. The
-pretrained model is by far the better of the two, and the staged training improves the translation into Sicilian more than the translation from it. Yet, both directions remain well below the results that the original recipe obtains on its test set, and a multilingual adapter degrades the directions on which it was not trained, which limits its use as a general multilingual model.
+pretrained model is by far the better of the two, and the staged training improves the translation into Sicilian more than the translation from it. On the test set of the original system, and in the tokenized space in which it was scored, the staged model is on a par with the reverse-training recipe into Sicilian and above it in most of the other directions. Yet, a multilingual adapter degrades the directions on which it was not trained, which limits its use as a general multilingual model.
 \end{abstract}
 
 
@@ -187,9 +187,9 @@ his hand-aligned sheets are then used together, since the latter cover only a fr
 pairs of each issue. Furthermore, we port to Python the tokenization and the desinence-biased segmentation of the original system, and add a lemma source factor \citep{sennrich2016linguistic} to the from-scratch baseline. Finally, we fine-tune NLLB-200 with LoRA in both directions and
 with Italian as a bridge, and we replace the custom pretraining of the reverse-training recipe
 with the pretraining of NLLB, keeping its second stage (forward-scored back-translations of the
-web Sicilian) and its last one (the curated literary text). We remark that the published results
-of the original system were measured on a different test set, and that the comparison with them
-is therefore indirect (cf.\ section~\ref{sec:sota}).
+web Sicilian) and its last one (the curated literary text). Since the published results of the
+original system were measured on a different test set and in the space of its tokenizer, we
+score our models on that test set and in that space as well (cf.\ section~\ref{sec:sota}).
 
 The structure of the paper is as follows. Section~\ref{sec:background} recalls the models on
 which all our systems are based. Section~\ref{sec:pipeline} describes the extraction, the
@@ -324,7 +324,7 @@ Napizia magazine, of the Napizia site and of the Young Sicilian Manifesto, from 
 under copyright was excluded. Furthermore, the sheets provide 14{,}360 monolingual Sicilian sentences
 (Cipolla's 2021 textbook) and a validation set of 121 trilingual lines. Its Sicilian side is normalized as in section~\ref{sec:tokenization}, and the exact repeats are removed.
 
-A validation and a test set of 1{,}000 pairs each were drawn once at random from our first extraction of \emph{Arba Sicula}, which provides the literary standard that FLORES does not, among the pairs with 3 to 80 words per side and a length ratio between 1/3 and 3, and then frozen; hence, all the results of section~\ref{sec:results} are computed on the same test set. Of the two validation sets, the one of 1{,}000 pairs is used with the web set, and the 121 lines of the sheets with the curated one.
+A validation and a test set of 1{,}000 pairs each were drawn once at random from our first extraction of \emph{Arba Sicula}, which provides the literary standard that FLORES does not, among the pairs with 3 to 80 words per side and a length ratio between 1/3 and 3, and then frozen; hence, all the results of section~\ref{sec:results} are computed on the same test set, except those of Table~\ref{tab:sota}. The validation set of 1{,}000 pairs is used with the web set, whereas the 121 lines of the sheets are the test set of the second author (cf.\ section~\ref{sec:evaluation}), and are never used for model selection, since the staged runs train for a fixed number of epochs.
 Each training set is then guarded against it: a pair is removed if its Sicilian side is a test
 or validation sentence (in raw or normalized form), or contains a test sentence of six or more
 words. This guard removed 794 pairs from the second set (778 because of the test set and 16 because of the validation set), some of them from the hand-aligned sheets, which cover the same issues as the test set; without it, the results of the staged training would have been inflated.
@@ -557,6 +557,23 @@ comparable (on raw text, the floor obtained by copying the source is 5.27 BLEU).
 done on an 8-core CPU for the Sockeye models and on a single Colab GPU for the NLLB adapters. We
 report no running times, since only the quality of the translation is of concern here.
 
+For the comparison with the published results of the second author (cf.\
+section~\ref{sec:sota}), the NLLB systems are also scored on his test set in the six directions
+between Sicilian, English and Italian. This set consists of the 121 trilingual lines that he
+selected by hand from the issues AS38 and AS39 of the journal (labeled as validation in his
+sheets). As he
+did, we compute BLEU in the space of the Napizia tokenizer of the original system, i.e., on the
+tokens that it produces from the hypothesis and from the reference (accents folded and
+contractions undone, with the Italian side going through the English tokenizer). This space is
+more lenient into Sicilian, since an accent or an apostrophe placed differently no longer costs a
+match: on our test set it raises the en$\rightarrow$scn score of the staged model of
+section~\ref{sec:staged} from 21.72 to 25.69 BLEU, and its scn$\rightarrow$en score only from
+32.37 to 33.03. Since some of his lines also occur in our training data (8 in that of the staged
+runs and 14 in the web set), we report the scores both on all 121 lines and on the lines absent
+from the training data of each model. The re-decoding of a model reproduces its BLEU only up to a
+few hundredths (e.g., 32.37 against 32.40 on scn$\rightarrow$en), since beam search in fp16 on
+the GPU is not exactly deterministic.
+
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  RESULTS
@@ -671,50 +688,64 @@ have not measured it.
 
 \paragraph{Relation to the state of the art.}
 \label{sec:sota}
-Our results remain below the best published ones, as Table~\ref{tab:sota} shows direction by
-direction. Its first three columns are the results of the second author: the baseline and the
-larger many-to-many model of \citet{wdowiak2022loresnmt} (the latter trained with
-back-translations and, for the Italian directions, with the trilingual textbook exercises), and
-the third stage of his reverse-training system \citep{wdowiakreverse}, all measured on his test
-set, which was drawn by hand from the issues AS38 and AS39 of the journal. The other columns are
-ours: NLLB-1.3B zero-shot, the adapter trained on the web set (the bidirectional one for
-scn$\leftrightarrow$en, the trilingual one for the other directions), and the two staged runs of
-section~\ref{sec:staged}, which were evaluated on scn$\leftrightarrow$en only. Our scn--en rows
-use our frozen test set, the it--scn rows the WikiMatrix one and the it--en rows the FLORES-200
-devtest, and a dash marks a direction that was not reported. Since the two test sets come from similar material but differ, this is not a direct comparison;
-yet, the gap is too large to be due to the test set only, since we exceed his baseline on
-scn$\rightarrow$en (33.01 against 29.1) and remain below it on en$\rightarrow$scn (21.78
-against 25.1). Also, the shape of the results differs. His model learned Sicilian by adapting an
-Italian--English one, and its scores fall into three nearly equal groups (from English, into
-English and between Romance languages); ours are uneven, with en$\rightarrow$scn the weakest
-and scn$\rightarrow$it the strongest, which is consistent with a model that learned Sicilian as
-one of 200 languages. Furthermore, the parts of his recipe that could be applied on top of NLLB give
-less than one might expect: orthographic normalization adds about 0.4 BLEU, the Italian bridge
-slightly lowers scn$\leftrightarrow$en, and the staged training on his back-translations and on the curated set adds 1.19 BLEU on scn$\to$en and 2.69 on en$\to$scn. The first stage of his recipe, i.e., the adaptation of an
-Italian--English model to Sicilian, is the part that we have not reproduced, and it may account
-for much of the remaining gap.
+Table~\ref{tab:sota} compares our NLLB systems with the published results of the second author
+on his test set and in the tokenized space in which he scored them (cf.\
+section~\ref{sec:evaluation}). Its first three columns are his, i.e., the baseline and the larger
+many-to-many model of \citet{wdowiak2022loresnmt} (the latter trained with back-translations
+and, for the Italian directions, with the trilingual textbook exercises), and the third stage of
+his reverse-training system \citep{wdowiakreverse}. The other columns are ours, i.e., the
+bidirectional adapter trained on the web set and the two staged runs of
+section~\ref{sec:staged}, each scored on all 121 lines and on those absent from its training
+data. On the latter, the staged model is on a par with the reverse-training system from English
+and from Italian into Sicilian (45.07 against 45.1 BLEU, and 61.49 against 61.4), and it exceeds
+it by 7.8 BLEU from Sicilian into English and by 2.0 and 14.3 BLEU between English and Italian;
+it remains below it only from Sicilian into Italian (59.84 against 62.9). The baseline of 2022 (25.1
+on en$\rightarrow$scn and 29.1 on scn$\rightarrow$en) is exceeded by about 20 and 27 BLEU, and
+already the web adapter exceeds it by 6.9 and 21.6 BLEU. The curriculum is somewhat better than the
+staged run on scn$\rightarrow$en (58.19 against 56.43) and somewhat worse on
+en$\rightarrow$scn (43.92 against 45.07), which on 113 lines is probably within the noise. The
+gap of Table~\ref{tab:results} between our en$\rightarrow$scn score and his baseline (21.72
+against 25.1) may therefore be due to the test set and to the metric rather than to the model: on
+raw text, the staged model obtains 39.43 BLEU into Sicilian on the clean lines of his test set
+and 21.72 on ours, and the tokenized space adds a further 3 to 6 BLEU into Sicilian (cf.\
+section~\ref{sec:evaluation}).
+
+It is fair to remark, however, that the comparison is not entirely even. The baseline of the
+second author chose its checkpoints on this same test set (training stopped when the score on it
+ceased to improve), and his later systems possibly did as well, whereas our staged runs train for
+a fixed number of epochs and were scored on these lines only after training. On the other hand,
+we have not checked whether his training data contain some of the test lines, as ours do. Also, his test file exists in several revisions, and we use the one of his sheets.
+%% TODO (Donato): confirm with Eryk that the reverse-training numbers (45.1/48.6/61.4/62.9/48.2/46.7)
+%% were measured on these 121 lines (v2/v3/v4 of the test file), and whether he selected on them.
+Finally, the first stage of his recipe, i.e., the adaptation of an Italian--English model to
+Sicilian, is the part that we have not reproduced; on his test set its role seems to be taken by
+the multilingual pretraining of NLLB, with the possible exception of scn$\rightarrow$it, the only
+direction in which his system remains ahead.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \begin{table}[t]
-\caption{Published results of the second author against ours (BLEU). His results are on his
-test set, ours on the test sets of section~\ref{sec:evaluation}; hence, the comparison is
-indirect (cf.\ section~\ref{sec:sota}).}
+\caption{Published results of the second author against ours on his test set, in his tokenized
+space (BLEU). His columns are taken from \citet{wdowiak2022loresnmt} and \citet{wdowiakreverse};
+in ours, the first number is the score on all 121 lines and the second the score on the lines
+absent from the training data of that model (107 for the web adapter, 113 for the staged runs).
+The web adapter was trained on scn$\leftrightarrow$en only, and a dash marks a direction that was
+not reported.}
 \label{tab:sota}
 \centering
 \small
-\begin{tabular}{lccccccc}
+\begin{tabular}{lcccccc}
 \toprule
- & \multicolumn{3}{c}{Wdowiak} & \multicolumn{4}{c}{ours (NLLB-200 1.3B)} \\
-\cmidrule(lr){2-4} \cmidrule(lr){5-8}
-direction & baseline & many-to-many & reverse & zero-shot & web & staged & curriculum \\
+ & \multicolumn{3}{c}{Wdowiak} & \multicolumn{3}{c}{ours (NLLB-200 1.3B)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7}
+direction & baseline & many-to-many & reverse & web & staged & curriculum \\
 \midrule
-en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 9.89  & 19.03 & 21.72 & 21.78 \\
-scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 29.02 & 31.21 & 32.40 & 33.01 \\
-it$\rightarrow$scn & --   & 36.5 & 61.4 & 17.61 & 27.48 & --    & -- \\
-scn$\rightarrow$it & --   & 30.9 & 62.9 & 42.20 & 43.70 & --    & -- \\
-it$\rightarrow$en  & --   & --   & 48.2 & 34.40 & 27.18 & --    & -- \\
-en$\rightarrow$it  & --   & --   & 46.7 & 29.43 & 28.76 & --    & -- \\
+en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 32.19 / 31.95 & 44.40 / 45.07 & 43.97 / 43.92 \\
+scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 51.16 / 50.65 & 57.00 / 56.43 & 58.80 / 58.19 \\
+it$\rightarrow$scn & --   & 36.5 & 61.4 & 39.69 / 39.50 & 61.04 / 61.49 & 60.69 / 60.86 \\
+scn$\rightarrow$it & --   & 30.9 & 62.9 & 52.98 / 52.57 & 60.40 / 59.84 & 60.47 / 59.96 \\
+it$\rightarrow$en  & --   & --   & 48.2 & 56.59 / 55.63 & 62.72 / 62.45 & 61.38 / 61.11 \\
+en$\rightarrow$it  & --   & --   & 46.7 & 47.31 / 45.89 & 49.27 / 48.69 & 49.14 / 48.62 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -731,10 +762,13 @@ parallel text, the tokenization and desinence-biased segmentation of the origina
 an added lemma source factor, and the adaptation of NLLB-200 with LoRA, trained in stages on the
 back-translations of the second author and on the curated literary text. On our test set the
 best model, i.e., the curriculum proposed by the second author, reaches 33.01 BLEU on
-scn$\rightarrow$en and 21.78 on en$\rightarrow$scn, above the published baseline of the original
-system in the first direction but below it in the second, and well below the reverse-training
-results in both; its coarse stage on the badly scored back-translations helps the translation
-from Sicilian, but not the one into it.
+scn$\rightarrow$en and 21.78 on en$\rightarrow$scn, and its coarse stage on the badly scored
+back-translations helps the translation from Sicilian, but not the one into it. On the test set
+of the second author and in his tokenized space, the staged model reaches 45.07 BLEU into
+Sicilian and 56.43 from it (on the lines absent from its training data), i.e., the level of his
+reverse-training system in the first direction and 7.8 BLEU above it in the second. Hence, the
+low score into Sicilian on our test set is probably due to the test set and to the metric more
+than to the model.
 
 Several extensions are open. In particular, the aligner could merge the short verses of poetry, as simulated in
 section~\ref{sec:dataquality}, and could collect the Sicilian left unaligned as well as the
