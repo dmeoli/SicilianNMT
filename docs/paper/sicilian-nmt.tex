@@ -650,8 +650,9 @@ within the noise (32.82 and 21.52 BLEU against 32.40 and 21.72), and the three c
 the second author, the gain is 3.9 BLEU into Sicilian, 3.8 from it and 3.5 from Italian into
 Sicilian, while scn$\to$it gains only 0.6. The two directions between English and Italian lose
 1.8 and 2.2 BLEU instead; they are not trained in the third stage, and the longer stage possibly
-makes them forget more. We have not yet run the changes one at a time, and hence we cannot tell
-how the gain divides among them. Also, the validation score was still rising at the third epoch
+makes them forget more. We have not yet run the two intermediate variants (the larger
+second stage alone, and then with the larger adapter), and hence we cannot tell how the gain
+divides among the three changes. Also, the validation score was still rising at the third epoch
 (23.28 BLEU into Sicilian against 22.06 at the second), which suggests that a longer third stage
 may improve the model further.
 
