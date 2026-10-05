@@ -749,7 +749,7 @@ section~\ref{sec:staged} (base) and with three changes made together. These are 
 pairs per file in the second stage instead of 100{,}000, (ii) an adapter of rank 64 instead of 32
 that also covers the feed-forward layers, and (iii) sequences of up to 256 tokens instead of 128
 (at 128 tokens, about 2\% of the curated pairs are truncated), with three epochs in the third stage
-instead of two. Both runs hold out of training our test and validation sets and all the lines of
+instead of two. All runs hold out of training our test and validation sets and all the lines of
 the test set of the second author, in the three languages. The epoch of the third stage is chosen
 on the 1{,}000 validation pairs, and only that epoch is scored on the two test sets
 (Table~\ref{tab:ablation}). The base run reproduces the staged run of Table~\ref{tab:results}
@@ -758,39 +758,42 @@ within the noise (32.82 and 21.52 BLEU against 32.40 and 21.72), and the three c
 the second author, the gain is 3.9 BLEU into Sicilian, 3.8 from it and 3.5 from Italian into
 Sicilian, while scn$\to$it gains only 0.6. The two directions between English and Italian lose
 1.8 and 2.2 BLEU instead; they are not trained in the third stage, and the longer stage possibly
-makes them forget more. We have not yet run the two intermediate variants (the larger
-second stage alone, and then with the larger adapter), and hence we cannot tell how the gain
-divides among the three changes. Also, the validation score was still rising at the third epoch
+makes them forget more. The larger second stage alone gives 33.34 and 21.88 BLEU on our test,
+i.e., 0.5 and 0.4 more than the base run, which is about the noise of repeated runs; on the test
+set of the second author it gains 1.4 BLEU from Sicilian into English and 2.7 from Italian into
+Sicilian, and changes the other directions by about 1 BLEU at most. We have not yet run the second
+intermediate variant (the larger second stage with the larger adapter), and hence we cannot tell
+how the rest of the gain divides between the adapter and the longer third stage. Also, the validation score was still rising at the third epoch
 (23.28 BLEU into Sicilian against 22.06 at the second), which suggests that a longer third stage
 may improve the model further.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \begin{table}[t]
-\caption{Ablation of the staged training (cf.\ section~\ref{sec:staged}): the base settings
-against three changes made together (300{,}000 back-translated pairs per file, a rank-64 adapter
+\caption{Ablation of the staged training (cf.\ section~\ref{sec:staged}): the base settings,
+the larger second stage alone, and three changes made together (300{,}000 back-translated pairs per file, a rank-64 adapter
 on the attention and feed-forward layers, 256-token sequences and three epochs in the third
 stage). The epoch is chosen on the validation set; our test is scored on raw text (BLEU / chrF),
-his on all 121 lines in his tokenized space (BLEU), since both runs exclude them from training.}
+his on all 121 lines in his tokenized space (BLEU), since all runs exclude them from training.}
 \label{tab:ablation}
 \centering
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
- & base & + three changes \\
+ & base & + 300k pairs & + three changes \\
 \midrule
-epoch chosen & 2 of 2 & 3 of 3 \\
+epoch chosen & 2 of 2 & 2 of 2 & 3 of 3 \\
 \midrule
-\multicolumn{3}{l}{our test} \\
-scn$\rightarrow$en & 32.82 / 58.41 & 35.40 / 60.39 \\
-en$\rightarrow$scn & 21.52 / 52.68 & 25.09 / 55.24 \\
+\multicolumn{4}{l}{our test} \\
+scn$\rightarrow$en & 32.82 / 58.41 & 33.34 / 58.75 & 35.40 / 60.39 \\
+en$\rightarrow$scn & 21.52 / 52.68 & 21.88 / 52.97 & 25.09 / 55.24 \\
 \midrule
-\multicolumn{3}{l}{test of the second author} \\
-en$\rightarrow$scn & 44.42 & 48.36 \\
-scn$\rightarrow$en & 57.14 & 60.95 \\
-it$\rightarrow$scn & 59.31 & 62.78 \\
-scn$\rightarrow$it & 61.46 & 62.05 \\
-it$\rightarrow$en  & 60.90 & 59.09 \\
-en$\rightarrow$it  & 50.16 & 48.00 \\
+\multicolumn{4}{l}{test of the second author} \\
+en$\rightarrow$scn & 44.42 & 44.49 & 48.36 \\
+scn$\rightarrow$en & 57.14 & 58.54 & 60.95 \\
+it$\rightarrow$scn & 59.31 & 62.04 & 62.78 \\
+scn$\rightarrow$it & 61.46 & 61.02 & 62.05 \\
+it$\rightarrow$en  & 60.90 & 59.97 & 59.09 \\
+en$\rightarrow$it  & 50.16 & 49.14 & 48.00 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -880,11 +883,9 @@ section~\ref{sec:evaluation}).
 
 It is fair to remark, however, that the comparison is not entirely even. The baseline of the
 second author chose its checkpoints on this same test set (training stopped when the score on it
-ceased to improve), and his later systems possibly did as well, whereas our staged runs train for
+ceased to improve), and so did his later systems, whereas our staged runs train for
 a fixed number of epochs and were scored on these lines only after training. On the other hand,
-we have not checked whether his training data contain some of the test lines, as ours do. Also, his test file exists in several revisions, and we use the one of his sheets.
-%% TODO (Donato): confirm with Eryk that the reverse-training numbers (45.1/48.6/61.4/62.9/48.2/46.7)
-%% were measured on these 121 lines (v2/v3/v4 of the test file), and whether he selected on them.
+his training data do not contain the test lines (although they contain other text of the same articles), whereas ours do. Also, his test file exists in several revisions, which are only intermediate stages of its tokenization.
 Finally, the first stage of his recipe, i.e., the adaptation of an Italian--English model to
 Sicilian, is the part that we have not reproduced; on his test set its role seems to be taken by
 the multilingual pretraining of NLLB, with the possible exception of scn$\rightarrow$it, the only
