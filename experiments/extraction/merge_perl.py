@@ -2,7 +2,7 @@
 """Merge the legacy Perl/hunalign extraction into our Arba Sicula corpus (union).
 
 For the issues the original pipeline processed (as27-31) we have hunalign output
-(extract-text/aligned/asNN_ha.csv). This adds the Perl pairs that our LaBSE pipeline
+(data/external/arbasicula/perl_2023/asNN_ha.csv). This adds the Perl pairs that our LaBSE pipeline
 did NOT already produce (deduped on normalized Sicilian), enriching those issues.
 Final cleaning/splitting is left to experiments/dataset/assemble.py.
 
@@ -18,7 +18,7 @@ csv.field_size_limit(10 ** 7)  # some extracted "sentences" (junk pages) are ver
 
 REPO = Path(__file__).resolve().parents[2]
 CORPUS = REPO / "data/processed/arbasicula/corpus.tsv"
-ALIGNED = REPO / "extract-text/aligned"
+ALIGNED = REPO / "data/external/arbasicula/perl_2023"
 ISSUES = ["as27", "as28", "as29", "as30", "as31"]
 MIN_SCORE = 0.5
 

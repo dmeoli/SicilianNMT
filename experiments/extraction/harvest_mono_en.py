@@ -12,7 +12,7 @@ sentences that no kept alignment consumed, then dedup globally and against the e
 parallel English so the pool is genuinely NEW text.
 
     python experiments/extraction/harvest_mono_en.py \
-        --issues extract-text/as-issues \
+        --issues data/external/arbasicula/pdf \
         --parallel data/processed/arbasicula/corpus.en \
         --out data/processed/arbasicula/mono_en.txt
 """
@@ -65,7 +65,7 @@ def issue_mono_en(pdf: Path, model, scn_stop: set[str],
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--issues", type=Path, default=REPO / "extract-text/as-issues")
+    ap.add_argument("--issues", type=Path, default=REPO / "data/external/arbasicula/pdf")
     ap.add_argument("--parallel", type=Path, default=REPO / "data/processed/arbasicula/corpus.en",
                     help="existing parallel English; harvested text is deduped against it")
     ap.add_argument("--out", type=Path, default=REPO / "data/processed/arbasicula/mono_en.txt")

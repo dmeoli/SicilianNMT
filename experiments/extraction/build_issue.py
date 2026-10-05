@@ -11,7 +11,7 @@ Aligning a block instead of each spread alone keeps the sentences that run over 
 page break (they were cut in two and lost), while the facing-page band stops the
 aligner from matching text of two different articles (E. Wdowiak, 2026-09).
 
-    python experiments/extraction/build_issue.py extract-text/as-issues/as46.pdf \
+    python experiments/extraction/build_issue.py data/external/arbasicula/pdf/as46.pdf \
         --out data/processed/as46
 
 Reuses extract_pages.py and align_sentences.py.

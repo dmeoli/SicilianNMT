@@ -23,8 +23,8 @@ import pandas as pd
 REPO = Path(__file__).resolve().parents[2]
 AS_TSV = REPO / "data/processed/arbasicula/corpus.tsv"          # issue, sicilian, english
 NLLB_TSV = REPO / "data/processed/nllb_clean/pairs.tsv"          # en, scn, score
-WIKI_IT = REPO / "extract-text/WikiMatrix.it-scn.txt.it"
-WIKI_SCN = REPO / "extract-text/WikiMatrix.it-scn.txt.scn"
+WIKI_IT = REPO / "data/external/wikimatrix/WikiMatrix.it-scn.txt.it"
+WIKI_SCN = REPO / "data/external/wikimatrix/WikiMatrix.it-scn.txt.scn"
 
 EN_DROPCAP = re.compile(r"^([B-HJ-Z]) ([a-z])")   # drop-cap "T he"->"The"; skip A/I (real words)
 GLOSS_NOISE = re.compile(r"(?:\b\w ){4,}")          # "C O S T I" glossary/OCR runs

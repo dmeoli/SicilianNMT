@@ -1,7 +1,7 @@
 # Extraction methods compared: legacy Perl vs ours
 
 On Arba Sicula **as30** (scn→en), comparing the original Perl/hunalign pipeline output
-(`extract-text/aligned/as30_ha.csv`) with our PyMuPDF+LaBSE pipeline
+(`data/external/arbasicula/perl_2023/as30_ha.csv`) with our PyMuPDF+LaBSE pipeline
 (`experiments/extraction/build_issue.py`):
 
 | method | pairs | notes |

@@ -43,7 +43,7 @@ def main() -> None:
     # embed every candidate facing-pair ONCE, cache (scn, en, sim, page_sim)
     cache = []
     for issue in ISSUES:
-        pdf = REPO / f"extract-text/as-issues/{issue}.pdf"
+        pdf = REPO / f"data/external/arbasicula/pdf/{issue}.pdf"
         pages = classify_document(pdf, scn_stop)
         doc = fitz.open(pdf)
         for a, b in parallel_pairs(pages):

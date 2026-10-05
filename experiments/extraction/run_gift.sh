@@ -17,7 +17,7 @@ REPO="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPO"
 PY="$REPO/.venv/bin/python"
 BUILD="$REPO/experiments/extraction/build_all.py"
-ISSUES="$REPO/extract-text/as-issues"
+ISSUES="$REPO/data/external/arbasicula/pdf"
 GIFT="$REPO/data/processed/as_full_gift"
 MEM="${MEM:-12G}"
 export HF_HUB_OFFLINE=1          # LaBSE must already be in the cache

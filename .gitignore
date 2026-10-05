@@ -10,23 +10,9 @@
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Arba Sicula issues
-extract-text/as-issues
-extract-text/output_pdf/*.tex
-extract-text/output_pdf/*.pdf
-extract-text/output_txt/*.txt
-extract-text/wrapped/*.txt
-extract-text/aligned/*.csv
-extract-text/*.csv
-
-# concatenation of Arthur Dieli's vocabulary and Wiktionary
-extract-text/aligner/dieli-scen-dict.txt
-
-# WikiMatrix files
-extract-text/WikiMatrix.it-scn.tsv.gz
-extract-text/WikiMatrix.it-scn.txt.it
-extract-text/WikiMatrix.it-scn.txt.scn
-# downloaded external datasets (HuggingFace etc.)
+# raw data, not shareable or too large: Arba Sicula PDFs and 2023 Perl alignments,
+# WikiMatrix it-scn, FLORES-200, the material of E. Wdowiak (data/external/), and
+# everything derived from it
 data/external/
 data/processed/
 data/dataset/

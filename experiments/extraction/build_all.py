@@ -8,7 +8,7 @@ per-issue summary. Each finished issue is checkpointed under <out>/issues/, so a
 killed halfway (e.g. out of memory) resumes from the missing issues.
 
     python experiments/extraction/build_all.py \
-        --issues extract-text/as-issues --out data/processed/arbasicula
+        --issues data/external/arbasicula/pdf --out data/processed/arbasicula
 """
 from __future__ import annotations
 import argparse
@@ -28,7 +28,7 @@ REPO = Path(__file__).resolve().parents[2]
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--issues", type=Path, default=REPO / "extract-text/as-issues")
+    ap.add_argument("--issues", type=Path, default=REPO / "data/external/arbasicula/pdf")
     ap.add_argument("--out", type=Path, default=REPO / "data/processed/arbasicula")
     ap.add_argument("--min-page-sim", type=float, default=0.50)
     ap.add_argument("--min-sent-sim", type=float, default=0.40)

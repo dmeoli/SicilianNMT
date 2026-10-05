@@ -9,7 +9,7 @@ Replaces the legacy hunalign + Dieli-dictionary step.
 Pages are given as PRINTED page numbers (the ones on the paper copy); pass --index
 to give 0-based pdf page indices instead.
 
-    python experiments/extraction/align_sentences.py extract-text/as-issues/as46.pdf 60 61
+    python experiments/extraction/align_sentences.py data/external/arbasicula/pdf/as46.pdf 60 61
 """
 from __future__ import annotations
 import argparse

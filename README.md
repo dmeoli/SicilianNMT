@@ -28,7 +28,8 @@ experiments/
                  (tokenization + desinence-biased subwords)
   nllb/          NLLB-200 + LoRA engine (nllb_pipeline.py); driven by sicilian_nmt.ipynb
   serving/       FastAPI /translate + Telegram bot over the NLLB adapter
-extract-text/    Arba Sicula PDFs (gitignored) + WikiMatrix it-scn + aligned gold CSVs
+data/            gitignored: external/ (raw: arbasicula/pdf, arbasicula/perl_2023, wikimatrix,
+                 flores, eryk), processed/, finetune/, recipe/
 vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas
 docs/            Standard-Sicilian standardization & contraction references
 papers/ presentation/

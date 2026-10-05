@@ -17,7 +17,7 @@ Modern, CPU-only replacement for the legacy PDF extraction pipeline
 ## `extract_pages.py`
 
 ```
-python extract_pages.py extract-text/as-issues/as46.pdf --out out/as46
+python extract_pages.py data/external/arbasicula/pdf/as46.pdf --out out/as46
 ```
 Writes `sc.txt`, `en.txt`, `pairs.tsv` (label-only guess of the facing SC/EN pages).
 Pages are reported with their **printed** numbers (`60/61`), read from the page
@@ -28,8 +28,8 @@ changes within one issue.
 ## `build_issue.py` / `build_all.py`, pages to sentence pairs
 
 ```
-python build_issue.py extract-text/as-issues/as46.pdf --out data/processed/as46
-python align_sentences.py extract-text/as-issues/as46.pdf 60 61     # one spread, printed pages
+python build_issue.py data/external/arbasicula/pdf/as46.pdf --out data/processed/as46
+python align_sentences.py data/external/arbasicula/pdf/as46.pdf 60 61     # one spread, printed pages
 ```
 
 1. **Facing pages.** Every SC page is a candidate with both adjacent EN pages; LaBSE
