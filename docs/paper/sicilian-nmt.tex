@@ -709,9 +709,15 @@ Sicilian, while scn$\to$it gains only 0.6. The two directions between English an
 makes them forget more. The larger second stage alone gives 33.34 and 21.88 BLEU on our test,
 i.e., 0.5 and 0.4 more than the base run, which is about the noise of repeated runs; on the test
 set of the second author it gains 1.4 BLEU from Sicilian into English and 2.7 from Italian into
-Sicilian, and changes the other directions by about 1 BLEU at most. We have not yet run the second
-intermediate variant (the larger second stage with the larger adapter), and hence we cannot tell
-how the rest of the gain divides between the adapter and the longer third stage. Also, the validation score was still rising at the third epoch
+Sicilian, and changes the other directions by about 1 BLEU at most. Adding the larger adapter gives
+34.60 and 24.18 BLEU on our test, i.e., 1.3 and 2.3 more than the larger second stage alone, and
+the longer sequences with the third epoch add a further 0.8 and 0.9; hence, most of the gain comes
+from the adapter. On the test set of the second author, however, the variant without the longer
+third stage is better in five directions out of six (e.g., 62.02 against 60.95 BLEU from Sicilian
+into English, and 61.89 against 59.09 from Italian into English), and it is worse only from English
+into Sicilian (47.64 against 48.36). Since the variants are compared on the validation set, which
+favors the longer third stage (33.17 and 23.28 BLEU against 32.54 and 22.07), we keep the latter in
+Table~\ref{tab:sota}. Also, the validation score was still rising at the third epoch
 (23.28 BLEU into Sicilian against 22.06 at the second), which suggests that a longer third stage
 may improve the model further.
 
