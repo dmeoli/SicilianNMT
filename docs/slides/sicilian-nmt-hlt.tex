@@ -1,81 +1,60 @@
 \documentclass[aspectratio=169]{beamer}
 
-% --- minimalist theme (violet accent on white), matching the companion deck ---
-\usetheme{default}
-\usefonttheme{professionalfonts}
-\setbeamertemplate{navigation symbols}{}
-\usepackage[T1]{fontenc}
+% The same talk, set with the lamalunga theme: the majolica blue of the
+% original deck is the primary, and its complement on the painter's wheel
+% gives the gold; every other color, size and spacing follows from them.
+\usetheme[aspect=beamer, primary=0E4D8C, sectionpage=none, spiral=false]{lamalunga}
 \usepackage{amsmath,amssymb}
-\usepackage{graphicx}
 \usepackage{booktabs}
 \graphicspath{{img/}{../../presentation/images/}}
 
-\definecolor{tan}{RGB}{14,77,140}    % Mediterranean / Sicilian majolica blue (primary)
-\definecolor{gold}{RGB}{214,158,46}  % Sicilian gold/ochre (complementary accent)
-\definecolor{ink}{RGB}{40,40,40}
-\setbeamercolor{structure}{fg=tan}
-\setbeamercolor{frametitle}{fg=ink}
-\setbeamercolor{title}{fg=ink}
-\setbeamercolor{itemize item}{fg=tan}
-\setbeamercolor{itemize subitem}{fg=tan}
-\setbeamersize{text margin left=9mm,text margin right=9mm}
+% the names of the original colors, now computed by the theme
+\colorlet{tan}{lamalunga-primary}
+\colorlet{gold}{lamalunga-accent}
+\colorlet{ink}{lamalunga-ink}
+\colorlet{gray}{lamalunga-muted}
 
-\setbeamerfont{frametitle}{size=\LARGE}
-\setbeamertemplate{frametitle}{\vspace{0.5mm}\insertframetitle\par}
-
-% running header (project left, author right) + footer (university left, page right)
-\setbeamertemplate{headline}{%
-  \vskip1.2mm%
-  \hbox to \paperwidth{\hspace{9mm}{\scriptsize\color{tan}Sicilian / English / Italian Neural Machine Translation}%
-        \hfill{\scriptsize\color{gray}Donato Meoli}\hspace{9mm}}%
-  \vskip0.6mm%
-  \hbox to \paperwidth{\hspace{9mm}{\color{tan!35}\rule{\dimexpr\paperwidth-18mm\relax}{0.4pt}}\hfill}%
-}
-\setbeamertemplate{footline}{%
-  \hbox to \paperwidth{\hspace{9mm}{\scriptsize\color{gray}University of Pisa}%
-        \hfill{\color{tan}\scriptsize\insertframenumber}\hspace{9mm}}\vskip1.8mm%
-}
-
+% a section divider: a box of the primary in the minor part of the golden
+% section of the page (38.2% at the right), inside the margins, with the
+% title centred in it; the content of the section, centred, in the major part
+\newlength\dividerbox \setlength\dividerbox{\goldenminor{\paperwidth}}
+\addtolength\dividerbox{-\lamalungahmargin}
+\newlength\dividerboxheight \setlength\dividerboxheight{\paperheight}
+\addtolength\dividerboxheight{-2\lamalungavmargin}
+\newlength\dividerleft \setlength\dividerleft{\goldenmajor{\paperwidth}}
+\addtolength\dividerleft{-2\lamalungahmargin}
 \newcommand{\sectiondivider}[3]{%
 \begin{frame}[plain]
-  \begin{columns}
-    \begin{column}{0.52\textwidth}
-      \raggedright
-      \small #2
-      \vfill
-      {\scriptsize\color{gray} #3\par}
-    \end{column}
-    \hfill
-    \begin{column}{0.48\textwidth}
-      \colorbox{tan}{\begin{minipage}[t][0.86\paperheight][c]{\textwidth}
-        \centering\color{white}\huge\textbf{#1}
-      \end{minipage}}
-    \end{column}
-  \end{columns}
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=north east, inner sep=0pt, minimum width=\dividerbox,
+      minimum height=\dividerboxheight, fill=lamalunga-primary,
+      text=lamalunga-on-primary, align=center,
+      text width=\dimexpr\dividerbox-2\fib{6}pt\relax,
+      font=\lamalungatitlefamily\fontseries{eb}\selectfont\modularsize{0.5}]
+      at ([xshift=-\lamalungahmargin, yshift=-\lamalungavmargin]current page.north east)
+      {\lamalunganohyphens #1};
+  \end{tikzpicture}%
+  \begin{minipage}[c][\dividerboxheight][c]{\dividerleft}
+    \vspace*{\fill}
+    #2
+    \vspace*{\fill}
+    {\modularsize{-1}\color{lamalunga-muted}#3\par}
+  \end{minipage}
 \end{frame}}
 
-\title{\textbf{Sicilian, English \& Italian Neural Machine Translation}}
+% a long title: one step below the default, so that it fits the first
+% square of the spiral
+\setbeamerfont{title}{size=\modularsize{1}}
+
+\title{Sicilian, English and Italian Neural Machine Translation}
+\subtitle{A data pipeline and reproducible baselines, from a small Transformer to NLLB}
 \author{Donato Meoli}
+\institute[University of Pisa]{Human Language Technologies \textperiodcentered{} University of Pisa}
 \date{}
 
 \begin{document}
 
-% ==================================================================== title
-{\setbeamertemplate{footline}{}
-\begin{frame}[plain]
-  \vspace{1.2cm}
-  \hfill\begin{minipage}{0.74\textwidth}\raggedleft
-  {\color{gold}\rule{2pt}{2.4cm}}\hspace{3mm}
-  \begin{minipage}{0.82\textwidth}\raggedright
-    {\Huge Sicilian--English--Italian\\[1mm]Neural Machine Translation}\\[3mm]
-    {\small\color{tan}\textsc{a data pipeline and reproducible baselines}}\\[0.8mm]
-    {\small\color{tan}\textsc{from a small Transformer to NLLB}}\\[3.5mm]
-    {\normalsize Human Language Technologies}\\[0.6mm]
-    {\normalsize University of Pisa}\\[6mm]
-    {\normalsize\textbf{Donato Meoli}}
-  \end{minipage}
-  \end{minipage}\hfill\,
-\end{frame}}
+\maketitle
 
 % ==================================================================== motivation
 \begin{frame}{Why is there no \emph{good} Sicilian translator?}
@@ -214,7 +193,7 @@
         S_{ij}=\frac{\langle u_i,\,v_j\rangle}{\lVert u_i\rVert\,\lVert v_j\rVert}.
       \]
       \textbf{Page confirmation}: keep the pair only if the mean best-match similarity
-      $\tfrac12(\overline{\max_j S_{ij}}+\overline{\max_i S_{ij}})\ge\tau_{\text{page}}$.\\[1mm]
+      $\tfrac12(\overline{\max_j S_{ij}}+\overline{\max_i S_{ij}})\ge\tau_{\text{page}}$.\\
       \textbf{Alignment}: a monotonic DP over $S$ allowing $1$--$1$, $1$--$2$, $2$--$1$ moves,
       \[
         A_{ij}=\max\!\begin{cases}
@@ -275,6 +254,7 @@
   \emph{Tradutturi} text preprocessing. Done before any model sees the data.}
 
 \begin{frame}{Why NLLB's Sicilian is low quality}
+  \footnotesize % a dense frame: half a step down the scale
   \begin{columns}[t]
     \begin{column}{0.54\textwidth}
       \begin{itemize}
@@ -772,12 +752,12 @@
 \end{frame}
 
 \begin{frame}{We do not beat the state of the art (yet)}
-  \begin{columns}[c]
-    \begin{column}{0.58\textwidth}
+  % the chart in the minor part, the argument in the major one
+  \begin{goldencolumns}[minor]
       \centering
-      \includegraphics[width=\textwidth]{bleu_vs_sota.png}
-    \end{column}
-    \begin{column}{0.42\textwidth}\footnotesize
+      \includegraphics[width=\linewidth]{bleu_vs_sota.png}
+    \nextcolumn
+      \footnotesize
       \begin{itemize}
         \item The SOTA is Wdowiak's \textbf{reverse-training} system; it leads on \emph{every}
               direction (his Italian reaches 61--63).
@@ -790,8 +770,7 @@
               stage-3 fine-tune. Adding back-translation + multilingual closes the
               \emph{method} gap; the residual is then \textbf{data quality}.
       \end{itemize}
-    \end{column}
-  \end{columns}
+  \end{goldencolumns}
 \end{frame}
 
 \begin{frame}{Conclusion \& outlook}
@@ -832,13 +811,10 @@
 \end{frame}
 
 % ================================================================ Thanks
-{\setbeamertemplate{footline}{}
-\begin{frame}[plain]
-  \centering\vfill
-  {\Huge\color{tan}\textbf{Grazzi}}\\[5mm]
-  {\fontsize{34}{40}\selectfont\color{tan}\textbf{\textit{p'a vostra attenzioni\,!}}}\\[12mm]
-  {\footnotesize\color{gray}\texttt{github.com/dmeoli/SicilianNMT}}
-  \vfill
-\end{frame}}
+\begin{frame}[standout]
+  Grazzi \emph{p'a vostra attenzioni}!
+  \par\vspace{\fib{8}pt}
+  {\modularsize{-0.5}\mdseries\texttt{github.com/dmeoli/SicilianNMT}}
+\end{frame}
 
 \end{document}
