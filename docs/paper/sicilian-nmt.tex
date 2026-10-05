@@ -552,7 +552,7 @@ The from-scratch baseline is a small Transformer trained on CPU with Sockeye-3
 \citep{hieber2017sockeye}: 3 layers, model size 256, 4 attention heads, feed-forward size 1024,
 a vocabulary shared by the two languages and a joint BPE of 4000 merges, i.e., about 6.6M
 parameters. Dropout is 0.4 on the embeddings and 0.2 elsewhere, with label smoothing 0.1, and the model is trained with Adam (learning rate $2\cdot 10^{-4}$, batches of 1024 words) for at most 30
-epochs, with early stopping after 8 checkpoints without improvement. On top of it we add, in this
+epochs, with early stopping after 8 checkpoints without improvement. Pairs with a side longer than 100 subwords are left out of training. On top of it we add, in this
 order, lever B, more parallel text and a linguistic input feature (``lever D''). The latter is a
 lemma source factor \citep{sennrich2016linguistic} summed into the source embedding as
 \[
@@ -560,10 +560,8 @@ lemma source factor \citep{sennrich2016linguistic} summed into the source embedd
 \]
 where $w_j$ is the $j$-th source word and $\ell_j$ its lemma; the lemma vocabulary is small
 (about 900 entries), and therefore generalizes across the inflected forms of a word.
-
-%%
-%%  ^^ which lemmatizer was used ???
-%%
+The lemmas are those of the lemma table of the original system, which maps 16{,}377 inflected
+forms (mostly of verbs) to 1{,}252 lemmas; a word missing from the table receives an unknown lemma.
 
 \subsection{Pretrained model}
 Our pretrained model is NLLB-200 \citep{nllb2022}, a massively multilingual encoder--decoder that
@@ -574,11 +572,6 @@ low-rank update is learned, which gives $W=W_0+\frac{\alpha}{r}BA$ with $r{=}32$
 and dropout 0.05 on the adapter (about 18.9M trainable parameters, i.e., 1.4\% of the model).
 As usual, the base model is kept in fp16 and the adapters in fp32; training uses a learning rate of
 $2\cdot 10^{-4}$ and sentences of at most 128 tokens, and decoding uses beam search with 5 beams.
-%%
-%%  ^^ What was the maximum sequence length in the original Sockeye models ??
-%%     From training logs, Eryk thinks that the original maximum was 100.
-%%     The maximum in his newer models is 400.
-%%
 One adapter is trained on both directions at once (scn$\to$en and en$\to$scn),
 and one on four (scn$\leftrightarrow$en and it$\leftrightarrow$scn).
 %%
@@ -933,7 +926,7 @@ learned with the inflections of the Dieli and Chiu da Palora vocabularies append
 Transformer with 3 layers, model size 256, 4 heads and feed-forward size 1{,}024, whose target
 embeddings are tied to the output layer. Dropout is 0.5 on the embeddings and 0.25 elsewhere,
 with label smoothing 0.1, and the model is trained with Adam (learning rate $1.5\cdot 10^{-4}$,
-batches of 20 sentences) for at most 20 epochs, with Sockeye 3 instead of his Sockeye 1. We
+batches of 20 sentences) for at most 20 epochs, with Sockeye 3 instead of his Sockeye 1. Pairs with a side longer than 200 subwords are left out, as in his configuration (his later many-to-many model used 100). We
 train it on three sets, i.e., (A) his hand-aligned sheets, (B) our automatic alignment of the
 born-digital issues with the textbook exercises, and (C) both, deduplicated, each guarded against
 his test set and against the validation lines, and we score it on his test set in the tokenized
