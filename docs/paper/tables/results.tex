@@ -1,0 +1,24 @@
+\begin{table}[t]
+\caption{Results on our test set (BLEU / chrF). The upper rows are trained on the web set, the
+staged rows on the back-translations and on the curated set (cf.\ section~\ref{sec:staged}).}
+\label{tab:results}
+\centering
+\begin{tabular}{lcc}
+\toprule
+model & scn$\rightarrow$en & en$\rightarrow$scn \\
+\midrule
+floor (copy source) & 5.27 / 25.40 & -- \\
+Sockeye baseline & 5.54 / 28.28 & -- \\
+\;+ lever B (tok.\ + desinences) & 7.24 / 29.52 & -- \\
+\;+ more data & 9.79 / 33.82 & -- \\
+\;+ lever D (lemma source factors) & 10.85 / 35.22 & -- \\
+\midrule
+NLLB-200 1.3B, zero-shot (raw) & 29.02 / 55.23 & 9.89 / 41.12 \\
+LoRA, bidirectional & 31.21 / 56.77 & 19.03 / 49.91 \\
+\;+ back-translation (7{,}498 pairs) & 31.66 / 57.25 & -- \\
+\midrule
+staged (back-translations, then curated) & 32.40 / 58.19 & 21.72 / 52.79 \\
+curriculum (coarse stage first) & 33.01 / 58.62 & 21.78 / 52.94 \\
+\bottomrule
+\end{tabular}
+\end{table}

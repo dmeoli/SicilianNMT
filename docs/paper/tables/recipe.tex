@@ -1,0 +1,18 @@
+\begin{table}[t]
+\caption{The 2022 baseline of the second author retrained from scratch with his configuration,
+on three training sets, and scored on his test set in his tokenized space (BLEU). The first row
+is the published score of \citet{wdowiak2022loresnmt}, obtained with a warm start and with the
+training stopped on the test set.}
+\label{tab:recipe}
+\centering
+\begin{tabular}{lrcc}
+\toprule
+training set & pairs & en$\rightarrow$scn & scn$\rightarrow$en \\
+\midrule
+published (his sheets) & -- & 25.1 & 29.1 \\
+A (his sheets) & 20{,}220 & 15.97 & 16.65 \\
+B (our alignment) & 18{,}503 & 13.20 & 13.14 \\
+C (both) & 31{,}730 & 22.45 & 20.69 \\
+\bottomrule
+\end{tabular}
+\end{table}

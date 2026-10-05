@@ -1,0 +1,19 @@
+\begin{table}[t]
+\caption{Datasets (number of sentence pairs). ``Web'' is the first training set of
+section~\ref{sec:datasets}, ``curated'' the second one; the test set is shared.}
+\label{tab:data}
+\centering
+\begin{tabular}{llrl}
+\toprule
+set & direction & pairs & sources \\
+\midrule
+web     & scn--en & 27{,}386 & Arba Sicula (13{,}538) + Good-Sicilian-in-NLLB (15{,}848) \\
+        & it--scn & 9{,}389  & WikiMatrix \\
+curated & scn--en & 30{,}980 & hand-aligned sheets, Arba Sicula, Napizia \\
+        & scn--it & 10{,}427 & hand-aligned sheets, Napizia \\
+        & scn (mono) & 14{,}360 & Cipolla's second textbook \\
+test    & scn--en & 1{,}000 & Arba Sicula \\
+        & it--scn & 1{,}000 & WikiMatrix \\
+\bottomrule
+\end{tabular}
+\end{table}

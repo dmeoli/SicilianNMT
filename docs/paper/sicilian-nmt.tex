@@ -372,25 +372,7 @@ words. This guard removed 794 pairs from the second set (778 because of the test
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{Datasets (number of sentence pairs). ``Web'' is the first training set of
-section~\ref{sec:datasets}, ``curated'' the second one; the test set is shared.}
-\label{tab:data}
-\centering
-\begin{tabular}{llrl}
-\toprule
-set & direction & pairs & sources \\
-\midrule
-web     & scn--en & 27{,}386 & Arba Sicula (13{,}538) + Good-Sicilian-in-NLLB (15{,}848) \\
-        & it--scn & 9{,}389  & WikiMatrix \\
-curated & scn--en & 30{,}980 & hand-aligned sheets, Arba Sicula, Napizia \\
-        & scn--it & 10{,}427 & hand-aligned sheets, Napizia \\
-        & scn (mono) & 14{,}360 & Cipolla's second textbook \\
-test    & scn--en & 1{,}000 & Arba Sicula \\
-        & it--scn & 1{,}000 & WikiMatrix \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/data}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -689,30 +671,7 @@ used by the staged training.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{Results on our test set (BLEU / chrF). The upper rows are trained on the web set, the
-staged rows on the back-translations and on the curated set (cf.\ section~\ref{sec:staged}).}
-\label{tab:results}
-\centering
-\begin{tabular}{lcc}
-\toprule
-model & scn$\rightarrow$en & en$\rightarrow$scn \\
-\midrule
-floor (copy source) & 5.27 / 25.40 & -- \\
-Sockeye baseline & 5.54 / 28.28 & -- \\
-\;+ lever B (tok.\ + desinences) & 7.24 / 29.52 & -- \\
-\;+ more data & 9.79 / 33.82 & -- \\
-\;+ lever D (lemma source factors) & 10.85 / 35.22 & -- \\
-\midrule
-NLLB-200 1.3B, zero-shot (raw) & 29.02 / 55.23 & 9.89 / 41.12 \\
-LoRA, bidirectional & 31.21 / 56.77 & 19.03 / 49.91 \\
-\;+ back-translation (7{,}498 pairs) & 31.66 / 57.25 & -- \\
-\midrule
-staged (back-translations, then curated) & 32.40 / 58.19 & 21.72 / 52.79 \\
-curriculum (coarse stage first) & 33.01 / 58.62 & 21.78 / 52.94 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/results}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -758,34 +717,7 @@ may improve the model further.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{Ablation of the staged training (cf.\ section~\ref{sec:staged}): the base settings,
-the larger second stage alone, and three changes made together (300{,}000 back-translated pairs per file, a rank-64 adapter
-on the attention and feed-forward layers, 256-token sequences and three epochs in the third
-stage). The epoch is chosen on the validation set; our test is scored on raw text (BLEU / chrF),
-his on all 121 lines in his tokenized space (BLEU), since all runs exclude them from training.}
-\label{tab:ablation}
-\centering
-\begin{tabular}{lccc}
-\toprule
- & base & + 300k pairs & + three changes \\
-\midrule
-epoch chosen & 2 of 2 & 2 of 2 & 3 of 3 \\
-\midrule
-\multicolumn{4}{l}{our test} \\
-scn$\rightarrow$en & 32.82 / 58.41 & 33.34 / 58.75 & 35.40 / 60.39 \\
-en$\rightarrow$scn & 21.52 / 52.68 & 21.88 / 52.97 & 25.09 / 55.24 \\
-\midrule
-\multicolumn{4}{l}{test of the second author} \\
-en$\rightarrow$scn & 44.42 & 44.49 & 48.36 \\
-scn$\rightarrow$en & 57.14 & 58.54 & 60.95 \\
-it$\rightarrow$scn & 59.31 & 62.04 & 62.78 \\
-scn$\rightarrow$it & 61.46 & 61.02 & 62.05 \\
-it$\rightarrow$en  & 60.90 & 59.97 & 59.09 \\
-en$\rightarrow$it  & 50.16 & 49.14 & 48.00 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/ablation}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -807,25 +739,7 @@ English directions.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{Trilingual adapter on the web set, zero-shot and after fine-tuning (BLEU / chrF). The
-scn--en rows use our test set, the it--scn rows the WikiMatrix one, and the it--en rows the
-FLORES-200 devtest, on which the adapter was not trained.}
-\label{tab:italian}
-\centering
-\begin{tabular}{lcc}
-\toprule
-direction & zero-shot & multilingual FT \\
-\midrule
-scn$\rightarrow$en & 29.02 / 55.23 & 30.97 / 56.63 \\
-en$\rightarrow$scn & 9.89 / 41.12 & 17.85 / 48.82 \\
-it$\rightarrow$scn & 17.61 / 44.77 & 27.48 / 51.66 \\
-scn$\rightarrow$it & 42.20 / 59.04 & 43.70 / 59.89 \\
-it$\rightarrow$en & 34.40 / 62.61 & 27.18 / 57.94 \\
-en$\rightarrow$it & 29.43 / 58.63 & 28.76 / 58.06 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/italian}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -882,33 +796,7 @@ direction in which his system remains ahead.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{Published results of the second author against ours on his test set, in his tokenized
-space (BLEU). His columns are taken from \citet{wdowiak2022loresnmt} and \citet{wdowiakreverse};
-in ours, the first number is the score on all 121 lines and the second the score on the lines
-absent from the training data of that model (107 for the web adapter, 113 for the staged runs);
-the last column is the stronger variant of Table~\ref{tab:ablation}, which was trained without any
-of the 121 lines and is therefore scored on all of them. The web adapter was trained on scn$\leftrightarrow$en only, and a dash marks a direction that was
-not reported.}
-\label{tab:sota}
-\centering
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccccc}
-\toprule
- & \multicolumn{3}{c}{Wdowiak} & \multicolumn{4}{c}{ours (NLLB-200 1.3B)} \\
-\cmidrule(lr){2-4} \cmidrule(lr){5-8}
-direction & baseline & m2m & reverse & web & staged & curriculum & ablation \\
-\midrule
-en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 32.19 / 31.95 & 44.40 / 45.07 & 43.97 / 43.92 & 48.36 \\
-scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 51.16 / 50.65 & 57.00 / 56.43 & 58.80 / 58.19 & 60.95 \\
-it$\rightarrow$scn & --   & 36.5 & 61.4 & 39.69 / 39.50 & 61.04 / 61.49 & 60.69 / 60.86 & 62.78 \\
-scn$\rightarrow$it & --   & 30.9 & 62.9 & 52.98 / 52.57 & 60.40 / 59.84 & 60.47 / 59.96 & 62.05 \\
-it$\rightarrow$en  & --   & --   & 48.2 & 56.59 / 55.63 & 62.72 / 62.45 & 61.38 / 61.11 & 59.09 \\
-en$\rightarrow$it  & --   & --   & 46.7 & 47.31 / 45.89 & 49.27 / 48.69 & 49.14 / 48.62 & 48.00 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/sota}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -943,24 +831,7 @@ these scores remain far below those of the NLLB adapters on the same lines (Tabl
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
-\begin{table}[t]
-\caption{The 2022 baseline of the second author retrained from scratch with his configuration,
-on three training sets, and scored on his test set in his tokenized space (BLEU). The first row
-is the published score of \citet{wdowiak2022loresnmt}, obtained with a warm start and with the
-training stopped on the test set.}
-\label{tab:recipe}
-\centering
-\begin{tabular}{lrcc}
-\toprule
-training set & pairs & en$\rightarrow$scn & scn$\rightarrow$en \\
-\midrule
-published (his sheets) & -- & 25.1 & 29.1 \\
-A (his sheets) & 20{,}220 & 15.97 & 16.65 \\
-B (our alignment) & 18{,}503 & 13.20 & 13.14 \\
-C (both) & 31{,}730 & 22.45 & 20.69 \\
-\bottomrule
-\end{tabular}
-\end{table}
+\input{tables/recipe}
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 

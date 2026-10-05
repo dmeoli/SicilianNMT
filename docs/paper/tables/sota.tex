@@ -1,0 +1,27 @@
+\begin{table}[t]
+\caption{Published results of the second author against ours on his test set, in his tokenized
+space (BLEU). His columns are taken from \citet{wdowiak2022loresnmt} and \citet{wdowiakreverse};
+in ours, the first number is the score on all 121 lines and the second the score on the lines
+absent from the training data of that model (107 for the web adapter, 113 for the staged runs);
+the last column is the stronger variant of Table~\ref{tab:ablation}, which was trained without any
+of the 121 lines and is therefore scored on all of them. The web adapter was trained on scn$\leftrightarrow$en only, and a dash marks a direction that was
+not reported.}
+\label{tab:sota}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc}
+\toprule
+ & \multicolumn{3}{c}{Wdowiak} & \multicolumn{4}{c}{ours (NLLB-200 1.3B)} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-8}
+direction & baseline & m2m & reverse & web & staged & curriculum & ablation \\
+\midrule
+en$\rightarrow$scn & 25.1 & 35.0 & 45.1 & 32.19 / 31.95 & 44.40 / 45.07 & 43.97 / 43.92 & 48.36 \\
+scn$\rightarrow$en & 29.1 & 36.8 & 48.6 & 51.16 / 50.65 & 57.00 / 56.43 & 58.80 / 58.19 & 60.95 \\
+it$\rightarrow$scn & --   & 36.5 & 61.4 & 39.69 / 39.50 & 61.04 / 61.49 & 60.69 / 60.86 & 62.78 \\
+scn$\rightarrow$it & --   & 30.9 & 62.9 & 52.98 / 52.57 & 60.40 / 59.84 & 60.47 / 59.96 & 62.05 \\
+it$\rightarrow$en  & --   & --   & 48.2 & 56.59 / 55.63 & 62.72 / 62.45 & 61.38 / 61.11 & 59.09 \\
+en$\rightarrow$it  & --   & --   & 46.7 & 47.31 / 45.89 & 49.27 / 48.69 & 49.14 / 48.62 & 48.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
