@@ -19,9 +19,9 @@ subword-nmt
 sacrebleu==2.6.0
 
 # NLLB (modern model eval / fine-tune)
-transformers
+transformers==4.57.6   # pinned with peft: transformers 5 breaks peft<0.18
 sentencepiece
 huggingface_hub
 datasets
-peft
+peft==0.17.1
 gradio
