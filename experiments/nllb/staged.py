@@ -134,8 +134,14 @@ def _scores(model, tok, sets, dec_len=160, beams=5):
 
 def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
         stage2_epochs=1, stage3_epochs=2, model_id='facebook/nllb-200-1.3B',
-        batch_size=16, grad_accum=1, max_len=128, dec_len=160, beams=5):
-    """One variant of the staged training; returns (and saves) its results."""
+        batch_size=16, grad_accum=1, max_len=128, dec_len=160, beams=5,
+        stage3_iten=0, stage2_from=None):
+    """One variant of the staged training; returns (and saves) its results.
+
+    stage3_iten: natural it-en pairs of WikiMatrix added to stage 3 in both directions, taken
+    after the `topk` used in stage 2 (so never seen before), against the forgetting of it<->en.
+    stage2_from: name of an earlier variant whose stage-2 adapter is reused (same stage-2
+    settings), so that only stage 3 is trained."""
     res_path = f'{out}/results_{name}.json'
     if os.path.exists(res_path):
         print(f'{name}: already done'); return json.load(open(res_path))
@@ -149,14 +155,17 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
            | set(valid['scn']) | set(read(f'{data}/valid.scn')) | set(valid['en'])
            | set(eryk['scn']) | {normalize(x, 'std') for x in eryk['scn']}
            | set(eryk['en']) | set(eryk['it']))
-    s2_dir, s3_dir = f'{out}/nllb-lora-{name}-stage2', f'{out}/nllb-lora-{name}'
+    s2_dir, s3_dir = f'{out}/nllb-lora-{stage2_from or name}-stage2', f'{out}/nllb-lora-{name}'
+    wm_all = lambda: [(e, i) for e, i in zip(read(f'{bt}/wm-million_tkn2ascii.en-it.txt.en'),
+                                             read(f'{bt}/wm-million_tkn2ascii.en-it.txt.it'))
+                      if e not in ban]
 
     # stage 2: back-translations + natural it-en (skipped if its adapter is already saved)
     if not os.path.exists(f'{s2_dir}/adapter_config.json'):
+        if stage2_from:
+            raise FileNotFoundError(f'{s2_dir}: run {stage2_from} first')
         stage2 = [load_scored(f'{bt}/{f}', s, t, topk, ban) for f, s, t in FILES]
-        wm = [(e, i) for e, i in zip(read(f'{bt}/wm-million_tkn2ascii.en-it.txt.en'),
-                                      read(f'{bt}/wm-million_tkn2ascii.en-it.txt.it'))
-              if e not in ban][:topk]
+        wm = wm_all()[:topk]
         stage2 += [([e for e, _ in wm], [i for _, i in wm], 'en', 'it'),
                    ([i for _, i in wm], [e for e, _ in wm], 'it', 'en')]
         m, tok = load_base(model_id); ad = attach_lora(m, r=r, alpha=alpha, targets=targets)
@@ -169,11 +178,15 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
     ti = {'scn': read(f'{ft_dir}/train.scn-it.scn'), 'it': read(f'{ft_dir}/train.scn-it.it')}
     se = [(s, e) for s, e in zip(tr['scn'], tr['en']) if s not in ban and e not in ban]
     si = [(s, i) for s, i in zip(ti['scn'], ti['it']) if s not in ban and i not in ban]
-    ds3 = build_dataset(tok, [([s for s, _ in se], [e for _, e in se], 'scn', 'en'),
-                              ([e for _, e in se], [s for s, _ in se], 'en', 'scn'),
-                              ([s for s, _ in si], [i for _, i in si], 'scn', 'it'),
-                              ([i for _, i in si], [s for s, _ in si], 'it', 'scn')],
-                        max_len=max_len)
+    dirs3 = [([s for s, _ in se], [e for _, e in se], 'scn', 'en'),
+             ([e for _, e in se], [s for s, _ in se], 'en', 'scn'),
+             ([s for s, _ in si], [i for _, i in si], 'scn', 'it'),
+             ([i for _, i in si], [s for s, _ in si], 'it', 'scn')]
+    if stage3_iten:
+        wm3 = wm_all()[topk:topk + stage3_iten]
+        dirs3 += [([e for e, _ in wm3], [i for _, i in wm3], 'en', 'it'),
+                  ([i for _, i in wm3], [e for e, _ in wm3], 'it', 'en')]
+    ds3 = build_dataset(tok, dirs3, max_len=max_len)
     finetune(ad, tok, ds3, out_dir=s3_dir, epochs=stage3_epochs,
              batch_size=batch_size, grad_accum=grad_accum, save='epoch')
 
@@ -190,7 +203,8 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
     m, tok = load_base(model_id, adapter=best[0])
     res = {'config': dict(topk=topk, r=r, alpha=alpha, targets=list(targets),
                           stage2_epochs=stage2_epochs, stage3_epochs=stage3_epochs, model=model_id,
-                          max_len=max_len, dec_len=dec_len, beams=beams),
+                          max_len=max_len, dec_len=dec_len, beams=beams,
+                          stage3_iten=stage3_iten, stage2_from=stage2_from),
            'valid_curve': curve, 'epoch': best[2], 'test': _scores(m, tok, test, dec_len, beams)}
     res['eryk_test'] = eryk_scores(m, tok, eryk, dec_len=dec_len, beams=beams)
     print(f'{name}: epoch {best[2]} chosen on validation, test {res["test"]}')
