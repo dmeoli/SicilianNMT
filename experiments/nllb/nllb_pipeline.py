@@ -37,7 +37,11 @@ def load_base(model_id: str = DEFAULT_MODEL, adapter: str | None = None):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     dtype = torch.float16 if device == "cuda" else torch.float32
     tok = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForSeq2SeqLM.from_pretrained(model_id, torch_dtype=dtype, low_cpu_mem_usage=True)
+    # eager attention: with SDPA, recent torch can pick a different kernel when gradient
+    # checkpointing recomputes a layer, and the non-reentrant checkpoint then fails
+    # ("a different number of tensors was saved"); eager computes the same in one way
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_id, torch_dtype=dtype, low_cpu_mem_usage=True,
+                                                  attn_implementation="eager")
     if adapter:
         from peft import PeftModel
         model = PeftModel.from_pretrained(model, adapter).merge_and_unload()
@@ -91,6 +95,8 @@ def finetune(ft, tok, dataset, out_dir: str, epochs: int = 2, lr: float = 2e-4,
     from transformers import DataCollatorForSeq2Seq, Seq2SeqTrainer, Seq2SeqTrainingArguments
     from transformers.trainer_utils import get_last_checkpoint
     _free()
+    import accelerate, transformers
+    print(f"torch {torch.__version__}, transformers {transformers.__version__}, accelerate {accelerate.__version__}")
     trainer_dir = f"{out_dir}-trainer"
     args = Seq2SeqTrainingArguments(
         output_dir=trainer_dir, num_train_epochs=epochs,
