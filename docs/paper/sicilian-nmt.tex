@@ -877,6 +877,10 @@ bidirectional and unidirectional training, and at different depths,
 and to measure how much the textbook exercises contribute.
 Finally, the same pipeline may be applied to varieties close to Sicilian,
 such as Calabrese and Salentino, whose written texts exhibit similar orthographic diversity.
+The aligner itself should transfer to other varieties of Italy: on the FLORES-200 devtest, LaBSE
+retrieves the correct English translation of a Friulian, Ligurian, Lombard, Sardinian or Venetian
+sentence in 98.5 to 99.9\% of the cases (99.0\% for Sicilian), and therefore what is missing for
+them is a bilingual source comparable to \emph{Arba Sicula}.
 
 Our code for the pipeline and the evaluation is publicly available, together with a small
 serving application (a web interface and a Telegram bot, both built on a FastAPI service over

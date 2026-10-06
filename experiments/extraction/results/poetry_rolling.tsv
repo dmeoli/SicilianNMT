@@ -1,0 +1,13 @@
+genre	k	mean_cos	recall@0.40	n_units
+poetry	1	0.6507	0.8438	416
+poetry	2	0.7222	0.9615	208
+poetry	3	0.7639	0.9929	140
+prose	1	0.7072	0.8952	706
+prose	2	0.7606	0.9379	354
+prose	3	0.7927	0.9540	239
+standard-prose	1	0.7585	0.9123	114
+standard-prose	2	0.7988	0.9649	57
+standard-prose	3	0.8296	1.0000	38
+folk-tale	1	0.6070	0.8750	40
+folk-tale	2	0.6742	0.9500	20
+folk-tale	3	0.7143	1.0000	14
