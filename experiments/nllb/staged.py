@@ -135,13 +135,15 @@ def _scores(model, tok, sets, dec_len=160, beams=5):
 def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
         stage2_epochs=1, stage3_epochs=2, model_id='facebook/nllb-200-1.3B',
         batch_size=16, grad_accum=1, max_len=128, dec_len=160, beams=5,
-        stage3_iten=0, stage2_from=None):
+        stage3_iten=0, stage2_from=None, stage3_itscn=False):
     """One variant of the staged training; returns (and saves) its results.
 
     stage3_iten: natural it-en pairs of WikiMatrix added to stage 3 in both directions, taken
     after the `topk` used in stage 2 (so never seen before), against the forgetting of it<->en.
     stage2_from: name of an earlier variant whose stage-2 adapter is reused (same stage-2
-    settings), so that only stage 3 is trained."""
+    settings), so that only stage 3 is trained.
+    stage3_itscn: also train stage 3 on the WikiMatrix it-scn training pairs of the web set
+    (data/itsc_train.*, whose valid and test splits are held out), in both directions."""
     res_path = f'{out}/results_{name}.json'
     if os.path.exists(res_path):
         print(f'{name}: already done'); return json.load(open(res_path))
@@ -182,6 +184,11 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
              ([e for _, e in se], [s for s, _ in se], 'en', 'scn'),
              ([s for s, _ in si], [i for _, i in si], 'scn', 'it'),
              ([i for _, i in si], [s for s, _ in si], 'it', 'scn')]
+    if stage3_itscn:
+        wi = [(normalize(s, 'std'), i) for s, i in zip(read(f'{data}/itsc_train.scn'), read(f'{data}/itsc_train.it'))]
+        wi = [(s, i) for s, i in wi if s not in ban and i not in ban]
+        dirs3 += [([s for s, _ in wi], [i for _, i in wi], 'scn', 'it'),
+                  ([i for _, i in wi], [s for s, _ in wi], 'it', 'scn')]
     if stage3_iten:
         wm3 = wm_all()[topk:topk + stage3_iten]
         dirs3 += [([e for e, _ in wm3], [i for _, i in wm3], 'en', 'it'),
@@ -204,7 +211,8 @@ def run(name, out, data, topk=100000, r=32, alpha=64, targets=ATTN,
     res = {'config': dict(topk=topk, r=r, alpha=alpha, targets=list(targets),
                           stage2_epochs=stage2_epochs, stage3_epochs=stage3_epochs, model=model_id,
                           max_len=max_len, dec_len=dec_len, beams=beams,
-                          stage3_iten=stage3_iten, stage2_from=stage2_from),
+                          stage3_iten=stage3_iten, stage2_from=stage2_from,
+                          stage3_itscn=stage3_itscn),
            'valid_curve': curve, 'epoch': best[2], 'test': _scores(m, tok, test, dec_len, beams)}
     res['eryk_test'] = eryk_scores(m, tok, eryk, dec_len=dec_len, beams=beams)
     print(f'{name}: epoch {best[2]} chosen on validation, test {res["test"]}')
