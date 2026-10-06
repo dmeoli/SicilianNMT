@@ -305,8 +305,9 @@ nor hunalign.
 
 Both thresholds were chosen on a grid (0.50, 0.55, 0.58 and 0.62 for $\tau_{\text{page}}$, 0.35,
 0.40, 0.45 and 0.50 for $\tau_{\text{sent}}$) against the hand alignment of the second author
-for the issues AS41 and AS42, which gave $(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$.
-On that gold the aligner reproduces 678 pairs exactly (recall 0.53, precision 0.57); these
+for the issues AS41 and AS42, which gave $(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$ (its F1 of 0.58 is 0.01 below that of
+$\tau_{\text{sent}}=0.35$, which keeps more pairs at a lower precision).
+On that gold the aligner reproduces 715 pairs exactly (recall 0.54, precision 0.63); these
 figures are somewhat pessimistic, since a pair that is correct but segmented differently from
 the hand alignment counts as an error, and since the hand alignment favored
 %% , by its author's account,
