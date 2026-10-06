@@ -1,6 +1,6 @@
 """The 2022 baseline of E. Wdowiak, re-run with his Sockeye configuration on three training
 sets (A his hand-aligned sheets, B our automatic alignment, C both; see recipe_data.py), and
-scored on his own test in the space of the Napizia tokenizer, where he scored (§7.12).
+scored on his own test in the space of the Napizia tokenizer, where he scored (recipe_colab.ipynb).
 
 His configuration (dataset/sockeye_n30_sw3000 in the history of his repository): Napizia
 tokenization (accents folded, contractions undone), separate subword vocabularies per language

@@ -1,15 +1,15 @@
-"""Staged NLLB+LoRA training (the recipe of §7.8) as one parametrised, resumable run.
+"""Staged NLLB+LoRA training (the recipe of §7.2 of the notebook) as one parametrised, resumable run.
 
 Stage 2 trains the adapter on the forward-scored back-translations of E. Wdowiak (the `topk`
 lowest-scoring pairs of each file, after the filters below) plus natural WikiMatrix it-en;
 stage 3 continues it on the curated set (scn<->en, scn<->it). Each stage checkpoints on Drive
 and resumes after a disconnection; stage 3 keeps one checkpoint per epoch, the epoch is chosen
 on the 1,000-pair validation set (held out of both stages), and only that one is scored on the
-test set. Results go to OUT/results_<name>.json, so that the variants of the §7.10 ablation
+test set. Results go to OUT/results_<name>.json, so that the variants of the §7.4 ablation
 can be compared with one another and with results_full.json.
 
     from staged import run
-    run('base', OUT, DATA)                                   # §7.8's settings
+    run('base', OUT, DATA)                                   # the settings of §7.2
     run('bt300', OUT, DATA, topk=300000)                     # + more back-translations
 """
 from __future__ import annotations
