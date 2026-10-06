@@ -750,8 +750,8 @@ English directions.
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 \paragraph{Forgetting of the untrained directions.}
-Since the adapter is trained only on the directions that involve Sicilian, one may ask what happens to the others. On FLORES-200, the trilingual adapter lowers it$\to$en from 34.40 to 27.18
-BLEU and en$\to$it from 29.43 to 28.76 (Table~\ref{tab:italian}), i.e., it forgets a direction
+Since the adapter is trained only on the directions that involve Sicilian, one may ask what happens to the others. On FLORES-200, the trilingual adapter lowers it$\to$en from 34.42 to 27.14
+BLEU and en$\to$it from 29.42 to 28.77 (Table~\ref{tab:italian}), i.e., it forgets a direction
 on which the base model was good and on which it was never trained. This is the transfer from
 high- to low-resource languages described by \citet{johnson2017zeroshot}, and it limits the use
 of the adapter as a general multilingual model; the translation between Sicilian and the other
