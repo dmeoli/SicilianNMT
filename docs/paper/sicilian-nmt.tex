@@ -658,7 +658,7 @@ the table, ``floor'' is the score of the untranslated source, each row beginning
 one component to the row above it, ``raw'' means that NLLB receives the Sicilian text without
 normalization, and a dash marks a direction on which the model was not trained or evaluated. Note that the Sockeye baseline barely exceeds the floor
 (5.54 against 5.27 BLEU), and that the three levers raise it only to 10.85. NLLB-1.3B, on the
-other hand, is much better even zero-shot (29.02 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.21, while en$\to$scn improves from 9.89 to 19.03. Adding the 7{,}498 back-translated
+other hand, is much better even zero-shot (29.00 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.21, while en$\to$scn improves from 9.90 to 19.03. Adding the 7{,}498 back-translated
 pairs gives 31.66 on scn$\to$en; this small improvement is consistent with the size of the
 in-domain monolingual pool, which is two orders of magnitude smaller than the back-translations
 used by the staged training.
@@ -738,7 +738,7 @@ adapter, which uses Italian as a bridge in the sense of \citet{johnson2017zerosh
 \citet{fan2020beyond}. Table~\ref{tab:italian} reports the results as BLEU / chrF. As one would
 expect for a close, high-resource neighbor on in-domain WikiMatrix text, the Italian pairs are by
 far the ``easiest'': scn$\rightarrow$it reaches 43.70 BLEU, and it$\rightarrow$scn improves from
-17.61 to 27.48. However, the multilingual adapter loses somewhat on scn$\leftrightarrow$en (30.97
+17.57 to 27.48. However, the multilingual adapter loses somewhat on scn$\leftrightarrow$en (30.97
 and 17.85 BLEU, against 31.21 and 19.03 for the bidirectional adapter of
 Table~\ref{tab:results}); hence, on the web set the Italian bridge brings no improvement to the
 English directions.
