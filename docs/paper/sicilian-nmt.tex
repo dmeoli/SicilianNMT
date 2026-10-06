@@ -206,7 +206,7 @@ with Italian as a bridge, and we replace the custom pretraining of the reverse-t
 with the pretraining of NLLB, keeping its second stage (forward-scored back-translations of the
 web Sicilian) and its last one (the curated literary text). Since the published results of the
 original system were measured on a different test set and in the space of its tokenizer, we
-score our models on that test set and in that space as well (cf.\ section~\ref{sec:sota}).
+score our models on that test set and in that space as well (cf.\ Table~\ref{tab:sota}).
 
 The structure of the paper is as follows. Section~\ref{sec:background} recalls the models on
 which all our systems are based. Section~\ref{sec:pipeline} describes the extraction, the
@@ -313,8 +313,6 @@ the hand alignment counts as an error, and since the hand alignment favored
 the pairs that were easier to align.  Each pair records the printed Sicilian and English
 page and its LaBSE similarity, which allows one to check it against the printed issue.
 
-%%  TO DO (??):  go back and collect the unaligned Sicilian for back-translation
-
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 %%  (sub) cleaning
@@ -365,10 +363,10 @@ Furthermore, the sheets provide 14{,}360 monolingual Sicilian sentences
 (Cipolla's 2021 textbook) and a validation set of 121 trilingual lines. Its Sicilian side is
 normalized as in section~\ref{sec:tokenization}, and the exact repeats are removed.
 
-A validation and a test set of 1{,}000 pairs each were drawn once at random from our first extraction of \emph{Arba Sicula}, which provides the literary standard that FLORES does not, among the pairs with 3 to 80 words per side and a length ratio between 1/3 and 3, and then frozen; hence, all the results of section~\ref{sec:results} are computed on the same test set, except those of Table~\ref{tab:sota}. The validation set of 1{,}000 pairs is used with the web set, whereas the 121 lines of the sheets are the test set of the second author (cf.\ section~\ref{sec:evaluation}), and are never used for model selection, since the staged runs train for a fixed number of epochs.
+A validation and a test set of 1{,}000 pairs each were drawn once at random from our first extraction of \emph{Arba Sicula}, which provides the literary standard that FLORES does not, among the pairs with 3 to 80 words per side and a length ratio between 1/3 and 3, and then frozen; hence, all the scn--en results of section~\ref{sec:results} are computed on the same test set, except those on the test set of the second author (Tables~\ref{tab:sota} and~\ref{tab:recipe}, and the lower half of Table~\ref{tab:ablation}). The validation set of 1{,}000 pairs is used with the web set and to choose the epoch of the runs of Table~\ref{tab:ablation}, whereas the 121 lines of the sheets are the test set of the second author (cf.\ section~\ref{sec:evaluation}), and are never used for model selection, since the staged runs of section~\ref{sec:staged} train for a fixed number of epochs.
 Each training set is then guarded against it: a pair is removed if its Sicilian side is a test
-or validation sentence (in raw or normalized form), or contains a test sentence of six or more
-words. This guard removed 794 pairs from the second set (778 because of the test set and 16 because of the validation set), some of them from the hand-aligned sheets, which cover the same issues as the test set; without it, the results of the staged training would have been inflated.
+sentence (in raw or normalized form) or, in the second set, contains a test sentence of six or more
+words; the validation pairs are removed in the same way from the web set and from the runs of Table~\ref{tab:ablation}, and the 121 lines of the second author from the second set. This guard removed 794 pairs from the second set (778 because of the test set and 16 because of the 121 lines of the second author), some of them from the hand-aligned sheets, which cover the same issues as the test set; without it, the results of the staged training would have been inflated.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -420,8 +418,8 @@ Retrieval on the multi-parallel FLORES-200 devtest \citep{nllb2022} confirms it:
 retrieves the correct English translation of a Sicilian sentence in 99\% of the cases
 (precision@1), one point below Italian (100\%), which it supports officially. Furthermore, if one
 discounts English (the pivot of LaBSE, to which all languages are close), the nearest
-translation of a Sicilian sentence is Italian in 18\% of the cases, more than twice as often as
-French (8\%), the next Romance language.
+translation of a Sicilian sentence is Italian in 49\% of the remaining cases, more than twice as often as
+French (21\%), the next Romance language.
 
 The seed-data failure, however, is in the \emph{opposite} direction -- retrieving
 the Sicilian translation of an English sentence.
@@ -459,7 +457,7 @@ Hence, the non-standard material is both the larger source of noise in the colle
 the harder to recover, and curating the data toward the literary standard should improve quality
 on both counts. For poetry, we also tried merging short consecutive verses into
 longer units before scoring. We simulated it on the poetry pairs of the gold: merging up to three
-verses raises the mean cosine by about 0.11 and the share above the threshold by 15 points (to
+verses raises the mean cosine by about 0.11 and the share above the threshold by 15 points (from 0.65 and 84\%, pooled over all the poetry pairs, to 0.76 and
 99\%), although part of this gain is mechanical, since the merged units are fewer, longer and
 more distinctive. This corrective is not yet part of the production aligner.
 
@@ -475,9 +473,6 @@ allows us to identify the sentences written in standard Sicilian.
 %%
 This method yielded 549,486 back-translations to simulate English-to-Sicilian
 translation and 689,840 to simulate Italian-to-Sicilian translation.
-%%
-%%  ^^ do the counts above need to be updated ??
-%%     those were from Eryk's "reverse training strategy"
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
@@ -507,7 +502,7 @@ chrF), while the ``full'' one gives nothing more, which is consistent with a pre
 that expects un-normalized input. We therefore adopt ``std'' for all the later experiments.
 
 For the from-scratch models, the Napizia tokenizer was reimplemented in Python (its output
-coincides with that of the original Perl code): it ASCII-folds the accents and uncontracts the
+coincides with that of the original Perl code, except that it also normalizes dashes and ellipses): it ASCII-folds the accents and uncontracts the
 Sicilian forms (e.g., \^o$\to$\emph{a lu}, d\^u$\to$\emph{di lu}), which reduces sparsity. Then,
 the joint scn--en BPE \citep{sennrich2016subword} is biased toward the textbook desinences
 catalogued in the resources that Wdowiak assembled to standardize Sicilian (Dieli's
@@ -549,17 +544,15 @@ weights $W_0$ of the query, key, value and output projections of the attention a
 low-rank update is learned, which gives $W=W_0+\frac{\alpha}{r}BA$ with $r{=}32$, $\alpha{=}64$
 and dropout 0.05 on the adapter (about 18.9M trainable parameters, i.e., 1.4\% of the model).
 As usual, the base model is kept in fp16 and the adapters in fp32; training uses a learning rate of
-$2\cdot 10^{-4}$ and sentences of at most 128 tokens, and decoding uses beam search with 5 beams.
+$2\cdot 10^{-4}$ and sentences of at most 128 tokens, and decoding uses beam search with 5 beams (4 for the synthetic sentences below).
 One adapter is trained on both directions at once (scn$\to$en and en$\to$scn),
 and one on four (scn$\leftrightarrow$en and it$\leftrightarrow$scn).
-%%
-%%  ^^ what if we trained an adapter in all six translation directions ??
-%%
+The former is trained for two epochs, the latter for one.
 For the back-translation experiment of section~\ref{sec:results},
 we translate into Sicilian with the bidirectional adapter the 7{,}592 English sentences
 left unaligned by the first extraction, keep the 7{,}498 synthetic pairs whose length ratio is
 between 0.5 and 2 and whose Sicilian side is new, and train on them
-and on the web set a further adapter for scn$\to$en, for one epoch.
+and on the web set a further adapter for scn$\to$en, for one epoch, on top of the bidirectional one (merged into the base model).
 
 \subsection{Staged training}
 \label{sec:staged}
@@ -592,12 +585,13 @@ Our second stage takes, for each of these
 files, the 100{,}000 pairs with the
 %% lowest score
 best score
+(all of them for the two files of his sheets, which have fewer)
 among those that pass a few filters:
 no unknown token,
 at least five words on each side,
 a source that is neither equal to nor a near-copy of the target (similarity below 0.9),
 no overlap with the test set, and
-a Sicilian side that does not end its words in -o more often than in -u
+a Sicilian side that does not end its words in -o more often than in -u, and has at most one word in -o
 (an inexpensive test against Italian passing as Sicilian,
 which tends to obtain the
 %% lowest scores).
@@ -614,7 +608,7 @@ In these experiments we spent them in a first, coarse stage, which spreads the o
 across the dialects and leaves broad peaks roughly in the right places.
 We then allowed the later stages to sharpen them.
 This curriculum prepends to the two stages above one epoch on the
-200{,}000 worst-scoring pairs of each file
+200{,}000 worst-scoring pairs of each file (all of them for the two smaller files)
 (with at least three words on each side and no filter on the endings),
 and is otherwise identical to them, so that the two runs can be compared.
 
@@ -630,14 +624,13 @@ frozen literary test set of section~\ref{sec:datasets}. We do not use the FLORES
 for scn--en, since its Sicilian follows the orthography introduced after 2017 and comes from a
 different, non-literary domain, and is therefore not representative of the \emph{Arba Sicula}
 material; FLORES-200 devtest is used only for it$\leftrightarrow$en, which our test sets do not
-cover. Sockeye systems are scored in tokenized space, as the upstream system was, whereas NLLB systems are scored on raw text, with the Sicilian side normalized as in training for
-the staged runs; the two groups of rows of Table~\ref{tab:results} are thus not strictly
+cover. Sockeye systems are scored in tokenized space, as the upstream system was, whereas NLLB systems are scored on raw text, with the Sicilian side normalized as in training (except for the zero-shot rows marked as raw); the two groups of rows of Table~\ref{tab:results} are thus not strictly
 comparable (on raw text, the floor obtained by copying the source is 5.27 BLEU). Training was
 done on an 8-core CPU for the Sockeye models and on a single Colab GPU for the NLLB adapters. We
 report no running times, since only the quality of the translation is of concern here.
 
 For the comparison with the published results of the second author (cf.\
-section~\ref{sec:sota}), the NLLB systems are also scored on his test set in the six directions
+Table~\ref{tab:sota}), the NLLB systems are also scored on his test set in the six directions
 between Sicilian, English and Italian. This set consists of the 121 trilingual lines that he
 selected by hand from the issues AS38 and AS39 of the journal (labeled as validation in his
 sheets). As he
@@ -683,7 +676,7 @@ well as adding the back-translations; we have not trained the curated set alone.
 Prepending the coarse stage of section~\ref{sec:staged} raises scn$\to$en to 33.01 BLEU (58.62 chrF), 0.61 more than the
 staged run, while en$\to$scn is essentially unchanged (21.78 against 21.72). Repeated runs of the
 bidirectional adapter differ by up to about 0.2 BLEU on scn$\to$en and 0.5 on en$\to$scn, and
-therefore the first difference is probably real and the second is within the noise. Of course,
+therefore the first difference is probably real and the second is within the noise (however, the repetition of the staged run in Table~\ref{tab:ablation} differs from it by 0.42 BLEU on scn$\to$en, which makes the first difference less certain). Of course,
 the curriculum also trains for one more epoch on about 826{,}000 pairs, and hence we cannot tell
 whether its benefit comes from the dialectal text itself or from the longer training.
 
@@ -694,14 +687,14 @@ whether its benefit comes from the dialectal text itself or from the longer trai
 \paragraph{Ablation of the staged training.}
 In order to find which settings limit the staged model, we have run it again with the settings of
 section~\ref{sec:staged} (base) and with three changes made together. These are (i) 300{,}000
-pairs per file in the second stage instead of 100{,}000, (ii) an adapter of rank 64 instead of 32
+pairs per file in the second stage instead of 100{,}000, (ii) an adapter of rank 64 instead of 32 (with $\alpha{=}128$)
 that also covers the feed-forward layers, and (iii) sequences of up to 256 tokens instead of 128
-(at 128 tokens, about 2\% of the curated pairs are truncated), with three epochs in the third stage
+(at 128 tokens, about 2\% of the curated pairs are truncated), also in decoding, with three epochs in the third stage
 instead of two. All runs hold out of training our test and validation sets and all the lines of
 the test set of the second author, in the three languages. The epoch of the third stage is chosen
 on the 1{,}000 validation pairs, and only that epoch is scored on the two test sets
 (Table~\ref{tab:ablation}). The base run reproduces the staged run of Table~\ref{tab:results}
-within the noise (32.82 and 21.52 BLEU against 32.40 and 21.72), and the three changes raise it to
+within 0.42 BLEU (32.82 and 21.52 BLEU against 32.40 and 21.72), and the three changes raise it to
 35.40 BLEU on scn$\to$en and 25.09 on en$\to$scn, i.e., by 2.6 and 3.6 BLEU. On the test set of
 the second author, the gain is 3.9 BLEU into Sicilian, 3.8 from it and 3.5 from Italian into
 Sicilian, while scn$\to$it gains only 0.6. The two directions between English and Italian lose
@@ -770,7 +763,7 @@ section~\ref{sec:evaluation}). Its first three columns are his, i.e., the baseli
 many-to-many (m2m) model of \citet{wdowiak2022loresnmt} (the latter trained with back-translations
 and, for the Italian directions, with the trilingual textbook exercises), and the third stage of
 his reverse-training system \citep{wdowiakreverse}. The other columns are ours, i.e., the
-bidirectional adapter trained on the web set and the two staged runs of
+bidirectional adapter trained on the web set (a repetition of the run of Table~\ref{tab:results}, which scores 31.30 and 19.19 BLEU on our test set against 31.21 and 19.03) and the two staged runs of
 section~\ref{sec:staged}, each scored on all 121 lines and on those absent from its training
 data. On the latter, the staged model is on a par with the reverse-training system from English
 and from Italian into Sicilian (45.07 against 45.1 BLEU, and 61.49 against 61.4), and it exceeds
