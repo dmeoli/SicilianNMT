@@ -710,7 +710,13 @@ third stage is better in five directions out of six (e.g., 62.02 against 60.95 B
 into English, and 61.89 against 59.09 from Italian into English), and it is worse only from English
 into Sicilian (47.64 against 48.36). Since the variants are compared on the validation set, which
 favors the longer third stage (33.17 and 23.28 BLEU against 32.54 and 22.07), we keep the latter in
-Table~\ref{tab:sota}. Also, the validation score was still rising at the third epoch
+Table~\ref{tab:sota}. Finally, since it$\to$en and en$\to$it are not trained in the third stage,
+we have also added to it 10{,}427 natural WikiMatrix it--en pairs per direction that the second
+stage did not use (last column), reusing the same second stage. On our test the scores do not
+change (35.49 and 25.16 BLEU), and on the test of the second author scn$\to$it gains 0.9 BLEU
+(62.94), but it$\to$en and en$\to$it do not recover (57.30 and 47.53 against 59.09 and 48.00),
+possibly because the encyclopedic text of WikiMatrix is far from the literary one of his test.
+Since its validation score is slightly lower (33.19 and 22.89 BLEU), this variant is not kept. Also, the validation score was still rising at the third epoch
 (23.28 BLEU into Sicilian against 22.06 at the second), which suggests that a longer third stage
 may improve the model further.
 
