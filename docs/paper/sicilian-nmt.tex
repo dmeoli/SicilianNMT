@@ -658,8 +658,8 @@ the table, ``floor'' is the score of the untranslated source, each row beginning
 one component to the row above it, ``raw'' means that NLLB receives the Sicilian text without
 normalization, and a dash marks a direction on which the model was not trained or evaluated. Note that the Sockeye baseline exceeds the floor by only 3.3 BLEU
 (8.51 against 5.18, both in the tokenized space), that lever B raises it to 10.94, and that the lemma factor of lever D lowers it to 10.18. NLLB-1.3B, on the
-other hand, is much better even zero-shot (29.00 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.21, while en$\to$scn improves from 9.90 to 19.03. Adding the 7{,}498 back-translated
-pairs gives 31.66 on scn$\to$en; this small improvement is consistent with the size of the
+other hand, is much better even zero-shot (29.00 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.27, while en$\to$scn improves from 9.90 to 19.19. Adding the 7{,}498 back-translated
+pairs gives 31.60 on scn$\to$en; this small improvement is consistent with the size of the
 in-domain monolingual pool, which is two orders of magnitude smaller than the back-translations
 used by the staged training.
 
@@ -670,8 +670,8 @@ used by the staged training.
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
 Staged training improves both directions, with 32.40 BLEU on scn$\to$en
-and 21.72 on en$\to$scn; the gain over the bidirectional adapter is 1.19 BLEU on scn$\to$en
-and 2.69 on en$\to$scn, which may be due to the back-translations having been selected for the quality of their Sicilian, i.e., of the target side of en$\to$scn. We remark that this
+and 21.72 on en$\to$scn; the gain over the bidirectional adapter is 1.13 BLEU on scn$\to$en
+and 2.53 on en$\to$scn, which may be due to the back-translations having been selected for the quality of their Sicilian, i.e., of the target side of en$\to$scn. We remark that this
 comparison mixes two changes, since the staged run replaces the web set with the curated one as
 well as adding the back-translations; we have not trained the curated set alone.
 Prepending the coarse stage of section~\ref{sec:staged} raises scn$\to$en to 33.01 BLEU (58.62 chrF), 0.61 more than the
@@ -737,9 +737,9 @@ directions (scn$\leftrightarrow$en and it$\leftrightarrow$scn) jointly into one 
 adapter, which uses Italian as a bridge in the sense of \citet{johnson2017zeroshot} and
 \citet{fan2020beyond}. Table~\ref{tab:italian} reports the results as BLEU / chrF. As one would
 expect for a close, high-resource neighbor on in-domain WikiMatrix text, the Italian pairs are by
-far the ``easiest'': scn$\rightarrow$it reaches 43.70 BLEU, and it$\rightarrow$scn improves from
-17.57 to 27.48. However, the multilingual adapter loses somewhat on scn$\leftrightarrow$en (30.97
-and 17.85 BLEU, against 31.21 and 19.03 for the bidirectional adapter of
+far the ``easiest'': scn$\rightarrow$it reaches 43.47 BLEU, and it$\rightarrow$scn improves from
+17.57 to 26.97. However, the multilingual adapter loses somewhat on scn$\leftrightarrow$en (30.75
+and 17.49 BLEU, against 31.27 and 19.19 for the bidirectional adapter of
 Table~\ref{tab:results}); hence, on the web set the Italian bridge brings no improvement to the
 English directions.
 
@@ -770,7 +770,7 @@ section~\ref{sec:evaluation}). Its first three columns are his, i.e., the baseli
 many-to-many (m2m) model of \citet{wdowiak2022loresnmt} (the latter trained with back-translations
 and, for the Italian directions, with the trilingual textbook exercises), and the third stage of
 his reverse-training system \citep{wdowiakreverse}. The other columns are ours, i.e., the
-bidirectional adapter trained on the web set (a repetition of the run of Table~\ref{tab:results}, which scores 31.30 and 19.19 BLEU on our test set against 31.21 and 19.03) and the two staged runs of
+bidirectional adapter trained on the web set (the adapter of Table~\ref{tab:results}, whose re-decoding scores 31.30 and 19.19 BLEU on our test set against 31.27 and 19.19) and the two staged runs of
 section~\ref{sec:staged}, each scored on all 121 lines and on those absent from its training
 data. On the latter, the staged model is on a par with the reverse-training system from English
 and from Italian into Sicilian (45.07 against 45.1 BLEU, and 61.49 against 61.4), and it exceeds
