@@ -524,10 +524,10 @@ and biased segmentation ``lever B'' in the following.
 \subsection{From-scratch baseline}
 The from-scratch baseline is a small Transformer trained on CPU with Sockeye-3
 \citep{hieber2017sockeye}: 3 layers, model size 256, 4 attention heads, feed-forward size 1024,
-a vocabulary shared by the two languages and a joint BPE of 4000 merges, i.e., about 6.6M
+a vocabulary shared by the two languages and a joint BPE of 4000 merges, i.e., about 6.7M
 parameters. Dropout is 0.4 on the embeddings and 0.2 elsewhere, with label smoothing 0.1, and the model is trained with Adam (learning rate $2\cdot 10^{-4}$, batches of 1024 words) for at most 30
 epochs, with early stopping after 8 checkpoints without improvement. Pairs with a side longer than 100 subwords are left out of training. On top of it we add, in this
-order, lever B, more parallel text and a linguistic input feature (``lever D''). The latter is a
+order, lever B and a linguistic input feature (``lever D''). The latter is a
 lemma source factor \citep{sennrich2016linguistic} summed into the source embedding as
 \[
   e_j=E_{\text{word}}(w_j)+E_{\text{lemma}}(\ell_j) \; ,
@@ -626,7 +626,7 @@ for scn--en, since its Sicilian follows the orthography introduced after 2017 an
 different, non-literary domain, and is therefore not representative of the \emph{Arba Sicula}
 material; FLORES-200 devtest is used only for it$\leftrightarrow$en, which our test sets do not
 cover. Sockeye systems are scored in tokenized space, as the upstream system was, whereas NLLB systems are scored on raw text, with the Sicilian side normalized as in training (except for the zero-shot rows marked as raw); the two groups of rows of Table~\ref{tab:results} are thus not strictly
-comparable (on raw text, the floor obtained by copying the source is 5.27 BLEU). Training was
+comparable (the floor obtained by copying the source is 5.18 BLEU in the tokenized space and 5.44 on raw text). Training was
 done on an 8-core CPU for the Sockeye models and on a single Colab GPU for the NLLB adapters. We
 report no running times, since only the quality of the translation is of concern here.
 
@@ -656,8 +656,8 @@ the GPU is not exactly deterministic.
 Table~\ref{tab:results} reports the results on the frozen test set of 1{,}000 literary pairs. In
 the table, ``floor'' is the score of the untranslated source, each row beginning with ``+'' adds
 one component to the row above it, ``raw'' means that NLLB receives the Sicilian text without
-normalization, and a dash marks a direction on which the model was not trained or evaluated. Note that the Sockeye baseline barely exceeds the floor
-(5.54 against 5.27 BLEU), and that the three levers raise it only to 10.85. NLLB-1.3B, on the
+normalization, and a dash marks a direction on which the model was not trained or evaluated. Note that the Sockeye baseline exceeds the floor by only 3.3 BLEU
+(8.51 against 5.18, both in the tokenized space), that lever B raises it to 10.94, and that the lemma factor of lever D lowers it to 10.18. NLLB-1.3B, on the
 other hand, is much better even zero-shot (29.00 on scn$\to$en), and the bidirectional LoRA adapter trained on the web set raises it to 31.21, while en$\to$scn improves from 9.90 to 19.03. Adding the 7{,}498 back-translated
 pairs gives 31.66 on scn$\to$en; this small improvement is consistent with the size of the
 in-domain monolingual pool, which is two orders of magnitude smaller than the back-translations
