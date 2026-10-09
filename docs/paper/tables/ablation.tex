@@ -2,28 +2,29 @@
 \caption{Ablation of the staged training (cf.\ section~\ref{sec:staged}): the base settings,
 the larger second stage alone, the larger second stage with the rank-64 adapter, three changes made together (300{,}000 back-translated pairs per file, a rank-64 adapter
 on the attention and feed-forward layers, 256-token sequences and three epochs in the third
-stage), and the latter with 10{,}427 natural it--en pairs per direction in the third stage. The epoch is chosen on the validation set; our test is scored on raw text (BLEU / chrF),
+stage), the latter with 10{,}427 natural it--en pairs per direction in the third stage, and the final model, i.e., the three changes with the WikiMatrix it--scn pairs in the third stage and up to four epochs. The epoch is chosen on the validation set; our test is scored on raw text (BLEU / chrF),
 his on all 121 lines in his tokenized space (BLEU), since all runs exclude them from training.}
 \label{tab:ablation}
 \centering
-\small
-\begin{tabular}{lccccc}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lcccccc}
 \toprule
- & base & + 300k pairs & + rank 64 & + three changes & + it--en \\
+ & base & + 300k pairs & + rank 64 & + three changes & + it--en & final \\
 \midrule
-epoch chosen & 2 of 2 & 2 of 2 & 2 of 2 & 3 of 3 & 3 of 3 \\
+epoch chosen & 2 of 2 & 2 of 2 & 2 of 2 & 3 of 3 & 3 of 3 & 4 of 4 \\
 \midrule
-\multicolumn{6}{l}{our test} \\
-scn$\rightarrow$en & 32.82 / 58.41 & 33.34 / 58.75 & 34.60 / 59.89 & 35.40 / 60.39 & 35.49 / 60.41 \\
-en$\rightarrow$scn & 21.52 / 52.68 & 21.88 / 52.97 & 24.18 / 54.70 & 25.09 / 55.24 & 25.16 / 55.09 \\
+\multicolumn{7}{l}{our test} \\
+scn$\rightarrow$en & 32.82 / 58.41 & 33.34 / 58.75 & 34.60 / 59.89 & 35.40 / 60.39 & 35.49 / 60.41 & 36.01 / 60.70 \\
+en$\rightarrow$scn & 21.52 / 52.68 & 21.88 / 52.97 & 24.18 / 54.70 & 25.09 / 55.24 & 25.16 / 55.09 & 26.34 / 55.75 \\
 \midrule
-\multicolumn{6}{l}{test of the second author} \\
-en$\rightarrow$scn & 44.42 & 44.49 & 47.64 & 48.36 & 48.46 \\
-scn$\rightarrow$en & 57.14 & 58.54 & 62.02 & 60.95 & 59.81 \\
-it$\rightarrow$scn & 59.31 & 62.04 & 64.42 & 62.78 & 61.86 \\
-scn$\rightarrow$it & 61.46 & 61.02 & 62.67 & 62.05 & 62.94 \\
-it$\rightarrow$en  & 60.90 & 59.97 & 61.89 & 59.09 & 57.30 \\
-en$\rightarrow$it  & 50.16 & 49.14 & 48.76 & 48.00 & 47.53 \\
+\multicolumn{7}{l}{test of the second author} \\
+en$\rightarrow$scn & 44.42 & 44.49 & 47.64 & 48.36 & 48.46 & 49.25 \\
+scn$\rightarrow$en & 57.14 & 58.54 & 62.02 & 60.95 & 59.81 & 59.34 \\
+it$\rightarrow$scn & 59.31 & 62.04 & 64.42 & 62.78 & 61.86 & 61.19 \\
+scn$\rightarrow$it & 61.46 & 61.02 & 62.67 & 62.05 & 62.94 & 60.30 \\
+it$\rightarrow$en  & 60.90 & 59.97 & 61.89 & 59.09 & 57.30 & 58.42 \\
+en$\rightarrow$it  & 50.16 & 49.14 & 48.76 & 48.00 & 47.53 & 48.77 \\
 \bottomrule
 \end{tabular}
 \end{table}
