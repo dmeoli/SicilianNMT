@@ -56,68 +56,44 @@ training. See `experiments/baseline/README.md`.
 
 ## Results
 
-**Our models, on our held-out test set** (1000 Arba-Sicula literary pairs), scn→en:
+All the numbers below are printed by the notebooks (`sicilian_nmt.ipynb` for NLLB,
+`experiments/baseline/recipe_colab.ipynb` for Sockeye) from the results files of the saved
+models, and are the ones of the paper (`docs/paper/`).
 
-| model | BLEU | chrF |
+**Our test set** (1,000 literary pairs of *Arba Sicula*, BLEU / chrF). The Sockeye rows and the
+floor are scored in the space of the Napizia tokenizer, the NLLB rows on raw text.
+
+| model | scn→en | en→scn |
 |---|---|---|
-| floor (copy source) | 5.27 | 25.40 |
-| Sockeye-3 baseline | 5.54 | 28.28 |
-| Sockeye-3 + lever B (tokenization + desinences) | 7.24 | 29.52 |
-| \;+ more data (22k, NLLB threshold 3.0) | 9.79 | 33.82 |
-| \;+ lever D (27k + lemma source factors) | **10.85** | **35.22** |
-| NLLB-200 distilled-600M, zero-shot † | 25.63 | 52.53 |
-| NLLB-200 distilled-600M, LoRA fine-tuned † | 28.93 | 55.12 |
-| NLLB-200 1.3B, zero-shot † | 29.02 | 55.23 |
-| NLLB-200 1.3B, LoRA fine-tuned, scn→en only (27k) † | 31.16 | 56.79 |
-| NLLB-200 1.3B, LoRA **bidirectional** (27k) † | 31.43 | 56.94 |
-| \;+ back-translation (7.5k synthetic) † | **31.60** | **57.21** |
+| floor (copy source) | 5.18 / 25.95 | – |
+| Sockeye-3 baseline (web set) | 8.51 / 32.73 | – |
+| + lever B (tokenization + desinence-biased BPE) | 10.94 / 34.66 | – |
+| + lever D (lemma source factor) | 10.18 / 34.15 | – |
+| NLLB-200 1.3B, out of the box | 29.00 / 55.23 | 9.90 / 41.09 |
+| LoRA, bidirectional (web set) | 31.27 / 56.92 | 19.19 / 50.02 |
+| + back-translation (7,498 pairs) | 31.60 / 57.21 | – |
+| staged: Wdowiak's back-translations, then the curated set | 32.40 / 58.19 | 21.72 / 52.79 |
+| curriculum (coarse stage first) | 33.01 / 58.62 | 21.78 / 52.94 |
+| **final**: 3x back-translations, rank-64 adapter, 256 tokens, WikiMatrix it–scn, 4 epochs | **36.01 / 60.70** | **26.34 / 55.75** |
 
-Each Sockeye lever stacks (tokenization + desinences +1.7, more data +2.55: 5.54→9.79).
-The modern pretrained model wins decisively: NLLB-200 zero-shot scn→en 25.63 (600M) / 29.02
-(1.3B), and LoRA fine-tuning on our ~27k train lifts the 1.3B to **31.43 BLEU**, above
-Wdowiak's published *baseline* (Sc→En 29.1) on our harder held-out literary test set, though
-well below his reverse-training state of the art (see below).
+The final model is chosen on the 1,000 validation pairs among the variants of the ablation
+(notebook §7.4).
 
-**en→scn** (the reverse direction) on the same test set: NLLB-1.3B zero-shot 9.89 →
-**bidirectional LoRA 18.73 BLEU / 49.96 chrF**, the bidirectional fine-tune nearly doubling
-the weak direction at no cost to scn→en, and yielding a usable two-way model. Still below the
-paper's en→scn baseline (25.1); back-translation is the next lever.
+**Wdowiak's test set** (the 121 trilingual lines of AS38-39), in his tokenized space (BLEU),
+against his published systems:
 
-**Italian (trilingual model).** One multilingual LoRA adapter fine-tuned on four directions
-(scn↔en, it↔scn). On the frozen WikiMatrix it–scn test, Italian is the easiest pair:
+| direction | his 2022 baseline | his reverse training | our final model |
+|---|---|---|---|
+| en→scn | 25.1 | 45.1 | **49.25** |
+| scn→en | 29.1 | 48.6 | **59.34** |
+| it→scn | – | **61.4** | 61.19 |
+| scn→it | – | **62.9** | 60.30 |
+| it→en | – | 48.2 | **58.42** |
+| en→it | – | 46.7 | **48.77** |
 
-| direction | zero-shot | multilingual FT |
-|---|---|---|
-| it→scn | 17.61 / 44.77 | **26.97 / 51.69** |
-| scn→it | 42.20 / 59.04 | **43.47 / 59.79** |
-
-It costs a little on scn↔en (30.75 / 17.49 vs the dedicated 31.43 / 18.73), so we can ship the
-trilingual all-rounder or the specialised pair. The site and Telegram bot serve all three
-languages (scn/en/it).
-
-† NLLB rows are evaluated on raw text; the Sockeye rows are tokenized space (raw floor is
-5.27 BLEU). Even allowing for that, the 600M pretrained model far exceeds the 6.6M baseline.
-
-### We do not beat the state of the art (yet)
-
-The SOTA is Wdowiak's **reverse-training** system, on his own in-domain test set (BLEU):
-
-| | En→Sc | Sc→En | It→Sc | Sc→It |
-|---|---|---|---|---|
-| paper baseline | 25.1 | 29.1 | — | — |
-| + backtranslation + multilingual | 35.0 | 36.8 | 36.5 | 30.9 |
-| **reverse-training (his best)** | **45.1** | **48.6** | **61.4** | **62.9** |
-| **ours** (NLLB+LoRA + back-transl.) | 18.7 | 31.6 | 27.0 | 43.5 |
-
-⚠️ **Not a head-to-head** (different test sets), but the gap is too large to be that alone:
-we only clear his *baseline* on Sc→En, and trail on every other direction. His reverse-training
-builds a **custom pretrained model from tens of millions of pairs** (forward- and
-back-translation, three stages) before fine-tuning on hand-curated *Arba Sicula*, infeasible
-to reproduce on one GPU. But **NLLB-200 already provides that pretraining**, so our run is the
-analogue of his *stage-3 fine-tune*. The plan: apply the feasible parts of his recipe on top of
-NLLB (back-translation, multilingual) to isolate **method vs data**; if, with the method
-matched, our automatic corpus still trails his curated one, the residual is the **data**, which
-argues for combining his corpus with our pipeline rather than competing.
+He chose his checkpoints on this test set, while our model never saw its lines and was
+chosen on our own validation set. His 2022 baseline, retrained with his configuration on his
+sheets, our alignment and both (Table 6 of the paper), does not reach its published scores.
 
 ## References
 
