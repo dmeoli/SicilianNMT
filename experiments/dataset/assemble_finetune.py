@@ -21,7 +21,7 @@ Sources
     --as-include-scans is given.
 
     python experiments/dataset/assemble_finetune.py \
-        --ods ~/Downloads/eryk/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
+        --ods data/external/eryk/attachments/2026-09-07/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
 """
 from __future__ import annotations
 import argparse
@@ -81,7 +81,8 @@ def add_pairs(bucket: list[tuple[str, str, str]], src, tgt, provenance: str) -> 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--ods", type=Path, required=True, help="Eryk's private spreadsheet (.ods)")
+    ap.add_argument("--ods", type=Path, default=REPO / "data/external/eryk/attachments/2026-09-07/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods",
+                    help="Eryk's private spreadsheet (.ods), kept gitignored under data/external/eryk")
     ap.add_argument("--out", type=Path, default=REPO / "data/finetune")
     ap.add_argument("--as-tsv", type=Path, default=REPO / "data/processed/as_full_gift/corpus.tsv",
                     help="our full Arba Sicula extraction (issue, pages, similarity, scn, en)")

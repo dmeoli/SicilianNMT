@@ -21,7 +21,7 @@ PRIVACY: the sheets are private; outputs go to data/recipe/ (gitignored) and to 
 Colab folder on Drive, never to the repository.
 
     python experiments/baseline/recipe_data.py \\
-        --ods ~/Downloads/eryk/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
+        --ods data/external/eryk/attachments/2026-09-07/ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods
 """
 from __future__ import annotations
 import argparse
@@ -48,7 +48,8 @@ def clean(s):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--ods', required=True)
+    ap.add_argument('--ods', default=str(ROOT / 'data' / 'external' / 'eryk' / 'attachments' / '2026-09-07'
+                                          / 'ArbaSicula-Dieli_2024-10-20_Translation-Dataset.ods'))
     ap.add_argument('--colab', default=str(Path.home() / 'GDrive' / 'SicilianNMT-colab'))
     ap.add_argument('--gift', default=str(ROOT / 'data' / 'processed' / 'as_full_gift' / 'corpus.tsv'))
     ap.add_argument('--min-vol', type=int, default=19)
