@@ -356,7 +356,7 @@ Our second set, used by the staged training of section~\ref{sec:staged}, replace
 with curated sources. These are (i) the hand-aligned sheets of the second author, i.e., Dieli's
 translation of Pitr\`e's fables and 23 issues of the journal (scn--en), Cipolla's translations
 of Meli (scn--it), and the trilingual exercises of the grammars of Bonner and Cipolla, (ii) our
-alignment of all the born-digital issues, since the sheets cover only 10 to 20\% of the pairs of
+alignment of all the born-digital issues (AS19 to AS47, except AS21), since the sheets cover only 10 to 20\% of the pairs of
 an issue and the two sources are therefore complementary, and (iii) the parallel pages of the
 Young Sicilian Manifesto, of the Napizia website and of the Napizia Magazine,
 from which one text under copyright was excluded.
@@ -830,7 +830,7 @@ embeddings are tied to the output layer. Dropout is 0.5 on the embeddings and 0.
 with label smoothing 0.1, and the model is trained with Adam (learning rate $1.5\cdot 10^{-4}$,
 batches of 20 sentences) for at most 20 epochs, with Sockeye 3 instead of his Sockeye 1. Pairs with a side longer than 200 subwords are left out, as in his configuration (his later many-to-many model used 100). We
 train it on three sets, i.e., (A) his hand-aligned sheets, (B) our automatic alignment of the
-born-digital issues with the textbook exercises, and (C) both, deduplicated, each guarded against
+issues from AS19 to AS47 with the textbook exercises, and (C) both, deduplicated, each guarded against
 his test set and against the validation lines, and we score it on his test set in the tokenized
 space, as in Table~\ref{tab:sota}; Table~\ref{tab:recipe} reports the results.
 
