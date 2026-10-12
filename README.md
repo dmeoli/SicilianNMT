@@ -6,14 +6,16 @@
 Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate), narrated step by
 step, calling the implementations in `experiments/*.py`.
 
-A fork of Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
+Built on Eryk Wdowiak's [_Tradutturi Sicilianu_](https://translate.napizia.com/),
 the first neural machine translator for the Sicilian language
 ([paper](https://arxiv.org/abs/2110.01938), Springer
-[DOI](https://doi.org/10.1007/978-3-031-10464-0_50)). This fork rebuilds the data
+[DOI](https://doi.org/10.1007/978-3-031-10464-0_50)). This repository rebuilds the data
 pipeline with maintained, CPU-only tooling and adds a reproducible dataset,
 an evaluation harness, and baselines.
 
-Upstream: [`ewdowiak/Sicilian_Translator`](https://github.com/ewdowiak/Sicilian_Translator).
+His original system (training scripts, Perl tokenizer, web app) is in
+[`ewdowiak/Sicilian_Translator`](https://github.com/ewdowiak/Sicilian_Translator); his 2021
+presentation of it is kept in `eryks-old-stuff/presentation/`.
 
 ## What's here
 
@@ -32,7 +34,8 @@ data/            gitignored: external/ (raw: arbasicula/pdf, arbasicula/perl_202
                  flores, eryk), processed/, finetune/, recipe/
 vocab/           Sicilian stopwords, Dieli/Chiù-dâ-Palora inflections (desinence bias), lemmas
 docs/            Standard-Sicilian standardization & contraction references
-papers/ presentation/
+papers/          the papers we build on
+eryks-old-stuff/ Eryk Wdowiak's 2021 presentation of the original system
 ```
 
 Two environments (kept isolated): **`.venv`** (CPython 3.12) for the data pipeline,
