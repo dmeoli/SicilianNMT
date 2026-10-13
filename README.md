@@ -57,6 +57,17 @@ training. See `experiments/baseline/README.md`.
    **~29k scn–en** (train 27.4k, + a frozen 1k valid / 1k test held out from Arba Sicula =
    literary standard, not FLORES) + 11.4k it–scn.
 
+## Released data
+
+The scored back-translations of E. Wdowiak used in stage 2 of the staged training are on Hugging
+Face, one dataset per direction:
+[ENG-to-SCN](https://huggingface.co/datasets/Napizia/Sicilian-Backt-ENG-to-SCN),
+[ITA-to-SCN](https://huggingface.co/datasets/Napizia/Sicilian-Backt-ITA-to-SCN),
+[SCN-to-ENG](https://huggingface.co/datasets/Napizia/Sicilian-Backt-SCN-to-ENG),
+[SCN-to-ITA](https://huggingface.co/datasets/Napizia/Sicilian-Backt-SCN-to-ITA);
+`experiments/nllb/staged.py` selects the stage-2 pairs from them. The text of *Arba Sicula* is
+under copyright and Wdowiak's hand-aligned sheets are private, so the curated set is not released.
+
 ## Results
 
 All the numbers below are printed by the notebooks (`sicilian_nmt.ipynb` for NLLB,
