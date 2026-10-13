@@ -895,10 +895,13 @@ retrieves the correct English translation of a Friulian, Ligurian, Lombard, Sard
 sentence in 98.5 to 99.9\% of the cases (99.0\% for Sicilian), and therefore what is missing for
 them is a bilingual source comparable to \emph{Arba Sicula}.
 
-Our code for the pipeline and the evaluation is publicly available, together with a small
+Our code for the pipeline and the evaluation is publicly available at
+\url{https://github.com/dmeoli/SicilianNMT}, together with a small
 serving application (a web interface and a Telegram bot, both built on a FastAPI service over
-the NLLB adapter); the text of the journal is under copyright, and the hand-aligned sheets are
-not public, so the datasets are not released.
+the NLLB adapter). The scored back-translations of section~\ref{sec:staged} are released on
+Hugging Face, one dataset per direction (\url{https://huggingface.co/datasets/Napizia}); the text
+of the journal is under copyright, and the hand-aligned sheets are not public, so the curated set
+is not released.
 
 %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%  %%
 
