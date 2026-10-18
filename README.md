@@ -1,6 +1,8 @@
 # Sicilian NMT
 
 [![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/sicilian_nmt.ipynb)
+[![Python Version](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 **[`sicilian_nmt.ipynb`](sicilian_nmt.ipynb)** runs the whole model pipeline end-to-end (data →
 Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate), narrated step by
