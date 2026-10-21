@@ -111,7 +111,7 @@ def bench(model_dir, tr_dir, out, threads=(1, 2, 4)):
     if os.path.exists(out):
         return json.load(open(out))
     size = sum(os.path.getsize(f'{model_dir}/{f}') for f in os.listdir(model_dir))
-    res = {'cpu': open('/proc/cpuinfo').read().split('model name')[1].split('\n')[0].strip(': '),
+    res = {'cpu': open('/proc/cpuinfo').read().split('model name')[1].split('\n')[0].split(':', 1)[1].strip(),
            'cpu_count': os.cpu_count(), 'model_mb': round(size / 2**20), 'runs': []}
     env = dict(os.environ, CUDA_VISIBLE_DEVICES='')
     for n in threads:
