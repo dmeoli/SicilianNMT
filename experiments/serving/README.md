@@ -74,3 +74,11 @@ To enable CI that builds & publishes the image to GHCR, copy the workflow into p
 mkdir -p ../../.github/workflows
 cp github-ci.yml.example ../../.github/workflows/ci.yml
 ```
+
+## Serving on the CPU (CTranslate2, int8)
+
+`ct2_export.py` merges the adapter of the final model into NLLB-200 1.3B and converts it to
+CTranslate2 with int8 weights, then measures load time, resident memory, latency per sentence
+and the BLEU lost to the quantization on the CPU. `ct2_colab.ipynb` runs it on Colab (the merge
+needs about 12 GB of RAM) and writes the model to `nllb-final-ct2-int8` and the numbers to
+`results_ct2.json` on Drive.
