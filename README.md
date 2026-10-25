@@ -3,6 +3,7 @@
 [![Reproduce the pipeline in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/dmeoli/SicilianNMT/blob/main/sicilian_nmt.ipynb)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![arXiv](https://img.shields.io/badge/arXiv-2610.30374-b31b1b.svg)](https://arxiv.org/abs/2610.30374)
 
 **[`sicilian_nmt.ipynb`](sicilian_nmt.ipynb)** runs the whole model pipeline end-to-end (data →
 Standard-Sicilian preprocessing → NLLB-200 + LoRA → fine-tune → evaluate), narrated step by
@@ -18,6 +19,10 @@ an evaluation harness, and baselines.
 His original system (training scripts, Perl tokenizer, web app) is in
 [`ewdowiak/Sicilian_Translator`](https://github.com/ewdowiak/Sicilian_Translator); his 2021
 presentation of it is kept in `eryks-old-stuff/presentation/`.
+
+The paper, D. Meoli and E. Wdowiak, *Climbing the Ladder: Automating Data Pipelines and
+Reproducing Baselines in Low-Resource Settings*, is on
+[arXiv:2610.30374](https://arxiv.org/abs/2610.30374); its source is in `docs/paper/`.
 
 ## What's here
 
@@ -125,6 +130,20 @@ recipe ([Sennrich & Zhang 2019](https://arxiv.org/abs/1905.11901)) and subword s
 ([Schwenk et al. 2021](https://arxiv.org/abs/1907.05791)); Sockeye
 ([Hieber et al. 2017](https://arxiv.org/abs/1712.05690)); plus BPE-dropout, back-translation,
 multilingual zero-shot and beyond-English-centric MT. Full list in `papers/README.md`.
+
+## Citation
+
+```bibtex
+@misc{meoli2026climbing,
+  title         = {Climbing the Ladder: Automating Data Pipelines and Reproducing Baselines in Low-Resource Settings},
+  author        = {Meoli, Donato and Wdowiak, Eryk},
+  year          = {2026},
+  eprint        = {2610.30374},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2610.30374}
+}
+```
 
 ## License
 
