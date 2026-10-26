@@ -289,6 +289,7 @@
       {(penalit\`a 0,5), limitata alla pagina a fronte; un segmento si tiene se il suo coseno medio \`e almeno $\tau_{\text{sent}}$.}
     \end{column}
     \begin{column}{0.44\textwidth}
+      \footnotesize
       \begin{itemize}
         \item \T{No dictionary and no \texttt{hunalign}: embeddings and a DP, in the spirit of
               Vecalign.}%
@@ -308,6 +309,7 @@
 \begin{frame}{\T{Cleaning the aligned text}{Pulizia del testo allineato}}
   \begin{columns}[t]
     \begin{column}{0.58\textwidth}
+      \small
       \begin{itemize}
         \item \T{The errors of the aligner are easy to spot, which makes its output easier to
               perfect than the one of \texttt{hunalign}.}%
@@ -323,7 +325,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
-      \footnotesize
+      \small
       \textbf{\T{A pair is dropped if}{Una coppia si scarta se}}
       \begin{enumerate}
         \item \T{one side has more than 1.6 times the words of the other;}%
@@ -424,6 +426,7 @@
 \begin{frame}{\T{Standardising Sicilian}{Standardizzare il siciliano}}
   \begin{columns}[t]
     \begin{column}{0.56\textwidth}
+      \small
       \begin{itemize}
         \item \T{There is no single official orthography, but a literary standard has given a
               rough consistency for centuries, and most of the Sicilian in NLLB follows it.}%
@@ -439,7 +442,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
-      \footnotesize
+      \small
       \textbf{\T{Spelling rules (``std'' level):}{Regole di grafia (livello ``std''):}}\\[1mm]
       \begin{tabular}{rcl}
         cchi\`u & $\to$ & chi\`u \\
@@ -455,7 +458,7 @@
 \end{frame}
 
 \begin{frame}{\T{Normalization: uncontraction, and what it is worth}%
-                {Normalizzazione: sciogliere le contrazioni, e quanto rende}}
+                {Sciogliere le contrazioni, e quanto rende}}
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
       \footnotesize
@@ -515,8 +518,8 @@
   \T{and decoded with beam search for $\arg\max_y p_\theta(y\mid x)$.}%
   {mentre in decodifica si cerca $\arg\max_y p_\theta(y\mid x)$ con la beam search.}
   \begin{itemize}
-    \item \T{The Transformer, the subwords and NLLB are different parameterisations of the
-          same $p_\theta$.}%
+    \item \T{The Transformer, the subwords and NLLB parameterise the same $p_\theta$ in
+          different ways.}%
           {Il Transformer, le sottoparole e NLLB sono modi diversi di realizzare la stessa $p_\theta$.}
   \end{itemize}
 \end{frame}
@@ -524,7 +527,7 @@
 \begin{frame}{\T{The Transformer}{Il Transformer}}
   \begin{columns}[t]
     \begin{column}{0.58\textwidth}
-      \footnotesize
+      \small
       \T{No recurrence: tokens interact through scaled dot-product attention. With queries
       $Q$, keys $K$ and values $V$,}%
       {Niente ricorrenza: i token interagiscono attraverso la \emph{scaled dot-product attention}.
@@ -541,6 +544,7 @@
       {Ogni strato aggiunge una rete feed-forward applicata a ogni posizione, connessioni residue e layer normalization.}
     \end{column}
     \begin{column}{0.42\textwidth}
+      \small
       \begin{itemize}
         \item \T{Self-attention in the encoder and in the decoder; cross-attention lets the
               decoder look at the source.}%
@@ -666,7 +670,7 @@
                 {NLLB-200: un Transformer massivamente multilingue}}
   \begin{columns}[t]
     \begin{column}{0.58\textwidth}
-      \footnotesize
+      \small
       \T{One encoder--decoder trained on 200 languages, Sicilian (\texttt{scn\_Latn}) among
       them. The target language is chosen by forcing the first token of the decoder,}%
       {Un encoder--decoder addestrato su 200 lingue, fra cui il siciliano (\texttt{scn\_Latn}).
@@ -681,6 +685,7 @@
       10,94 del miglior modello addestrato da zero.}
     \end{column}
     \begin{column}{0.42\textwidth}
+      \small
       \begin{itemize}
         \item \T{We use the 1.3B variant.}{Usiamo la variante da 1,3B.}
         \item \T{The transfer from 200 languages is what the small model lacks.}%
@@ -696,7 +701,7 @@
 \begin{frame}{\T{Parameter-efficient fine-tuning: LoRA}{Fine-tuning efficiente: LoRA}}
   \begin{columns}[t]
     \begin{column}{0.58\textwidth}
-      \footnotesize
+      \small
       \T{Freeze the pretrained weights $W_0\in\mathbb R^{d\times k}$ and learn a low-rank update
       (Hu et al., 2021):}%
       {Si congelano i pesi preaddestrati $W_0\in\mathbb R^{d\times k}$ e si impara un
@@ -710,6 +715,7 @@
       \]
     \end{column}
     \begin{column}{0.42\textwidth}
+      \small
       \begin{itemize}
         \item \T{On the query, key, value and output projections, $r{=}32$, $\alpha{=}64$:
               18.9M trainable parameters, 1.4\% of the model.}%
@@ -1013,6 +1019,7 @@
   \begin{columns}[t]
     \begin{column}{0.46\textwidth}
       \centering\footnotesize
+      \setlength\tabcolsep{4pt}%
       \begin{tabular}{lrcc}
         \toprule \T{training set}{training set} & \T{pairs}{coppie} & en$\to$scn & scn$\to$en \\\midrule
         \T{published}{pubblicata} & -- & \T{25.1}{25,1} & \T{29.1}{29,1} \\

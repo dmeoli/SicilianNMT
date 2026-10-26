@@ -79,7 +79,7 @@ def progression(lang):
     n = len(bleu)
     colors = [blue_ramp(i / (n - 1)) for i in range(n)]
     colors[-1] = GOLD                      # the final model in gold
-    fig, ax = plt.subplots(figsize=(9, 4.2))
+    fig, ax = plt.subplots(figsize=(7.2, 3.9))
     bars = ax.bar(range(n), bleu, color=colors, width=0.72, zorder=3)
     for b, v in zip(bars, bleu):
         ax.text(b.get_x() + b.get_width() / 2, v + 0.5, f"{v:.2f}",
@@ -87,7 +87,7 @@ def progression(lang):
                 fontweight="bold" if v == bleu[-1] else "normal",
                 color=GOLD if v == bleu[-1] else INK)
     ax.set_xticks(range(n))
-    ax.set_xticklabels(t["prog_labels"], fontsize=10.5)
+    ax.set_xticklabels(t["prog_labels"], fontsize=9.5)
     ax.set_ylabel(t["prog_y"])
     ax.set_ylim(0, 40)
     ax.set_title(t["prog_title"], fontsize=12.5, color=NAVY, pad=10)
@@ -124,7 +124,7 @@ def trilingual(lang):
     ft = [30.75, 17.49, 26.97, 43.47, 27.14, 28.77]
     x = range(len(cats))
     w = 0.38
-    fig, ax = plt.subplots(figsize=(9, 4.2))
+    fig, ax = plt.subplots(figsize=(7.2, 3.9))
     ax.bar([i - w / 2 for i in x], zero, w, label=t["tri_legend"][0], color=BLUE, zorder=3)
     ax.bar([i + w / 2 for i in x], ft, w, label=t["tri_legend"][1], color=GOLD, zorder=3)
     for i, (z, f) in enumerate(zip(zero, ft)):
@@ -146,13 +146,13 @@ def vs_sota(lang):
     his = [45.1, 48.6, 61.4, 62.9, 48.2, 46.7]        # reverse training, third stage
     ours = [49.25, 59.34, 61.19, 60.30, 58.42, 48.77]  # final model of the ablation
     x = range(len(cats))
-    w = 0.38
-    fig, ax = plt.subplots(figsize=(9, 4.4))
-    ax.bar([i - w / 2 for i in x], his, w, label=t["sota_legend"][0], color=NAVY, zorder=3)
-    ax.bar([i + w / 2 for i in x], ours, w, label=t["sota_legend"][1], color=GOLD, zorder=3)
+    w, d = 0.36, 0.2                     # a small gap between the two bars
+    fig, ax = plt.subplots(figsize=(7.2, 4.0))
+    ax.bar([i - d for i in x], his, w, label=t["sota_legend"][0], color=NAVY, zorder=3)
+    ax.bar([i + d for i in x], ours, w, label=t["sota_legend"][1], color=GOLD, zorder=3)
     for i, (h, o) in enumerate(zip(his, ours)):
-        ax.text(i - w / 2, h + 0.6, f"{h:.1f}", ha="center", fontsize=9, color=INK)
-        ax.text(i + w / 2, o + 0.6, f"{o:.2f}", ha="center", fontsize=9, color=INK, fontweight="bold")
+        ax.text(i - d, h + 0.6, f"{h:.1f}", ha="center", fontsize=8.5, color=INK)
+        ax.text(i + d, o + 0.6, f"{o:.2f}", ha="center", fontsize=8.5, color=INK, fontweight="bold")
     ax.set_xticks(list(x)); ax.set_xticklabels(cats, fontsize=11)
     ax.set_ylabel("BLEU"); ax.set_ylim(0, 78)
     ax.set_title(t["sota_title"], fontsize=12.5, color=NAVY, pad=8)
