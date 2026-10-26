@@ -18,6 +18,18 @@
 % gives the gold; every other color, size and spacing follows from them.
 \usetheme[aspect=beamer, primary=0E4D8C, sectionpage=none, spiral=false]{lamalunga}
 \usepackage{amsmath,amssymb}
+% the majolica tiles of the background of Wdowiak's slides (his NapiziaMeeting
+% beamer theme), drawn once into img/napizia-tiles.pdf and set faded behind every
+% frame but the title page; the trim removes the empty band of the drawing
+\setbeamertemplate{background}{%
+  \ifnum\value{page}>1
+    \begin{tikzpicture}
+      \useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
+      \node[anchor=center, inner sep=0pt, opacity=0.55] at (0.5\paperwidth,0.5\paperheight)
+        {\includegraphics[width=\paperwidth, height=\paperheight,
+                          trim=2.4 1.9 2.4 16.8, clip]{napizia-tiles.pdf}};
+    \end{tikzpicture}%
+  \fi}
 \usepackage{booktabs}
 \graphicspath{{img/}{../../eryks-old-stuff/presentation/images/}}
 
