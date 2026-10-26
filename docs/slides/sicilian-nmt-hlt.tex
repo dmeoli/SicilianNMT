@@ -22,12 +22,10 @@
 % one sees they can be clicked; the internal links keep the color of the text
 \hypersetup{colorlinks=true, linkcolor=., urlcolor=lamalunga-primary}
 % the backgrounds of Wdowiak's slides (his NapiziaMeeting beamer theme), each
-% drawn once from its TikZ path: the majolica tiles (img/napizia-tiles.pdf),
-% faded behind every frame but the title page, and on the title page his cover,
-% i.e., the gold temple (img/napizia-temple.pdf) over the shaded blue footline;
-% the trim removes the empty band of the tiles
-\definecolor{NapiziaHeaderLight}{RGB}{2,78,168}
-\definecolor{NapiziaHeaderDark}{RGB}{2,2,102}
+% drawn once from its TikZ path: the gold temple of his title page
+% (img/napizia-temple.pdf), stretched to the page, behind the title page, and the majolica tiles
+% (img/napizia-tiles.pdf), faded, behind every other frame; the trim removes the
+% empty band of the tiles
 \setbeamertemplate{background}{%
   \begin{tikzpicture}
     \useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
@@ -37,26 +35,14 @@
                           trim=2.4 1.9 2.4 16.8, clip]{napizia-tiles.pdf}};
     \else
       \node[anchor=south, inner sep=0pt] at (0.5\paperwidth,0)
-        {\includegraphics[height=\paperheight]{napizia-temple.pdf}};
-      \shade[left color=NapiziaHeaderLight, right color=NapiziaHeaderDark]
-        (0,0) rectangle (\paperwidth,3.5ex);
+        {\includegraphics[width=\paperwidth, height=\paperheight]{napizia-temple.pdf}};
     \fi
   \end{tikzpicture}}
-% his title page: the title in white on a dark blue band across the page (here
-% with the subtitle under it), then the author and the institute, centred
-\setbeamertemplate{title page}{%
-  \begin{tikzpicture}[remember picture, overlay]
-    \node[anchor=center, minimum width=\paperwidth, inner xsep=0.05\paperwidth,
-      inner ysep=8pt, fill=NapiziaHeaderDark, text=white, align=center,
-      text width=0.9\paperwidth]
-      (band) at ([yshift=0.07\paperheight]current page.center)
-      {{\usebeamerfont{title}\inserttitle\par}\vskip4pt
-       {\usebeamerfont{subtitle}\small\color{white!80!NapiziaHeaderDark}\insertsubtitle\par}};
-    \node[anchor=north, align=center, text=NapiziaHeaderDark, text width=0.8\paperwidth]
-      at ([yshift=-0.05\paperheight]band.south)
-      {{\usebeamerfont{author}\insertauthor\par}\vskip4pt
-       {\usebeamerfont{institute}\insertinstitute\par}};
-  \end{tikzpicture}}
+% the title boxed (as with titles=boxed) on the title page only, so that it
+% stands out on the temple; the frame titles stay plain
+\ExplSyntaxOn
+\NewDocumentCommand \lamalungatitles { m } { \tl_gset:Nn \g_lamalunga_titles_tl {#1} }
+\ExplSyntaxOff
 \usepackage{booktabs}
 \graphicspath{{img/}{../../eryks-old-stuff/presentation/images/}}
 
@@ -98,18 +84,26 @@
 % square of the spiral
 \setbeamerfont{title}{size=\modularsize{1}}
 
-\title{\T{Sicilian, English and Italian Neural Machine Translation}%
-         {Traduzione automatica neurale fra siciliano, inglese e italiano}}
+% the title without \T, so that the boxes of the title page see its words
+\ifdefined\italian
+  \title{Traduzione automatica neurale\\ fra siciliano, inglese e italiano}
+\else
+  \title{Sicilian, English and Italian\\ Neural Machine Translation}
+\fi
 \subtitle{\T{A data pipeline and reproduced baselines, from a small Transformer to a staged NLLB}%
             {Pipeline dei dati e riproduzione delle baseline, da un piccolo Transformer a NLLB addestrato a stadi}}
-\author{Donato Meoli}
-\institute[\T{University of Pisa}{Universit\`a di Pisa}]{Human Language Technologies
-  \textperiodcentered{} \T{University of Pisa}{Universit\`a di Pisa}}
+% on the title page the name in the primary, the course and the university in
+% the accent, as in the rest of the deck, without boxes
+\author{\textcolor{lamalunga-primary}{Donato Meoli}}
+\institute[\T{University of Pisa}{Universit\`a di Pisa}]{\textcolor{lamalunga-accent}{Human
+  Language Technologies}\\ \textcolor{lamalunga-accent}{\T{University of Pisa}{Universit\`a di Pisa}}}
 \date{}
 
 \begin{document}
 
+\lamalungatitles{boxed}
 \maketitle
+\lamalungatitles{plain}
 
 % ==================================================================== motivation
 \begin{frame}{\T{Why a new Sicilian translator?}{Perch\'e un nuovo traduttore per il siciliano?}}
