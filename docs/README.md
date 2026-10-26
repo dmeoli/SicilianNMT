@@ -1,17 +1,19 @@
 # docs
 
-- **`paper/sicilian-nmt.tex`**, method write-up (article). Skeleton with our results so far
-  and `\TODO{}`/`\num{}` placeholders to fill once the 22k, BPE-dropout and NLLB runs finish.
-- **`slides/sicilian-nmt-slides.tex`**, Beamer presentation (same structure, shorter).
-- `paper/references.bib`, shared bibliography (Wdowiak's + modern methods).
+- **`paper/sicilian-nmt.tex`**, the paper (arXiv:2610.30374), with its tables in `paper/tables/`
+  and the bibliography in `paper/references.bib`.
+- **`slides/sicilian-nmt-hlt.tex`**, the Human Language Technologies talk (lamalunga theme,
+  LuaLaTeX); `slides/sicilian-nmt-hlt-it.tex` builds the same deck in Italian from the same
+  source, and `slides/make_charts.py` draws the charts in both languages.
+- `slides/sicilian-nmt-slides.tex`, an older and shorter Beamer deck.
 - `low-resource-nmt-methods.md`, survey and ranked experiment plan.
 - `sicilian-standardization.md`, `sicilian-contractions.md`, Standard-Sicilian references.
 
 Build:
 
 ```bash
-cd docs/paper   && pdflatex sicilian-nmt.tex && bibtex sicilian-nmt && pdflatex sicilian-nmt.tex && pdflatex sicilian-nmt.tex
-cd docs/slides  && pdflatex sicilian-nmt-slides.tex && bibtex sicilian-nmt-slides && pdflatex sicilian-nmt-slides.tex
+cd docs/paper && pdflatex sicilian-nmt.tex && bibtex sicilian-nmt && pdflatex sicilian-nmt.tex && pdflatex sicilian-nmt.tex
+cd docs/slides && python3 make_charts.py && latexmk sicilian-nmt-hlt.tex && latexmk sicilian-nmt-hlt-it.tex
 ```
 
-Both compile today; the results tables are filled incrementally as experiments complete.
+The slides need a checkout of the lamalunga theme in `~/GDrive/lamalunga` (see `slides/latexmkrc`).
