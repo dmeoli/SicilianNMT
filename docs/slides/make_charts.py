@@ -45,7 +45,7 @@ T = {
     },
     "it": {
         "prog_labels": ["Sockeye\nbaseline", "+ leva B", "+ leva D", "NLLB-1.3B\nsenza adatt.",
-                        "LoRA\nbidir.", "+ retro-\ntrad.", "a stadi", "finale"],
+                        "LoRA\nbidir.", "+ back-\ntransl.", "a stadi", "finale"],
         "prog_y": "BLEU  (scn$\\to$en, nostro test set)",
         "prog_title": "Da un modello da 6,7M addestrato da zero a NLLB-1.3B a stadi",
         "prog_note": "righe Sockeye nello spazio tokenizzato, righe NLLB sul testo grezzo",
@@ -54,7 +54,7 @@ T = {
         "dir_title": "Le due direzioni, dal modello di base al finale",
         "tri_legend": ["senza adattamento", "adapter trilingue"],
         "tri_y": "BLEU",
-        "tri_title": "Un adapter trilingue (set web): guadagni e dimenticanza",
+        "tri_title": "Un adapter trilingue (set web): guadagni e forgetting",
         "tri_note": "scn-en: nostro test set; it-scn: WikiMatrix; it-en: FLORES-200 (non addestrate)",
         "sota_legend": ["Wdowiak, reverse training", "nostro, finale (NLLB + LoRA, a stadi)"],
         "sota_title": "Sul suo test set, nel suo spazio tokenizzato",

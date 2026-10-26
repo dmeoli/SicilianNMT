@@ -18,18 +18,45 @@
 % gives the gold; every other color, size and spacing follows from them.
 \usetheme[aspect=beamer, primary=0E4D8C, sectionpage=none, spiral=false]{lamalunga}
 \usepackage{amsmath,amssymb}
-% the majolica tiles of the background of Wdowiak's slides (his NapiziaMeeting
-% beamer theme), drawn once into img/napizia-tiles.pdf and set faded behind every
-% frame but the title page; the trim removes the empty band of the drawing
+% the links to the papers, the preprint and the code in the primary, so that
+% one sees they can be clicked; the internal links keep the color of the text
+\hypersetup{colorlinks=true, linkcolor=., urlcolor=lamalunga-primary}
+% the backgrounds of Wdowiak's slides (his NapiziaMeeting beamer theme), each
+% drawn once from its TikZ path: the majolica tiles (img/napizia-tiles.pdf),
+% faded behind every frame but the title page, and on the title page his cover,
+% i.e., the gold temple (img/napizia-temple.pdf) over the shaded blue footline;
+% the trim removes the empty band of the tiles
+\definecolor{NapiziaHeaderLight}{RGB}{2,78,168}
+\definecolor{NapiziaHeaderDark}{RGB}{2,2,102}
 \setbeamertemplate{background}{%
-  \ifnum\value{page}>1
-    \begin{tikzpicture}
-      \useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
+  \begin{tikzpicture}
+    \useasboundingbox (0,0) rectangle (\paperwidth,\paperheight);
+    \ifnum\value{page}>1
       \node[anchor=center, inner sep=0pt, opacity=0.55] at (0.5\paperwidth,0.5\paperheight)
         {\includegraphics[width=\paperwidth, height=\paperheight,
                           trim=2.4 1.9 2.4 16.8, clip]{napizia-tiles.pdf}};
-    \end{tikzpicture}%
-  \fi}
+    \else
+      \node[anchor=south, inner sep=0pt] at (0.5\paperwidth,0)
+        {\includegraphics[height=\paperheight]{napizia-temple.pdf}};
+      \shade[left color=NapiziaHeaderLight, right color=NapiziaHeaderDark]
+        (0,0) rectangle (\paperwidth,3.5ex);
+    \fi
+  \end{tikzpicture}}
+% his title page: the title in white on a dark blue band across the page (here
+% with the subtitle under it), then the author and the institute, centred
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=center, minimum width=\paperwidth, inner xsep=0.05\paperwidth,
+      inner ysep=8pt, fill=NapiziaHeaderDark, text=white, align=center,
+      text width=0.9\paperwidth]
+      (band) at ([yshift=0.07\paperheight]current page.center)
+      {{\usebeamerfont{title}\inserttitle\par}\vskip4pt
+       {\usebeamerfont{subtitle}\small\color{white!80!NapiziaHeaderDark}\insertsubtitle\par}};
+    \node[anchor=north, align=center, text=NapiziaHeaderDark, text width=0.8\paperwidth]
+      at ([yshift=-0.05\paperheight]band.south)
+      {{\usebeamerfont{author}\insertauthor\par}\vskip4pt
+       {\usebeamerfont{institute}\insertinstitute\par}};
+  \end{tikzpicture}}
 \usepackage{booktabs}
 \graphicspath{{img/}{../../eryks-old-stuff/presentation/images/}}
 
@@ -74,7 +101,7 @@
 \title{\T{Sicilian, English and Italian Neural Machine Translation}%
          {Traduzione automatica neurale fra siciliano, inglese e italiano}}
 \subtitle{\T{A data pipeline and reproduced baselines, from a small Transformer to a staged NLLB}%
-            {Una pipeline dei dati e baseline riprodotte, da un piccolo Transformer a NLLB addestrato a stadi}}
+            {Pipeline dei dati e riproduzione delle baseline, da un piccolo Transformer a NLLB addestrato a stadi}}
 \author{Donato Meoli}
 \institute[\T{University of Pisa}{Universit\`a di Pisa}]{Human Language Technologies
   \textperiodcentered{} \T{University of Pisa}{Universit\`a di Pisa}}
@@ -91,8 +118,7 @@
           Sicilian was mined from non-standard web text: about one third of it is dialect, some
           of it Corsican. The problem moved from the \emph{absence} of data to its
           \emph{quality}.}%
-          {Il siciliano oggi \`e coperto da modelli massivamente multilingue (NLLB-200), ma il
-          loro siciliano \`e stato estratto da testo web non standard: circa un terzo \`e
+          {Oggi il siciliano \`e incluso nei grandi modelli multilingue (NLLB-200), ma il loro siciliano \`e stato raccolto sul web, da testo non standard: circa un terzo \`e
           dialetto, una parte \`e corso. Il problema \`e passato dalla \emph{mancanza} di dati
           alla loro \emph{qualit\`a}.}
     \item \T{High-quality text exists: since 1979 \emph{Arba Sicula} has published a bilingual
@@ -101,12 +127,10 @@
           letteraria bilingue siciliano--inglese.}
     \item \T{Wdowiak (2021--22) built the first Sicilian NMT system on it, aligning the
           sentences by hand.}%
-          {Wdowiak (2021--22) vi ha costruito il primo sistema di traduzione neurale per il
-          siciliano, allineando le frasi a mano.}
+          {Su questa rivista Wdowiak (2021--22) ha costruito il primo sistema di traduzione neurale per il siciliano, allineando le frasi a mano.}
     \item \T{This work rebuilds that system on maintained software, with an automatic pipeline,
           and brings a pretrained model to it.}%
-          {Questo lavoro ricostruisce quel sistema su software mantenuto, con una pipeline
-          automatica, e vi porta un modello preaddestrato.}
+          {Questo lavoro ricostruisce quel sistema con software ancora mantenuto e una pipeline automatica, e vi applica un modello preaddestrato.}
   \end{itemize}
 \end{frame}
 
@@ -121,12 +145,11 @@
               letterario d'Italia (XIII secolo) e ispir\`o Dante.}
         \item \T{Dictionaries have presented a consistent orthography for several hundred
               years (Pasqualino 1785, Mortillaro, Traina, Nicotra).}%
-              {I dizionari presentano un'ortografia coerente da alcuni secoli (Pasqualino 1785,
+              {Da secoli i dizionari adottano un'ortografia coerente (Pasqualino 1785,
               Mortillaro, Traina, Nicotra).}
         \item \T{It is spoken daily in Sicily, Calabria and Puglia, and in diaspora communities
               abroad.}%
-              {\`E parlato ogni giorno in Sicilia, Calabria e Puglia, e nelle comunit\`a
-              all'estero.}
+              {\`E parlato ogni giorno in Sicilia, Calabria e Puglia, e nelle comunit\`a di emigrati all'estero.}
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
@@ -138,26 +161,26 @@
         \item \T{For NLP: little curated parallel text, much inflection, a literary domain,
               i.e., a low-resource setting.}%
               {Per l'NLP: poco testo parallelo curato, molta flessione, un dominio letterario,
-              cio\`e un contesto a basse risorse.}
+              cio\`e un caso \emph{low-resource}.}
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ==================================================================== roadmap
-\begin{frame}{\T{Roadmap and contributions}{Percorso e contributi}}
+\begin{frame}{\T{Roadmap and contributions}{Indice e contributi}}
   \begin{columns}[t]
     \begin{column}{0.46\textwidth}
       \textbf{\T{From the baseline to ours:}{Dalla baseline al nostro sistema:}}
       \begin{itemize}
         \item \T{data: PDFs to parallel sentences with a sentence encoder;}%
-              {dati: dai PDF alle frasi parallele con un encoder di frasi;}
+              {dati: dai PDF alle frasi parallele con un sentence encoder;}
         \item \T{baseline: Transformer, subwords, the low-resource recipe;}%
-              {baseline: Transformer, sottoparole, la ricetta per poche risorse;}
+              {baseline: Transformer, sottoparole, la ricetta per pochi dati;}
         \item \T{pretrained: NLLB-200 adapted with LoRA;}%
-              {preaddestrato: NLLB-200 adattato con LoRA;}
+              {modello preaddestrato: NLLB-200 adattato con LoRA;}
         \item \T{staged training on scored back-translations;}%
-              {addestramento a stadi su retrotraduzioni con punteggio;}
+              {addestramento a stadi su back-translation selezionate per punteggio;}
         \item \T{results on two test sets, and the baseline retrained.}%
               {risultati su due test set, e la baseline riaddestrata.}
       \end{itemize}
@@ -170,13 +193,12 @@
               {una pipeline automatica dai PDF al testo parallelo (PyMuPDF + LaBSE), tarata
               sull'allineamento manuale;}
         \item \T{a curated training set guarded against a frozen literary test set;}%
-              {un training set curato e protetto da un test set letterario congelato;}
+              {un training set curato, ripulito da ogni sovrapposizione con un test set letterario fisso;}
         \item \T{the tokenizer and the desinence-biased segmentation ported to Python;}%
-              {il tokenizer e la segmentazione orientata alle desinenze portati in Python;}
+              {il tokenizer e la segmentazione orientata alle desinenze riscritti in Python;}
         \item \T{NLLB-200 trained in stages, compared with the published systems on their test
               set and in their tokenized space.}%
-              {NLLB-200 addestrato a stadi, confrontato con i sistemi pubblicati sul loro test
-              set e nel loro spazio tokenizzato.}
+              {NLLB-200 addestrato a stadi, confrontato con i sistemi pubblicati sul loro test set e nello stesso spazio tokenizzato.}
       \end{itemize}
     \end{column}
   \end{columns}
@@ -188,10 +210,10 @@
     \item \T{Extraction from the PDFs}{Estrazione dai PDF}
     \item \T{Sentence alignment with LaBSE}{Allineamento delle frasi con LaBSE}
     \item \T{Cleaning}{Pulizia}
-    \item \T{The datasets and the test guard}{I dataset e la protezione del test}
+    \item \T{The datasets and the test guard}{I dataset e l'esclusione del test set}
   \end{itemize}}{%
-  Feng et al., \emph{Language-agnostic BERT Sentence Embedding} (LaBSE).\\
-  Thompson \& Koehn, \emph{Vecalign}.}
+  \href{https://arxiv.org/abs/2007.01852}{Feng et al., \emph{Language-agnostic BERT Sentence Embedding} (LaBSE)}.\\
+  \href{https://aclanthology.org/D19-1136}{Thompson \& Koehn, \emph{Vecalign}}.}
 
 \begin{frame}{\T{The corpus bottleneck}{Il collo di bottiglia del corpus}}
   \begin{columns}[t]
@@ -204,7 +226,7 @@
         \item \T{The text exists only as PDFs, with two columns, captions, front matter and, in
               the older issues, OCR noise. Wdowiak aligned it by hand with \texttt{hunalign} and
               a Sicilian dictionary.}%
-              {Il testo esiste solo come PDF, con due colonne, didascalie, pagine iniziali e,
+              {Il testo esiste solo come PDF, con due colonne, didascalie, pagine introduttive e,
               nei numeri pi\`u vecchi, rumore da OCR. Wdowiak lo ha allineato a mano con
               \texttt{hunalign} e un dizionario siciliano.}
         \item \T{Goal: recover the parallel text automatically, so that the dataset can grow
@@ -222,8 +244,7 @@
       \end{tabular}\\[3mm]
       {\scriptsize \T{Facing pages give a prior on the pairing; the task is to confirm the
       pairs and to align the sentences within them.}%
-      {Le pagine a fronte danno un'ipotesi sull'accoppiamento; il compito \`e confermare le
-      coppie e allinearne le frasi.}}
+      {Le pagine a fronte suggeriscono gi\`a l'accoppiamento; resta da confermare le coppie e da allinearne le frasi.}}
     \end{column}
   \end{columns}
 \end{frame}
@@ -233,7 +254,7 @@
     \item \T{Read the text layer with PyMuPDF (no pdflatex round trip). The issues up to AS18,
           and AS21, are scans without accents, and are kept out of training; from AS19 (1998)
           the PDFs come from the original files.}%
-          {Lettura del livello di testo con PyMuPDF (senza il passaggio da pdflatex). I numeri
+          {Lettura dello strato di testo con PyMuPDF (senza il passaggio da pdflatex). I numeri
           fino ad AS18, e AS21, sono scansioni senza accenti e restano fuori
           dall'addestramento; da AS19 (1998) i PDF vengono dai file originali.}
     \item \T{Assign each page a language by its share of Sicilian and English stop-words.}%
@@ -252,7 +273,7 @@
 \end{frame}
 
 \begin{frame}{\T{Sentence alignment with LaBSE and a monotonic DP}%
-                {Allineamento delle frasi con LaBSE e una DP monotona}}
+                {Allineare le frasi: LaBSE e programmazione dinamica}}
   \begin{columns}[t]
     \begin{column}{0.56\textwidth}
       \footnotesize
@@ -265,25 +286,22 @@
       \]
       \textbf{\T{Page confirmation}{Conferma della pagina}}: \T{keep the pair if the larger of
       the mean row and column maxima of $S$ is at least $\tau_{\text{page}}$.}%
-      {la coppia resta se il maggiore fra la media dei massimi per riga e per colonna di $S$ \`e
+      {la coppia si tiene se il maggiore fra la media dei massimi per riga e per colonna di $S$ \`e
       almeno $\tau_{\text{page}}$.}\\
       \textbf{\T{Alignment}{Allineamento}}: \T{a monotonic DP over $S$ with moves}%
-      {una DP monotona su $S$ con mosse} $1$--$1$, $1$--$2$, $2$--$1$ \T{(gain: the mean cosine)
+      {una programmazione dinamica monotona su $S$ con mosse} $1$--$1$, $1$--$2$, $2$--$1$ \T{(gain: the mean cosine)
       and}{(guadagno: il coseno medio) e} $1$--$0$, $0$--$1$ \T{(penalty 0.5), banded to the
       facing page; a span is kept if its mean cosine is at least $\tau_{\text{sent}}$.}%
-      {(penalit\`a 0,5), limitata alla pagina a fronte; uno span resta se il coseno medio \`e
-      almeno $\tau_{\text{sent}}$.}
+      {(penalit\`a 0,5), limitata alla pagina a fronte; un segmento si tiene se il suo coseno medio \`e almeno $\tau_{\text{sent}}$.}
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{itemize}
         \item \T{No dictionary and no \texttt{hunalign}: embeddings and a DP, in the spirit of
               Vecalign.}%
-              {Nessun dizionario e niente \texttt{hunalign}: embedding e una DP, nello spirito
-              di Vecalign.}
+              {Niente dizionario n\'e \texttt{hunalign}: embedding e programmazione dinamica, come in Vecalign.}
         \item \T{Thresholds chosen on a grid against Wdowiak's hand alignment of AS41--42:
               $(\tau_{\text{page}},\tau_{\text{sent}})=(0.50,0.40)$, F1 0.58.}%
-              {Soglie scelte su una griglia contro l'allineamento manuale di Wdowiak di
-              AS41--42: $(\tau_{\text{page}},\tau_{\text{sent}})=(0{,}50;\,0{,}40)$, F1 0,58.}
+              {Soglie scelte a griglia sull'allineamento manuale di Wdowiak di AS41--42: $(\tau_{\text{page}},\tau_{\text{sent}})=(0{,}50;\,0{,}40)$, F1 0,58.}
         \item \T{Recall 0.54, precision 0.63: somewhat pessimistic, since a correct pair
               segmented differently counts as an error.}%
               {Recall 0,54, precisione 0,63: un po' pessimistiche, perch\'e una coppia giusta
@@ -303,12 +321,11 @@
               output pi\`u facile da correggere di quello di \texttt{hunalign}.}
         \item \T{First the residue of the layout is removed (the InDesign slug of AS43, the
               ``Return to the TOC'' links).}%
-              {Prima si toglie il residuo dell'impaginazione (lo slug di InDesign di AS43, i
+              {Prima si tolgono i residui dell'impaginazione (lo slug di InDesign di AS43, i
               link ``Return to the TOC'').}
         \item \T{After cleaning and deduplication, the digital archive of the journal gives
               15{,}465 pairs.}%
-              {Dopo pulizia e deduplicazione, l'archivio digitale della rivista d\`a 15.465
-              coppie.}
+              {Dopo pulizia e deduplicazione, dall'archivio digitale della rivista si ricavano 15.465 coppie.}
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
@@ -343,8 +360,7 @@
               di un numero, il nostro allineamento di AS19--47 e le pagine di Napizia.}
         \item \T{\textbf{Test guard}: a training pair that contains a sentence of the frozen
               test set is removed (794 pairs of the curated set).}%
-              {\textbf{Protezione del test}: si toglie ogni coppia di training che contiene una
-              frase del test set congelato (794 coppie del set curato).}
+              {\textbf{Esclusione del test}: si toglie dal training ogni coppia che contiene una frase del test set (794 coppie del set curato).}
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
@@ -382,12 +398,10 @@
               Corsican, and few sentences carry a valid translation.}%
               {Circa un terzo del siciliano raccolto da NLLB \`e dialetto locale, una parte \`e
               corso, e poche frasi hanno una traduzione valida.}
-        \item \T{Multilingual encoders organise around surface form (Verma et al., 2026), so
+        \item \T{Multilingual encoders organise around surface form (\href{https://arxiv.org/abs/2604.05090}{Verma et al., 2026}), so
               retrieving the \emph{Sicilian} side of an English sentence follows the spelling
               of the seed data, and Corsican-looking text passes as Sicilian.}%
-              {Gli encoder multilingue si organizzano sulla forma superficiale (Verma et al.,
-              2026): cercare il lato \emph{siciliano} di una frase inglese segue la grafia dei
-              dati iniziali, e un testo dall'aspetto corso passa per siciliano.}
+              {Gli encoder multilingue raggruppano i testi per forma superficiale (\href{https://arxiv.org/abs/2604.05090}{Verma et al., 2026}): cercando il lato \emph{siciliano} di una frase inglese si trova testo con la grafia dei dati iniziali, e un testo che sembra corso passa per siciliano.}
         \item \T{The same proximity to Italian lets our aligner work on a language that LaBSE
               does not support officially.}%
               {La stessa vicinanza all'italiano permette al nostro allineatore di funzionare
@@ -403,7 +417,7 @@
         \quad \T{49\%, French 21\%}{49\%, francese 21\%} & \\
       \end{tabular}
       \\[2.5mm]
-      \textbf{\T{Alignability follows standardness:}{L'allineabilit\`a segue lo standard:}}\\[1mm]
+      \textbf{\T{Alignability follows standardness:}{Pi\`u il testo \`e standard, meglio si allinea:}}\\[1mm]
       \begin{tabular}{lcc}
                        & \T{cosine}{coseno} & $\ge\tau_{\text{sent}}$ \\
         \T{standard prose}{prosa standard} & \T{0.76}{0,76} & 91\% \\
@@ -427,7 +441,7 @@
               for \c{c}i, R kept before a clitic (\emph{farlu}).}%
               {Normalizziamo verso lo standard di Cipolla, esteso da Wdowiak per la traduzione:
               L sugli articoli (\emph{lu/la/li}), H su \emph{aviri} (\emph{haiu, havi, hannu}),
-              CI per \c{c}i, R prima di un clitico (\emph{farlu}).}
+              CI per \c{c}i, R mantenuta prima di un clitico (\emph{farlu}).}
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
@@ -447,7 +461,7 @@
 \end{frame}
 
 \begin{frame}{\T{Normalization: uncontraction, and what it is worth}%
-                {Normalizzazione: le contrazioni, e quanto vale}}
+                {Normalizzazione: sciogliere le contrazioni, e quanto rende}}
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
       \footnotesize
@@ -474,7 +488,7 @@
       \end{tabular}\\[2mm]
       \T{``std'' is best by only 0.1 BLEU, within the noise; ``full'' is no better than raw
       text, as one expects from a tokenizer trained on un-normalized input.}%
-      {``std'' \`e il migliore per soli 0,1 BLEU, dentro il rumore; ``full'' non fa meglio del
+      {``std'' vince di appena 0,1 BLEU, entro il rumore; ``full'' non fa meglio del
       testo grezzo, come ci si aspetta da un tokenizer addestrato su testo non normalizzato.}
     \end{column}
   \end{columns}
@@ -483,35 +497,33 @@
 % ================================================================ BASELINE
 \sectiondivider{\T{Neural MT:\\ the baseline}{Traduzione\\ neurale:\\ la baseline}}{%
   \begin{itemize}
-    \item \T{The translation objective}{L'obiettivo della traduzione}
+    \item \T{The translation objective}{L'obiettivo di addestramento}
     \item \T{The Transformer and attention}{Il Transformer e l'attenzione}
     \item \T{Subword segmentation (BPE)}{Segmentazione in sottoparole (BPE)}
-    \item \T{The low-resource recipe}{La ricetta per poche risorse}
+    \item \T{The low-resource recipe}{La ricetta per pochi dati}
   \end{itemize}}{%
-  Vaswani et al., \emph{Attention Is All You Need}.\\
-  Sennrich et al., \emph{Neural MT of Rare Words with Subword Units}.\\
-  Sennrich \& Zhang, \emph{Revisiting Low-Resource NMT}.}
+  \href{https://arxiv.org/abs/1706.03762}{Vaswani et al., \emph{Attention Is All You Need}}.\\
+  \href{https://arxiv.org/abs/1508.07909}{Sennrich et al., \emph{Neural MT of Rare Words with Subword Units}}.\\
+  \href{https://arxiv.org/abs/1905.11901}{Sennrich \& Zhang, \emph{Revisiting Low-Resource NMT}}.}
 
-\begin{frame}{\T{The translation objective}{L'obiettivo della traduzione}}
+\begin{frame}{\T{The translation objective}{L'obiettivo di addestramento}}
   \T{Neural MT is a conditional language model: an encoder reads the source
   $x=(x_1,\dots,x_n)$, and a decoder factorises the target from left to right,}%
-  {La traduzione neurale \`e un modello del linguaggio condizionato: un encoder legge la
-  sorgente $x=(x_1,\dots,x_n)$ e un decoder fattorizza il testo d'arrivo da sinistra a destra,}
+  {La traduzione neurale \`e un modello linguistico condizionato: un encoder legge la sorgente $x=(x_1,\dots,x_n)$ e un decoder scompone la probabilit\`a della frase d'arrivo token per token, da sinistra a destra,}
   \[
     p_\theta(y\mid x)=\prod_{t=1}^{|y|} p_\theta\big(y_t\mid y_{<t},\,x\big),
   \]
   \T{trained by maximising the log-likelihood of the parallel corpus $\mathcal D$,}%
-  {addestrato massimizzando la log-verosimiglianza del corpus parallelo $\mathcal D$,}
+  {e si addestra massimizzando la log-likelihood del corpus parallelo $\mathcal D$,}
   \[
     \mathcal L(\theta)=\sum_{(x,y)\in\mathcal D}\ \sum_{t} \log p_\theta\big(y_t\mid y_{<t},x\big),
   \]
   \T{and decoded with beam search for $\arg\max_y p_\theta(y\mid x)$.}%
-  {e decodificato con beam search per $\arg\max_y p_\theta(y\mid x)$.}
+  {mentre in decodifica si cerca $\arg\max_y p_\theta(y\mid x)$ con la beam search.}
   \begin{itemize}
     \item \T{The Transformer, the subwords and NLLB are different parameterisations of the
           same $p_\theta$.}%
-          {Il Transformer, le sottoparole e NLLB sono parametrizzazioni diverse dello stesso
-          $p_\theta$.}
+          {Il Transformer, le sottoparole e NLLB sono modi diversi di realizzare la stessa $p_\theta$.}
   \end{itemize}
 \end{frame}
 
@@ -521,18 +533,18 @@
       \footnotesize
       \T{No recurrence: tokens interact through scaled dot-product attention. With queries
       $Q$, keys $K$ and values $V$,}%
-      {Nessuna ricorrenza: i token interagiscono con l'attenzione a prodotto scalare scalato.
+      {Niente ricorrenza: i token interagiscono attraverso la \emph{scaled dot-product attention}.
       Con query $Q$, chiavi $K$ e valori $V$,}
       \[
         \mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\Big(\frac{QK^{\!\top}}{\sqrt{d_k}}\Big)V,
       \]
-      \T{computed in parallel heads,}{calcolata in pi\`u teste in parallelo,}
+      \T{computed in parallel heads,}{calcolata da pi\`u teste (\emph{head}) in parallelo,}
       \[
         \mathrm{MultiHead}=\mathrm{Concat}(\mathrm{head}_1,\dots,\mathrm{head}_h)\,W^{O},
       \]
       $\mathrm{head}_i=\mathrm{Attention}(QW_i^Q,KW_i^K,VW_i^V)$. \T{Each layer adds a
       position-wise FFN, residual connections and layer normalization.}%
-      {Ogni strato aggiunge una FFN per posizione, connessioni residue e layer normalization.}
+      {Ogni strato aggiunge una rete feed-forward applicata a ogni posizione, connessioni residue e layer normalization.}
     \end{column}
     \begin{column}{0.42\textwidth}
       \begin{itemize}
@@ -575,7 +587,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{\T{The low-resource recipe}{La ricetta per poche risorse}}
+\begin{frame}{\T{The low-resource recipe}{La ricetta per pochi dati}}
   \begin{columns}[t]
     \begin{column}{0.56\textwidth}
       \T{With little data the default Transformer overfits. Sennrich \& Zhang (2019) prescribe
@@ -584,11 +596,11 @@
       prescrivono un modello pi\`u piccolo e fortemente regolarizzato:}
       \begin{itemize}
         \item \T{fewer and narrower layers, a small BPE vocabulary;}%
-              {strati meno numerosi e pi\`u stretti, un vocabolario BPE piccolo;}
+              {meno strati, e pi\`u stretti, e un vocabolario BPE piccolo;}
         \item \T{high dropout and label smoothing.}{dropout alto e label smoothing.}
       \end{itemize}
       \T{Our baseline uses Sockeye-3 with this geometry, on the CPU.}%
-      {La nostra baseline usa Sockeye-3 con questa geometria, sulla CPU.}
+      {La nostra baseline usa Sockeye-3 con queste dimensioni, su CPU.}
     \end{column}
     \begin{column}{0.44\textwidth}
       \centering\small
@@ -623,7 +635,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}
-      \textbf{\T{Lever D: lemma source factor}{Leva D: fattore lemma sulla sorgente}}
+      \textbf{\T{Lever D: lemma source factor}{Leva D: il lemma come fattore della sorgente}}
       \begin{itemize}
         \footnotesize
         \item \T{A lemma embedding is summed into the source embedding (Sennrich \& Haddow,
@@ -645,16 +657,16 @@
 \end{frame}
 
 % ================================================================ PRETRAINED
-\sectiondivider{\T{Pretrained\\ multilingual\\ NMT, adapted}{Traduzione\\ multilingue\\ preaddestrata,\\ adattata}}{%
+\sectiondivider{\T{Pretrained\\ multilingual\\ NMT, adapted}{Un modello\\ multilingue\\ preaddestrato,\\ adattato}}{%
   \begin{itemize}
     \item \T{NLLB-200}{NLLB-200}
     \item \T{Parameter-efficient fine-tuning: LoRA}{Fine-tuning efficiente: LoRA}
-    \item \T{Bidirectional adapter and back-translation}{Adapter bidirezionale e retrotraduzione}
-    \item \T{The Italian bridge}{Il ponte dell'italiano}
+    \item \T{Bidirectional adapter and back-translation}{Adapter bidirezionale e back-translation}
+    \item \T{The Italian bridge}{L'italiano come lingua ponte}
   \end{itemize}}{%
-  NLLB Team, \emph{No Language Left Behind}.\\
-  Hu et al., \emph{LoRA}.\quad Sennrich et al., \emph{Back-translation}.\\
-  Johnson et al., \emph{Multilingual NMT}.\quad Fan et al., \emph{Beyond English-Centric}.}
+  \href{https://arxiv.org/abs/2207.04672}{NLLB Team, \emph{No Language Left Behind}}.\\
+  \href{https://arxiv.org/abs/2106.09685}{Hu et al., \emph{LoRA}}.\quad \href{https://arxiv.org/abs/1511.06709}{Sennrich et al., \emph{Back-translation}}.\\
+  \href{https://arxiv.org/abs/1611.04558}{Johnson et al., \emph{Multilingual NMT}}.\quad \href{https://arxiv.org/abs/2010.11125}{Fan et al., \emph{Beyond English-Centric}}.}
 
 \begin{frame}{\T{NLLB-200: a massively multilingual Transformer}%
                 {NLLB-200: un Transformer massivamente multilingue}}
@@ -681,8 +693,7 @@
               {Il trasferimento da 200 lingue \`e ci\`o che manca al modello piccolo.}
         \item \T{The question is how to adapt 1.3B parameters to some 30,000 pairs on a
               single GPU.}%
-              {Il problema \`e come adattare 1,3B di parametri a circa 30.000 coppie su una sola
-              GPU.}
+              {Il problema \`e come adattare 1,3 miliardi di parametri a circa 30.000 coppie su una sola GPU.}
       \end{itemize}
     \end{column}
   \end{columns}
@@ -699,7 +710,7 @@
       \[
         W = W_0 + \frac{\alpha}{r}\,B A,\qquad B\in\mathbb R^{d\times r},\ A\in\mathbb R^{r\times k},
       \]
-      \T{with $r\ll\min(d,k)$; the forward pass is}{con $r\ll\min(d,k)$; il passo in avanti \`e}
+      \T{with $r\ll\min(d,k)$; the forward pass is}{con $r\ll\min(d,k)$; il forward pass diventa}
       \[
         h = W_0\,x \;+\; \tfrac{\alpha}{r}\,B(Ax).
       \]
@@ -713,7 +724,7 @@
         \item \T{Base in fp16, adapter in fp32; one Colab GPU.}%
               {Base in fp16, adapter in fp32; una GPU di Colab.}
         \item \T{The adapter can be merged into $W_0$ at inference time.}%
-              {L'adapter si pu\`o fondere in $W_0$ al momento dell'inferenza.}
+              {Per l'inferenza l'adapter si pu\`o incorporare in $W_0$.}
       \end{itemize}
     \end{column}
   \end{columns}
@@ -729,7 +740,7 @@
         \mathcal D_{\leftrightarrow}=\{(x^{\text{scn}},y^{\text{en}})\}\cup\{(x^{\text{en}},y^{\text{scn}})\},
       \]
       \T{each example with its forced target token.}%
-      {ogni esempio con il suo token d'arrivo forzato.}
+      {ogni esempio con il token della sua lingua d'arrivo forzato.}
       \begin{itemize}
         \item \T{On the web set: scn$\to$en 29.00 $\to$ 31.27, en$\to$scn 9.90 $\to$ 19.19
               BLEU.}%
@@ -745,13 +756,13 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{\T{Back-translation and the Italian bridge}{Retrotraduzione e ponte dell'italiano}}
+\begin{frame}{\T{Back-translation and the Italian bridge}{Back-translation e italiano come ponte}}
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
       \footnotesize
-      \textbf{\T{Back-translation}{Retrotraduzione}} (Sennrich et al., 2016):
+      \textbf{Back-translation} (Sennrich et al., 2016):
       \T{with a reverse model $M_{t\to s}$ and monolingual target text,}%
-      {con un modello inverso $M_{t\to s}$ e testo monolingue d'arrivo,}
+      {con un modello inverso $M_{t\to s}$ e testo monolingue nella lingua d'arrivo,}
       \[
         x' = M_{t\to s}(y),\qquad \mathcal D^{+}=\mathcal D\,\cup\,\{(x',\,y)\};
       \]
@@ -761,8 +772,7 @@
       31.60. The in-domain pool is small; the staged training uses about a million
       back-translations instead.}%
       {Dalle 7.592 frasi inglesi rimaste senza allineamento: 7.498 coppie, scn$\to$en 31,27
-      $\to$ 31,60. Il bacino nel dominio \`e piccolo; l'addestramento a stadi usa invece circa
-      un milione di retrotraduzioni.}
+      $\to$ 31,60. Il testo dello stesso dominio \`e poco; l'addestramento a stadi usa invece circa un milione di back-translation.}
     \end{column}
     \begin{column}{0.5\textwidth}
       \footnotesize
@@ -785,11 +795,11 @@
 \sectiondivider{\T{Staged\\ training}{Addestramento\\ a stadi}}{%
   \begin{itemize}
     \item \T{The reverse-training recipe, on NLLB}{La ricetta del reverse training, su NLLB}
-    \item \T{Forward-scored back-translations}{Retrotraduzioni con punteggio in avanti}
-    \item \T{The coarse stage}{Lo stadio grossolano}
-    \item \T{Ablation}{Ablazione}
+    \item \T{Forward-scored back-translations}{Back-translation con il punteggio del modello diretto}
+    \item \T{The coarse stage}{Lo stadio di sgrossatura}
+    \item \T{Ablation}{Studio di ablazione}
   \end{itemize}}{%
-  Wdowiak, \emph{A Reverse Training Strategy for Sicilian NMT}.}
+  \href{https://www.doviak.net/pages/ml-sicilian/ml-scn_p07.shtml}{Wdowiak, \emph{A Reverse Training Strategy for Sicilian NMT}}.}
 
 \begin{frame}{\T{From reverse training to a staged NLLB}{Dal reverse training a NLLB a stadi}}
   \begin{columns}[t]
@@ -807,14 +817,14 @@
       \begin{enumerate}
         \item \T{back-translations (6 lists, 4 directions) and 100,000 natural it--en pairs,
               one epoch;}%
-              {retrotraduzioni (6 liste, 4 direzioni) e 100.000 coppie it--en naturali, un'epoca;}
+              {back-translation (6 liste, 4 direzioni) e 100.000 coppie it--en naturali, un'epoca;}
         \item \T{the curated set, scn$\leftrightarrow$en and scn$\leftrightarrow$it, two epochs.}%
               {il set curato, scn$\leftrightarrow$en e scn$\leftrightarrow$it, due epoche.}
       \end{enumerate}
     \end{column}
     \begin{column}{0.5\textwidth}
       \footnotesize
-      \textbf{\T{Forward scoring}{Punteggio in avanti}}: \T{each synthetic pair is scored by
+      \textbf{\T{Forward scoring}{Punteggio del modello diretto}}: \T{each synthetic pair is scored by
       the negative log-probability that its real Sicilian side translates the synthetic one,
       under Wdowiak's models trained on the literary standard; standard Sicilian usually
       scores lower than dialect.}%
@@ -831,7 +841,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{\T{Staged training: results on our test set}{A stadi: risultati sul nostro test set}}
+\begin{frame}{\T{Staged training: results on our test set}{Addestramento a stadi: risultati sul nostro test set}}
   \begin{columns}[t]
     \begin{column}{0.5\textwidth}
       \footnotesize
@@ -839,33 +849,30 @@
         \toprule \T{model}{modello} & scn$\to$en & en$\to$scn \\\midrule
         \T{bidir. LoRA (web)}{LoRA bidir. (web)} & \T{31.27}{31,27} & \T{19.19}{19,19} \\
         \T{staged}{a stadi} & \T{32.40}{32,40} & \T{21.72}{21,72} \\
-        \T{coarse stage first}{con stadio grossolano} & \T{33.01}{33,01} & \T{21.78}{21,78} \\\bottomrule
+        \T{coarse stage first}{con sgrossatura iniziale} & \T{33.01}{33,01} & \T{21.78}{21,78} \\\bottomrule
       \end{tabular}\\[2mm]
       \T{The gain is larger into Sicilian (+2.53) than from it (+1.13), possibly because the
       back-translations were selected for the quality of their Sicilian side. The comparison
       mixes two changes (curated set and back-translations).}%
       {Il guadagno \`e maggiore verso il siciliano (+2,53) che dal siciliano (+1,13), forse
-      perch\'e le retrotraduzioni sono state scelte per la qualit\`a del lato siciliano. Il
+      perch\'e le back-translation sono state scelte per la qualit\`a del lato siciliano. Il
       confronto mescola due cambiamenti (set curato e retrotraduzioni).}
     \end{column}
     \begin{column}{0.5\textwidth}
       \footnotesize
-      \textbf{\T{The coarse stage (Wdowiak's proposal)}{Lo stadio grossolano (proposta di
-      Wdowiak)}}: \T{one epoch on the 200,000 \emph{worst}-scoring pairs per list, i.e., on the
+      \textbf{\T{The coarse stage (Wdowiak's proposal)}{Lo stadio di sgrossatura (proposta di Wdowiak)}}: \T{one epoch on the 200,000 \emph{worst}-scoring pairs per list, i.e., on the
       dialectal, Italian and Corsican text, spreads the output probabilities across the
       dialects; the later stages sharpen them.}%
       {un'epoca sulle 200.000 coppie con il punteggio \emph{peggiore} per lista, cio\`e sul
-      testo dialettale, italiano e corso, distribuisce le probabilit\`a d'uscita fra i
-      dialetti; gli stadi successivi le affinano.}\\[1mm]
+      testo dialettale, italiano e corso, distribuisce le probabilit\`a d'uscita fra i dialetti; gli stadi successivi le concentrano.}\\[1mm]
       \T{It helps from Sicilian (+0.61) but not into it. It also trains one more epoch, so the
       source of the gain is not certain.}%
-      {Aiuta dal siciliano (+0,61) ma non verso il siciliano. Addestra anche un'epoca in pi\`u,
-      quindi l'origine del guadagno non \`e certa.}
+      {Aiuta dal siciliano (+0,61) ma non verso il siciliano. Per\`o aggiunge anche un'epoca, quindi non \`e certo da dove venga il guadagno.}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{\T{Ablation: what limits the staged model}{Ablazione: che cosa limita il modello a stadi}}
+\begin{frame}{\T{Ablation: what limits the staged model}{Studio di ablazione: che cosa limita il modello a stadi}}
   \footnotesize
   \centering
   \begin{tabular}{lccccc}
@@ -889,7 +896,7 @@
     \item \T{Final: the WikiMatrix it--scn pairs in the third stage and up to four epochs,
           chosen on the validation set (the best of all variants there).}%
           {Finale: le coppie it--scn di WikiMatrix nel terzo stadio e fino a quattro epoche,
-          scelto sul validation set (il migliore di tutte le varianti).}
+          scelto sul validation set, dove \`e il migliore fra tutte le varianti.}
   \end{itemize}
 \end{frame}
 
@@ -898,24 +905,24 @@
   \begin{itemize}
     \item \T{Evaluation: BLEU, chrF and the tokenized space}{Valutazione: BLEU, chrF e lo spazio tokenizzato}
     \item \T{Our test set}{Il nostro test set}
-    \item \T{Forgetting of the untrained directions}{Dimenticanza delle direzioni non addestrate}
+    \item \T{Forgetting of the untrained directions}{Il forgetting nelle direzioni non addestrate}
     \item \T{Wdowiak's test set and the retrained baseline}{Il test set di Wdowiak e la baseline riaddestrata}
   \end{itemize}}{%
-  Papineni et al., \emph{BLEU}.\quad Popovi\'c, \emph{chrF}.\\
-  Post, \emph{sacreBLEU}.}
+  \href{https://aclanthology.org/P02-1040}{Papineni et al., \emph{BLEU}}.\quad \href{https://aclanthology.org/W15-3049}{Popovi\'c, \emph{chrF}}.\\
+  \href{https://aclanthology.org/W18-6319}{Post, \emph{sacreBLEU}}.}
 
 \begin{frame}{\T{Evaluation}{Valutazione}}
   \begin{columns}[t]
     \begin{column}{0.54\textwidth}
       \footnotesize
       \textbf{BLEU}: \T{modified $n$-gram precision with a brevity penalty,}%
-      {precisione degli $n$-grammi modificata con una penalit\`a di brevit\`a,}
+      {precisione modificata degli $n$-grammi, con una penalit\`a di brevit\`a,}
       \[
         \mathrm{BLEU}=\min\!\big(1,e^{1-r/c}\big)\cdot
         \exp\!\Big(\textstyle\sum_{n=1}^{4} w_n\log p_n\Big).
       \]
       \textbf{chrF}: \T{the F-score of character $n$-grams, kinder to rich morphology,}%
-      {la F-score degli $n$-grammi di caratteri, pi\`u adatta a una morfologia ricca,}
+      {l'F-score degli $n$-grammi di caratteri, pi\`u adatto alle lingue morfologicamente ricche,}
       \[
         \mathrm{chrF}_\beta=(1+\beta^2)\,\frac{\mathrm{chrP}\cdot\mathrm{chrR}}{\beta^2\,\mathrm{chrP}+\mathrm{chrR}}.
       \]
@@ -925,9 +932,7 @@
       \begin{itemize}
         \item \T{sacreBLEU (\texttt{13a}) on our frozen test set of 1,000 literary pairs; not
               FLORES, whose Sicilian follows the post-2017 orthography and another domain.}%
-              {sacreBLEU (\texttt{13a}) sul nostro test set congelato di 1.000 coppie
-              letterarie; non FLORES, il cui siciliano segue l'ortografia successiva al 2017 e
-              un altro dominio.}
+              {sacreBLEU (\texttt{13a}) sul nostro test set fisso di 1.000 coppie letterarie; non FLORES, il cui siciliano segue l'ortografia introdotta dopo il 2017 ed \`e di un altro dominio.}
         \item \T{Wdowiak's test set: 121 trilingual lines, scored as he did in the space of
               the Napizia tokenizer (accents folded, contractions undone).}%
               {Test set di Wdowiak: 121 righe trilingui, valutate come faceva lui nello spazio
@@ -951,8 +956,7 @@
       \begin{itemize}
         \item \T{The Sockeye baseline is 3.3 BLEU above the floor of the untranslated source
               (8.51 against 5.18).}%
-              {La baseline Sockeye supera di 3,3 BLEU la soglia della sorgente non tradotta
-              (8,51 contro 5,18).}
+              {La baseline Sockeye supera di 3,3 BLEU il punteggio della sorgente lasciata non tradotta (8,51 contro 5,18).}
         \item \T{NLLB out of the box is 18 BLEU above the best model trained from scratch.}%
               {NLLB senza adattamento supera di 18 BLEU il miglior modello addestrato da zero.}
         \item \T{The staged training and the ablation bring it to 36.01 (26.34 into Sicilian).}%
@@ -963,7 +967,7 @@
   \end{columns}
 \end{frame}
 
-\begin{frame}{\T{Forgetting of the untrained directions}{Dimenticanza delle direzioni non addestrate}}
+\begin{frame}{\T{Forgetting of the untrained directions}{Il forgetting nelle direzioni non addestrate}}
   \begin{columns}[c]
     \begin{column}{0.62\textwidth}
       \centering
@@ -1036,8 +1040,7 @@
               from a previous one and stopped on the test set; none of our runs converged in
               20 epochs.}%
               {Sui suoi dati resta molto sotto i punteggi pubblicati: lui partiva da un modello
-              precedente e si fermava sul test set; nessuna delle nostre corse \`e arrivata a
-              convergenza in 20 epoche.}
+              precedente e si fermava sul test set; nessuno dei nostri addestramenti \`e arrivato a convergenza in 20 epoche.}
         \item \T{Our alignment added to his sheets raises it by 4.0 to 6.5 BLEU: the automatic
               alignment brings pairs that the hand alignment does not contain.}%
               {Il nostro allineamento aggiunto ai suoi fogli la alza di 4,0--6,5 BLEU:
@@ -1052,8 +1055,7 @@
     \item \T{The path from the PDFs of \emph{Arba Sicula} to a Sicilian--English system was
           rebuilt on maintained software: extraction, alignment and cleaning, the tokenizer
           ported to Python, and NLLB-200 with LoRA trained in stages.}%
-          {Il percorso dai PDF di \emph{Arba Sicula} a un sistema siciliano--inglese \`e stato
-          ricostruito su software mantenuto: estrazione, allineamento e pulizia, il tokenizer
+          {Il percorso dai PDF di \emph{Arba Sicula} a un sistema siciliano--inglese \`e stato ricostruito con software ancora mantenuto: estrazione, allineamento e pulizia, il tokenizer
           portato in Python, e NLLB-200 con LoRA addestrato a stadi.}
     \item \T{On our test set the final model reaches 36.01 BLEU (scn$\to$en) and 26.34
           (en$\to$scn); on Wdowiak's, it is above his reverse-training system in the directions
@@ -1070,13 +1072,12 @@
     \item \T{Next: limiting the forgetting with a multi-parallel corpus, and the same pipeline
           for Calabrese, Salentino and the other varieties of Italy (LaBSE retrieves their
           English translation in 98.5--99.9\% of the cases on FLORES-200).}%
-          {Prossimi passi: limitare la dimenticanza con un corpus multi-parallelo, e la stessa
+          {Prossimi passi: limitare il forgetting con un corpus multi-parallelo, e la stessa
           pipeline per il calabrese, il salentino e le altre variet\`a d'Italia (LaBSE ne
           recupera la traduzione inglese nel 98,5--99,9\% dei casi su FLORES-200).}
   \end{itemize}
   \vfill
-  {\scriptsize \T{Paper: arXiv:2610.30374. Code:}{Articolo: arXiv:2610.30374. Codice:}
-  \texttt{github.com/dmeoli/SicilianNMT}.}
+  {\scriptsize \T{Paper:}{Articolo:} \href{https://arxiv.org/abs/2610.30374}{arXiv:2610.30374}. \T{Code:}{Codice:} \href{https://github.com/dmeoli/SicilianNMT}{\texttt{github.com/dmeoli/SicilianNMT}}.}
 \end{frame}
 
 % ================================================================ Acknowledgements
@@ -1090,11 +1091,10 @@
           collezioni digitali.}
     \item \T{\textbf{Eryk Wdowiak}, co-author of the paper, whose \emph{Tradutturi Sicilianu},
           hand-aligned sheets and back-translations this work builds on.}%
-          {\textbf{Eryk Wdowiak}, coautore dell'articolo, sul cui \emph{Tradutturi Sicilianu},
-          sui cui fogli allineati a mano e sulle cui retrotraduzioni si basa questo lavoro.}
+          {\textbf{Eryk Wdowiak}, coautore dell'articolo: questo lavoro si basa sul suo \emph{Tradutturi Sicilianu}, sui suoi fogli allineati a mano e sulle sue back-translation.}
     \item \T{The open-source projects it stands on: PyMuPDF, LaBSE and sentence-transformers,
           Sockeye, NLLB-200, PEFT, sacreBLEU, CTranslate2.}%
-          {I progetti open source su cui poggia: PyMuPDF, LaBSE e sentence-transformers,
+          {I progetti open source che usa: PyMuPDF, LaBSE e sentence-transformers,
           Sockeye, NLLB-200, PEFT, sacreBLEU, CTranslate2.}
   \end{itemize}
   \vfill
@@ -1105,7 +1105,7 @@
 \begin{frame}[standout]
   Grazzii \emph{p'a vostra attenzioni}!
   \par\vspace{\fib{8}pt}
-  {\modularsize{-0.5}\mdseries\texttt{github.com/dmeoli/SicilianNMT}}
+  {\modularsize{-0.5}\mdseries\href{https://github.com/dmeoli/SicilianNMT}{\texttt{github.com/dmeoli/SicilianNMT}}}
 \end{frame}
 
 \end{document}
