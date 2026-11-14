@@ -82,3 +82,17 @@ CTranslate2 with int8 weights, then measures load time, resident memory, latency
 and the BLEU lost to the quantization on the CPU. `ct2_colab.ipynb` runs it on Colab (the merge
 needs about 12 GB of RAM) and writes the model to `nllb-final-ct2-int8` and the numbers to
 `results_ct2.json` on Drive.
+
+`cloudrun/` serves that int8 model on Google Cloud Run, on the CPU and scaled to zero, for the
+translator of dmeoli.github.io (same POST /translate as `api.py`). The model goes in the image:
+
+```bash
+cp -r nllb-final-ct2-int8 cloudrun/model
+gcloud builds submit cloudrun --tag europe-west1-docker.pkg.dev/<project>/tradutturi/api:<tag>
+gcloud run deploy tradutturi --image europe-west1-docker.pkg.dev/<project>/tradutturi/api:<tag> \
+  --region europe-west1 --execution-environment gen2 --cpu 2 --memory 4Gi \
+  --min-instances 0 --max-instances 2 --allow-unauthenticated
+```
+
+The base image is Debian bookworm: the glibc of trixie refuses the executable stack that the
+library of CTranslate2 4.5 asks for, and the container does not start.
