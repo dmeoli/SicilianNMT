@@ -11,6 +11,7 @@ from transformers import AutoTokenizer
 
 MODEL_DIR = os.environ.get("MODEL_DIR", "/model")
 LANG = {"scn": "scn_Latn", "en": "eng_Latn", "it": "ita_Latn"}
+BEAM = int(os.environ.get("BEAM", "5"))
 
 translator = ctranslate2.Translator(MODEL_DIR, device="cpu", compute_type="int8",
                                     intra_threads=os.cpu_count() or 2)
@@ -41,7 +42,7 @@ def translate(r: Req):
         return {"translation": ""}
     tokenizer.src_lang = LANG[r.src]
     toks = tokenizer.convert_ids_to_tokens(tokenizer.encode(text))
-    res = translator.translate_batch([toks], target_prefix=[[LANG[r.tgt]]], beam_size=5,
+    res = translator.translate_batch([toks], target_prefix=[[LANG[r.tgt]]], beam_size=BEAM,
                                      max_decoding_length=256)
     out = res[0].hypotheses[0][1:]
     return {"translation": tokenizer.decode(tokenizer.convert_tokens_to_ids(out),

@@ -90,9 +90,13 @@ translator of dmeoli.github.io (same POST /translate as `api.py`). The model goe
 cp -r nllb-final-ct2-int8 cloudrun/model
 gcloud builds submit cloudrun --tag europe-west1-docker.pkg.dev/<project>/tradutturi/api:<tag>
 gcloud run deploy tradutturi --image europe-west1-docker.pkg.dev/<project>/tradutturi/api:<tag> \
-  --region europe-west1 --execution-environment gen2 --cpu 2 --memory 4Gi \
+  --region europe-west1 --execution-environment gen2 --cpu 4 --memory 4Gi \
   --min-instances 0 --max-instances 2 --allow-unauthenticated
 ```
+
+The beam is 5, as in the paper, and the variable `BEAM` changes it: beam 2 saves little on
+Cloud Run and loses 4 points of chrF from Italian into Sicilian, while 4 vCPU instead of 2 cut
+the latency by about a third.
 
 The base image is Debian bookworm: the glibc of trixie refuses the executable stack that the
 library of CTranslate2 4.5 asks for, and the container does not start.
